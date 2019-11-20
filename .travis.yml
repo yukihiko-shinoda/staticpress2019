@@ -40,6 +40,8 @@ matrix:
       env: WP_VERSION=latest
     - php: 7.0
       env: WP_VERSION=latest
+      # because Ubuntu 18.04 on Travis doesn't support PHP 7.0.
+      dist: xenial
     # Because of minimum support version.
     # @see https://wordpress.org/news/2019/04/minimum-php-version-update/
     # @see https://ubuntu.com/about/release-cycle
@@ -62,7 +64,9 @@ before_script:
     fi
   - |
     if [[ ! -z "$WP_VERSION" ]] ; then
-      bash bin/install-wp-tests.sh wordpress_test root '' localhost $WP_VERSION
+      # It seems to have to be not localhost but 127.0.0.1 on Ubuntu 18.04 .
+      # @see https://stackoverflow.com/a/41997588
+      bash bin/install-wp-tests.sh wordpress_test root '' 127.0.0.1 $WP_VERSION
       composer global require "phpunit/phpunit=4.8.*|5.7.*"
     fi
   - |
