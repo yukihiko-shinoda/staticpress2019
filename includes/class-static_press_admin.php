@@ -103,8 +103,7 @@ class static_press_admin {
 			__($this->plugin_name.' Options', self::TEXT_DOMAIN) ,
 			self::ACCESS_LEVEL,
 			self::OPTION_PAGE . '-options' ,
-			array($this, 'options_page'),
-			plugins_url('images/staticpress_options.png', dirname(__FILE__))
+			array($this, 'options_page')
 			);
 
 		do_action('StaticPress::admin_menu', self::OPTION_PAGE);
