@@ -1,14 +1,20 @@
-=== StaticPress ===
-Contributors: wokamoto, megumitheme,amimotoami
+=== StaticPress2019 ===
+Contributors: wokamoto, megumitheme, amimotoami, yshinoda
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=9S8AJCY7XB8F4&lc=JP&item_name=WordPress%20Plugins&item_number=wp%2dplugins&currency_code=JPY&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted
 Tags: static
-Requires at least: 3.5
-Tested up to: 4.5.2
-Stable tag: 0.4.5
+Requires at least: 4.3
+Tested up to: 4.3
+Requires PHP: 5.6
+Stable tag: 0.4.6
+License: GPLv2 or later
+License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
 Transform your WordPress into static websites and blogs.
 
 == Description ==
+
+
+This plugin is maintained by volunteers instead of the [original no longer maintained](https://wordpress.org/plugins/staticpress/).
 
 Transform your WordPress into static websites and blogs.
 More documentation, you can find here: [StaticPress](http://en.staticpress.net/ "StaticPress")
