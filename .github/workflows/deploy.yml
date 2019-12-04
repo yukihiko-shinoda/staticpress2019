@@ -1,0 +1,25 @@
+name: Deploy WordPress plugin
+on:
+ push:
+  tags:
+    - '[0-9]+.[0-9]+.[0-9]+'
+jobs:
+  build:
+    name: Deploy WordPress plugin
+    runs-on: ubuntu-latest
+    services:
+      workspace:
+        image: futureys/ansible-workspace-deploy-wordpress-plugin:20191127164500
+        env:
+          SSH_PASSWORD: p@ssW0rd
+    steps:
+      - name: Set deploy version
+        run: echo ::set-env name=DEPLOY_VERSION::$(echo ${GITHUB_REF:10})
+      - name: Deploy
+        uses: yukihiko-shinoda/action-deploy-wordpress-plugin@master
+        with:
+          workspaceUserPassword: 'p@ssW0rd'
+        env:
+          SVN_REPOSITORY_URL: ${{ secrets.SvnRepositoryUrl }}
+          SVN_USER_NAME: ${{ secrets.SvnUserName }}
+          SVN_USER_PASSWORD: ${{ secrets.SvnUserPassword }}
