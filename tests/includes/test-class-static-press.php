@@ -743,6 +743,36 @@ class Static_Press_Test extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * Test steps for test_replace_relative_URI().
+	 *
+	 * @dataProvider provider_replace_relative_URI
+	 *
+	 * @param string $content argument.
+	 * @param string $expect Expect return value.
+	 */
+	public function test_replace_relative_uri2( $content, $expect ) {
+		$static_press = new Static_Press( 'http://example.org/static' );
+		$this->assertEquals( $expect, $static_press->replace_relative_uri( $content ) );
+	}
+
+	/**
+	 * Function replace_relative_URI() should replace site URL to the static URL.
+	 * Function replace_relative_URI() should replace relative path in the attributes to the static path.
+	 */
+	public function provider_replace_relative_URI() {
+		return array(
+			array(
+				'http://example.org/foo/bar/',
+				'http://example.org/static/foo/bar/',
+			),
+			array(
+				'<a href="/foo/bar/"></a>',
+				'<a href="/static/foo/bar/"></a>',
+			),
+		);
+	}
+
+	/**
 	 * Creates accessable method.
 	 * 
 	 * @param string $method_name     Method name.
