@@ -91,8 +91,8 @@ class Static_Press_Content_Filter_Replace_Relative_Uri {
 	 */
 	private function replace_relative_with_dynamic_site_home( $content ) {
 		$pattern = array(
-			'# (href|src|action)="(/[^/][^"]*)"#ism',
-			"# (href|src|action)='(/[^/][^']*)'#ism",
+			'# (href|src|srcset|action)="(/[^/][^"]*)"#ism',
+			"# (href|src|srcset|action)='(/[^/][^']*)'#ism",
 		);
 		return preg_replace( $pattern, ' $1="' . $this->url_dynamic_home . '$2"', $content );
 	}
@@ -115,8 +115,8 @@ class Static_Press_Content_Filter_Replace_Relative_Uri {
 	 */
 	private function replace_static_site_home_with_relative( $content ) {
 		$pattern = array(
-			'# (href|src|action)="' . preg_quote( $this->url_static_home ) . '([^"]*)"#ism',
-			"# (href|src|action)='" . preg_quote( $this->url_static_home ) . "([^']*)'#ism",
+			'# (href|src|srcset|action)="' . preg_quote( $this->url_static_home ) . '([^"]*)"#ism',
+			"# (href|src|srcset|action)='" . preg_quote( $this->url_static_home ) . "([^']*)'#ism",
 		);
 		return preg_replace( $pattern, ' $1="$2"', $content );
 	}
@@ -129,8 +129,8 @@ class Static_Press_Content_Filter_Replace_Relative_Uri {
 	 */
 	private function replace_dinamic_site_home_with_relative( $content ) {
 		$pattern = array(
-			'# (href|src|action)="' . preg_quote( $this->url_dynamic_home ) . '([^"]*)"#ism',
-			"# (href|src|action)='" . preg_quote( $this->url_dynamic_home ) . "([^']*)'#ism",
+			'# (href|src|srcset|action)="' . preg_quote( $this->url_dynamic_home ) . '([^"]*)"#ism',
+			"# (href|src|srcset|action)='" . preg_quote( $this->url_dynamic_home ) . "([^']*)'#ism",
 		);
 		return preg_replace( $pattern, ' $1="$2"', $content );
 	}
