@@ -3,9 +3,9 @@ Contributors: wokamoto, megumitheme, amimotoami, yshinoda
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=9S8AJCY7XB8F4&lc=JP&item_name=WordPress%20Plugins&item_number=wp%2dplugins&currency_code=JPY&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted
 Tags: static
 Requires at least: 4.3
-Tested up to: 4.3
+Tested up to: 5.3
 Requires PHP: 5.6
-Stable tag: 0.4.6
+Stable tag: 0.4.7
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -46,6 +46,14 @@ none
 3. Rebuild!
 
 == Changelog ==
+
+**0.4.7 - December 29, 2019**
+
+Update "Tested up to" from 4.3 to 5.3
+
+**0.4.6 - November 20, 2019**
+
+Fix bug that can't display admin page
 
 **0.4.5 - May 27, 2016**
 
@@ -99,3 +107,11 @@ source code refactoring
 **0.4.0 - May 14, 2013**  
 
 Initial release.
+
+== Upgrade Notice ==
+
+= 0.4.7 =
+Tested up to WordPress 5.3.
+
+= 0.4.6 =
+This version fixes bug to use this plugin with WordPress 5.3.
