@@ -33,6 +33,7 @@ if (!class_exists('static_press_admin'))
 	require(dirname(__FILE__).'/includes/class-static_press_admin.php');
 if (!class_exists('static_press'))
 	require(dirname(__FILE__).'/includes/class-static_press.php');
+    use staticpress\includes\static_press;
 
 load_plugin_textdomain(static_press_admin::TEXT_DOMAIN, false, dirname(plugin_basename(__FILE__)) . '/languages/');
 

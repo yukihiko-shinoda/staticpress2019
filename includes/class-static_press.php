@@ -1,4 +1,6 @@
 <?php
+namespace staticpress\includes;
+
 class static_press {
 	const FETCH_LIMIT        =   5;
 	const FETCH_LIMIT_STATIC = 100;
@@ -961,6 +963,14 @@ SELECT DISTINCT post_author, COUNT(ID) AS count, MAX(post_modified) AS modified
 		return $list;
 	}
 
+	/**
+	 * Sometimes the content of a page contains invalid utf8 characters.
+	 * This breaks the static publishing process.
+	 * In order to prevent this, utf8 content gets cleaned before publishing.
+	 * @see https://github.com/megumiteam/staticpress/pull/13
+	 * @param $content
+	 * @return string|string[]|null
+	 */
 	private function clean_utf8($content) {
 		$regex = <<<'END'
 		/
