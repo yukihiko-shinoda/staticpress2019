@@ -1,12 +1,12 @@
 name: Deploy WordPress plugin
 on:
- push:
-  tags:
-    - '[0-9]+.[0-9]+.[0-9]+'
+  push:
+    tags:
+      - '[0-9]+.[0-9]+.[0-9]+'
 jobs:
   build:
     name: Deploy WordPress plugin
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
     services:
       workspace:
         image: futureys/ansible-workspace-deploy-wordpress-plugin:20191127164500
@@ -14,9 +14,9 @@ jobs:
           SSH_PASSWORD: p@ssW0rd
     steps:
       - name: Set deploy version
-        run: echo ::set-env name=DEPLOY_VERSION::$(echo ${GITHUB_REF:10})
+        run: echo ::set-env name=DEPLOY_VERSION::$(echo ${GITHUB_REF#refs/tags/})
       - name: Deploy
-        uses: yukihiko-shinoda/action-deploy-wordpress-plugin@master
+        uses: yukihiko-shinoda/action-deploy-wordpress-plugin@v1.0.0
         with:
           workspaceUserPassword: 'p@ssW0rd'
         env:
