@@ -5,7 +5,7 @@ Tags: static
 Requires at least: 4.3
 Tested up to: 5.3
 Requires PHP: 5.6
-Stable tag: 0.4.7
+Stable tag: 0.4.8
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -46,6 +46,10 @@ none
 3. Rebuild!
 
 == Changelog ==
+
+**0.4.8 - January 6, 2020**
+
+Fix bug that SEO file like sitemap.xml isn't dumped
 
 **0.4.7 - December 29, 2019**
 
@@ -109,6 +113,9 @@ source code refactoring
 Initial release.
 
 == Upgrade Notice ==
+
+= 0.4.8 =
+This version fixes bug that SEO file like sitemap.xml isn't dumped.
 
 = 0.4.7 =
 Tested up to WordPress 5.3.
