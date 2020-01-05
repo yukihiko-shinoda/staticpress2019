@@ -205,7 +205,6 @@ class static_press_admin {
 			list($basic_usr,$basic_pwd) = explode(':', base64_decode($this->basic_auth));
 ?>
 		<div class="wrap" id="<?php echo self::OPTION_PAGE; ?>-options">
-		<?php screen_icon(self::OPTION_PAGE.'-options'); ?>
 		<h2><?php echo esc_html( $title ); ?></h2>
 		<form method="post" action="<?php echo $this->admin_action;?>">
 		<?php echo wp_nonce_field($nonce_action, $nonce_name, true, false) . "\n"; ?>
@@ -234,7 +233,6 @@ class static_press_admin {
 		$title = __('Rebuild', self::TEXT_DOMAIN);
 ?>
 		<div class="wrap" style="margin=top:2em;" id="<?php echo self::OPTION_PAGE; ?>">
-		<?php screen_icon(); ?>
 		<h2><?php echo esc_html( $title ); ?></h2>
 		<?php submit_button(__('Rebuild', self::TEXT_DOMAIN), 'primary', 'rebuild'); ?>
 		<div id="rebuild-result"></div>
