@@ -130,8 +130,11 @@ class Static_Press_Test extends \WP_UnitTestCase {
 
 		$result = $method->invokeArgs( $static_press, $parameters );
 		$this->assertEquals( $expect, $result );
-		if ( ! is_null( $expect_file ) ) {
-			$this->assertFileExists( self::OUTPUT_DIRECTORY . $expect_file );
+		if ( $expect !== false ) {
+			$path_to_expect_file = self::OUTPUT_DIRECTORY . $expect_file;
+			$files = glob( self::OUTPUT_DIRECTORY . '/*', GLOB_MARK );
+			$message = 'File ' . $path_to_expect_file . "doesn't exist.\nExisting file list:\n" . implode( "\n", $files );
+			$this->assertFileExists( $path_to_expect_file, $message );
 		}
 	}
 
@@ -141,7 +144,7 @@ class Static_Press_Test extends \WP_UnitTestCase {
 	public function provider_create_static_file() {
 		return array(
 			array( array( '/', 'front_page' ), '/tmp/static/index.html', '/index.html' ),
-			array( array( 'index.html', 'seo_files' ), false, null ),
+			array( array( '/sitemap.xml', 'seo_files' ), '/tmp/static/sitemap.xml', '/sitemap.xml' ),
 		);
 	}
 
