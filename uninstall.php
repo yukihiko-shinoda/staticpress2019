@@ -8,6 +8,7 @@ if (!class_exists('static_press_admin'))
 	require(dirname(__FILE__).'/includes/class-static_press_admin.php');
 if (!class_exists('static_press'))
 	require(dirname(__FILE__).'/includes/class-static_press.php');
+    use staticpress\includes\static_press;
 
 delete_option(static_press_admin::OPTION_STATIC_URL);
 delete_option(static_press_admin::OPTION_STATIC_DIR);
