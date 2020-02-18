@@ -8,6 +8,7 @@
 namespace staticpress\includes;
 
 require_once dirname( __FILE__ ) . '/../testlibraries/class-expect-url.php';
+use staticpress\tests\includes\Static_Press_Test;
 
 const DATE_FOR_TEST = '2019-12-23 12:34:56';
 const TIME_FOR_TEST = '12:34:56';
@@ -29,12 +30,24 @@ function time() {
 	return strtotime( TIME_FOR_TEST );
 }
 
+/**
+ * Override wp_remote_get() in current namespace for testing
+ *
+ * @param string $url  URL to retrieve.
+ * @param array  $args Optional. Request arguments. Default empty array.
+ * @return WP_Error|array The response or WP_Error on failure.
+ */
+function wp_remote_get( $url, $args = array() ) {
+	return Static_Press_Test::$wordpress_mock->wp_remote_get( $url, $args );
+}
+
 namespace staticpress\tests\includes;
 
 use const staticpress\includes\DATE_FOR_TEST;
 use staticpress\includes\static_press;
 use staticpress\tests\testlibraries\Expect_Url;
 use ReflectionException;
+use Mockery;
 
 /**
  * StaticPress test case.
@@ -43,6 +56,12 @@ use ReflectionException;
  */
 class Static_Press_Test extends \WP_UnitTestCase {
 	const OUTPUT_DIRECTORY = '/tmp/static';
+	/**
+	 * For WordPress
+	 * 
+	 * @var \Mockery\MockInterface
+	 */
+	public static $wordpress_mock;
 
 	/**
 	 * Sets administrator as current user.
@@ -51,6 +70,8 @@ class Static_Press_Test extends \WP_UnitTestCase {
 	 */
 	public function tearDown() {
 		self::delete_files( self::OUTPUT_DIRECTORY . '/' );
+		self::$wordpress_mock = null;
+		Mockery::close();
 		parent::tearDown();
 	}
 
@@ -123,6 +144,104 @@ class Static_Press_Test extends \WP_UnitTestCase {
 	 * @throws ReflectionException When fail to create ReflectionClass instance.
 	 */
 	public function test_create_static_file( $parameters, $expect, $expect_file ) {
+		$body                                = <<<'EOT'
+<!doctype html>
+<html>
+<head>
+	<title>Example Domain</title>
+
+	<meta charset="utf-8" />
+	<meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<style type="text/css">
+	body {
+		background-color: #f0f0f2;
+		margin: 0;
+		padding: 0;
+		font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+		
+	}
+	div {
+		width: 600px;
+		margin: 5em auto;
+		padding: 2em;
+		background-color: #fdfdff;
+		border-radius: 0.5em;
+		box-shadow: 2px 3px 7px 2px rgba(0,0,0,0.02);
+	}
+	a:link, a:visited {
+		color: #38488f;
+		text-decoration: none;
+	}
+	@media (max-width: 700px) {
+		div {
+			margin: 0 auto;
+			width: auto;
+		}
+	}
+	</style>    
+</head>
+
+<body>
+<div>
+	<h1>Example Domain</h1>
+	<p>This domain is for use in illustrative examples in documents. You may use this
+	domain in literature without prior coordination or asking for permission.</p>
+	<p><a href="https://www.iana.org/domains/example">More information...</a></p>
+</div>
+</body>
+</html>
+EOT;
+		$requests_response                   = new \Requests_Response();
+		$requests_response->headers          = new \Requests_Response_Headers(
+			array(
+				'content-encoding' => array( 'gzip' ),
+				'age'              => array( '354468' ),
+				'cache-control'    => array( 'max-age=604800' ),
+				'content-type'     => array( 'text/html; charset=UTF-8' ),
+				'date'             => array( 'Tue, 18 Feb 2020 04:21:05 GMT' ),
+				'etag'             => array( '3147526947+ident+gzip' ),
+				'expires'          => array( 'Tue, 25 Feb 2020 04:21:05 GMT' ),
+				'last-modified'    => array( 'Thu, 17 Oct 2019 07:18:26 GMT' ),
+				'server'           => array( 'ECS (sjc/4E74)' ),
+				'vary'             => array( 'Accept-Encoding' ),
+				'x-cache'          => array( 'HIT' ),
+				'content-length'   => array( '648' ),
+			)
+		);
+		$requests_response->body             = $body;
+		$requests_response->status_code      = 200;
+		$requests_response->protocol_version = 1.1;
+		$requests_response->success          = true;
+		$requests_response->url              = 'http://example.org' . $parameters[0];
+		$responce                            = array(
+			'headers'       => new \Requests_Utility_CaseInsensitiveDictionary(
+				array(
+					'content-encoding' => 'gzip',
+					'age'              => '354468',
+					'cache-control'    => 'max-age=604800',
+					'content-type'     => 'text/html; charset=UTF-8',
+					'date'             => 'Tue, 18 Feb 2020 04:21:05 GMT',
+					'etag'             => '3147526947+ident+gzip',
+					'expires'          => 'Tue, 25 Feb 2020 04:21:05 GMT',
+					'last-modified'    => 'Thu, 17 Oct 2019 07:18:26 GMT',
+					'server'           => 'ECS (sjc/4E74)',
+					'vary'             => 'Accept-Encoding',
+					'x-cache'          => 'HIT',
+					'content-length'   => '648',
+				)
+			),
+			'body'          => $body,
+			'response'      => array(
+				'code'    => 200,
+				'message' => 'OK',
+			),
+			'cookies'       => array(),
+			'filename'      => null,
+			'http_response' => new \WP_HTTP_Requests_Response( $requests_response, null ),
+		);
+		self::$wordpress_mock                = Mockery::mock( 'alias:WordPress_Mock' );
+		self::$wordpress_mock->shouldReceive( 'wp_remote_get' )->andReturn( $responce );
 		$static_press = new static_press( 'staticpress', '/', self::OUTPUT_DIRECTORY );
 		$reflection   = new \ReflectionClass( get_class( $static_press ) );
 		$method       = $reflection->getMethod( 'create_static_file' );
@@ -130,15 +249,18 @@ class Static_Press_Test extends \WP_UnitTestCase {
 
 		$result = $method->invokeArgs( $static_press, $parameters );
 		$this->assertEquals( $expect, $result );
-		if ( $expect !== false ) {
+		if ( false !== $expect ) {
 			$path_to_expect_file = self::OUTPUT_DIRECTORY . $expect_file;
-			$files = glob( self::OUTPUT_DIRECTORY . '/*', GLOB_MARK );
-			$message = 'File ' . $path_to_expect_file . "doesn't exist.\nExisting file list:\n" . implode( "\n", $files );
+			$files               = glob( self::OUTPUT_DIRECTORY . '/*', GLOB_MARK );
+			$message             = 'File ' . $path_to_expect_file . "doesn't exist.\nExisting file list:\n" . implode( "\n", $files );
 			$this->assertFileExists( $path_to_expect_file, $message );
 		}
 	}
 
 	/**
+	 * Function create_static_file() should create home page.
+	 * Function create_static_file() should create seo files.
+	 * 
 	 * @return array[]
 	 */
 	public function provider_create_static_file() {

@@ -1,5 +1,9 @@
 sudo: false
 dist: bionic
+addons:
+  hosts:
+    # To prevent to access real example.org
+    - example.org
 
 language: php
 
@@ -74,7 +78,7 @@ before_script:
     fi
   - |
     if [[ "$WP_TRAVISCI" == "phpcs" ]] ; then
-      composer global require wp-coding-standards/wpcs dealerdirect/phpcodesniffer-composer-installer phpcompatibility/phpcompatibility-wp automattic/vipwpcs
+      composer global require wp-coding-standards/wpcs dealerdirect/phpcodesniffer-composer-installer phpcompatibility/phpcompatibility-wp automattic/vipwpcs mockery/mockery
     fi
 
 script:
