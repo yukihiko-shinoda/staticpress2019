@@ -579,7 +579,7 @@ class Static_Press_Test extends \WP_UnitTestCase {
 	private function create_response( $url ) {
 		$body        = file_get_contents( dirname( __FILE__ ) . '/../testresources/index-example.html' );
 		$status_code = 200;
-		$data        = array(
+		$header_data = array(
 			'content-encoding' => 'gzip',
 			'age'              => '354468',
 			'cache-control'    => 'max-age=604800',
@@ -594,7 +594,6 @@ class Static_Press_Test extends \WP_UnitTestCase {
 			'content-length'   => '648',
 		);
 		$responce    = array(
-			'headers'  => new \Requests_Utility_CaseInsensitiveDictionary( $data ),
 			'body'     => $body,
 			'response' => array(
 				'code'    => $status_code,
@@ -605,16 +604,18 @@ class Static_Press_Test extends \WP_UnitTestCase {
 		);
 		global $wp_version;
 		if ( version_compare( $wp_version, '4.6.0', '<' ) ) {
+			$responce['headers'] = $header_data;
 			return $responce;
 		}
 		$requests_response                   = new \Requests_Response();
-		$requests_response->headers          = new \Requests_Response_Headers( $data );
+		$requests_response->headers          = new \Requests_Response_Headers( $header_data );
 		$requests_response->body             = $body;
 		$requests_response->status_code      = $status_code;
 		$requests_response->protocol_version = 1.1;
 		$requests_response->success          = true;
 		$requests_response->url              = 'http://example.org' . $url;
 		$responce['http_response']           = new \WP_HTTP_Requests_Response( $requests_response, null );
+		$responce['headers']                 = new \Requests_Utility_CaseInsensitiveDictionary( $header_data );
 		return $responce;
 	}
 }
