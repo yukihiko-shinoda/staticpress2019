@@ -1,5 +1,9 @@
 sudo: false
 dist: bionic
+addons:
+  hosts:
+    # To prevent to access real example.org
+    - example.org
 
 language: php
 
@@ -70,7 +74,7 @@ before_script:
       # It seems to have to be not localhost but 127.0.0.1 on Ubuntu 18.04 .
       # @see https://stackoverflow.com/a/41997588
       bash bin/install-wp-tests.sh wordpress_test root '' 127.0.0.1 $WP_VERSION
-      composer global require "phpunit/phpunit=4.8.*|5.7.*"
+      composer global require "phpunit/phpunit=4.8.*|5.7.*" mockery/mockery
     fi
   - |
     if [[ "$WP_TRAVISCI" == "phpcs" ]] ; then

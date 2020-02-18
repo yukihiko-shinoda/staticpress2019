@@ -8,6 +8,7 @@
 namespace staticpress\includes;
 
 require_once dirname( __FILE__ ) . '/../testlibraries/class-expect-url.php';
+use staticpress\tests\includes\Static_Press_Test;
 
 const DATE_FOR_TEST = '2019-12-23 12:34:56';
 const TIME_FOR_TEST = '12:34:56';
@@ -29,12 +30,24 @@ function time() {
 	return strtotime( TIME_FOR_TEST );
 }
 
+/**
+ * Override wp_remote_get() in current namespace for testing
+ *
+ * @param string $url  URL to retrieve.
+ * @param array  $args Optional. Request arguments. Default empty array.
+ * @return WP_Error|array The response or WP_Error on failure.
+ */
+function wp_remote_get( $url, $args = array() ) {
+	return Static_Press_Test::$wordpress_mock->wp_remote_get( $url, $args );
+}
+
 namespace staticpress\tests\includes;
 
 use const staticpress\includes\DATE_FOR_TEST;
 use staticpress\includes\static_press;
 use staticpress\tests\testlibraries\Expect_Url;
 use ReflectionException;
+use Mockery;
 
 /**
  * StaticPress test case.
@@ -43,6 +56,12 @@ use ReflectionException;
  */
 class Static_Press_Test extends \WP_UnitTestCase {
 	const OUTPUT_DIRECTORY = '/tmp/static';
+	/**
+	 * For WordPress
+	 * 
+	 * @var \Mockery\MockInterface
+	 */
+	public static $wordpress_mock;
 
 	/**
 	 * Sets administrator as current user.
@@ -51,6 +70,8 @@ class Static_Press_Test extends \WP_UnitTestCase {
 	 */
 	public function tearDown() {
 		self::delete_files( self::OUTPUT_DIRECTORY . '/' );
+		self::$wordpress_mock = null;
+		Mockery::close();
 		parent::tearDown();
 	}
 
@@ -116,35 +137,41 @@ class Static_Press_Test extends \WP_UnitTestCase {
 	 *
 	 * @dataProvider provider_create_static_file
 	 *
-	 * @param string[] $parameters  Argument.
-	 * @param string   $expect      Expect return value.
-	 * @param string   $expect_file Expect file.
+	 * @param string $url         Argument.
+	 * @param string $file_type   Argument.
+	 * @param string $expect      Expect return value.
+	 * @param string $expect_file Expect file.
 	 *
 	 * @throws ReflectionException When fail to create ReflectionClass instance.
 	 */
-	public function test_create_static_file( $parameters, $expect, $expect_file ) {
+	public function test_create_static_file( $url, $file_type, $expect, $expect_file ) {
+		self::$wordpress_mock = Mockery::mock( 'alias:WordPress_Mock' );
+		self::$wordpress_mock->shouldReceive( 'wp_remote_get' )->andReturn( $this->create_response( $url ) );
 		$static_press = new static_press( 'staticpress', '/', self::OUTPUT_DIRECTORY );
 		$reflection   = new \ReflectionClass( get_class( $static_press ) );
 		$method       = $reflection->getMethod( 'create_static_file' );
 		$method->setAccessible( true );
 
-		$result = $method->invokeArgs( $static_press, $parameters );
+		$result = $method->invokeArgs( $static_press, array( $url, $file_type ) );
 		$this->assertEquals( $expect, $result );
-		if ( $expect !== false ) {
+		if ( false !== $expect ) {
 			$path_to_expect_file = self::OUTPUT_DIRECTORY . $expect_file;
-			$files = glob( self::OUTPUT_DIRECTORY . '/*', GLOB_MARK );
-			$message = 'File ' . $path_to_expect_file . "doesn't exist.\nExisting file list:\n" . implode( "\n", $files );
+			$files               = glob( self::OUTPUT_DIRECTORY . '/*', GLOB_MARK );
+			$message             = 'File ' . $path_to_expect_file . "doesn't exist.\nExisting file list:\n" . implode( "\n", $files );
 			$this->assertFileExists( $path_to_expect_file, $message );
 		}
 	}
 
 	/**
+	 * Function create_static_file() should create home page.
+	 * Function create_static_file() should create seo files.
+	 * 
 	 * @return array[]
 	 */
 	public function provider_create_static_file() {
 		return array(
-			array( array( '/', 'front_page' ), '/tmp/static/index.html', '/index.html' ),
-			array( array( '/sitemap.xml', 'seo_files' ), '/tmp/static/sitemap.xml', '/sitemap.xml' ),
+			array( '/', 'front_page', '/tmp/static/index.html', '/index.html' ),
+			array( '/sitemap.xml', 'seo_files', '/tmp/static/sitemap.xml', '/sitemap.xml' ),
 		);
 	}
 
@@ -541,5 +568,54 @@ class Static_Press_Test extends \WP_UnitTestCase {
 
 		$result = $method->invokeArgs( $static_press, array() );
 		$this->assertEquals( 'static static - 1', $result );
+	}
+
+	/**
+	 * Creates response.
+	 * 
+	 * @param string $url URL.
+	 * @return array Responce.
+	 */
+	private function create_response( $url ) {
+		$body        = file_get_contents( dirname( __FILE__ ) . '/../testresources/index-example.html' );
+		$status_code = 200;
+		$header_data = array(
+			'content-encoding' => 'gzip',
+			'age'              => '354468',
+			'cache-control'    => 'max-age=604800',
+			'content-type'     => 'text/html; charset=UTF-8',
+			'date'             => 'Tue, 18 Feb 2020 04:21:05 GMT',
+			'etag'             => '3147526947+ident+gzip',
+			'expires'          => 'Tue, 25 Feb 2020 04:21:05 GMT',
+			'last-modified'    => 'Thu, 17 Oct 2019 07:18:26 GMT',
+			'server'           => 'ECS (sjc/4E74)',
+			'vary'             => 'Accept-Encoding',
+			'x-cache'          => 'HIT',
+			'content-length'   => '648',
+		);
+		$responce    = array(
+			'body'     => $body,
+			'response' => array(
+				'code'    => $status_code,
+				'message' => 'OK',
+			),
+			'cookies'  => array(),
+			'filename' => null,
+		);
+		global $wp_version;
+		if ( version_compare( $wp_version, '4.6.0', '<' ) ) {
+			$responce['headers'] = $header_data;
+			return $responce;
+		}
+		$requests_response                   = new \Requests_Response();
+		$requests_response->headers          = new \Requests_Response_Headers( $header_data );
+		$requests_response->body             = $body;
+		$requests_response->status_code      = $status_code;
+		$requests_response->protocol_version = 1.1;
+		$requests_response->success          = true;
+		$requests_response->url              = 'http://example.org' . $url;
+		$responce['http_response']           = new \WP_HTTP_Requests_Response( $requests_response, null );
+		$responce['headers']                 = new \Requests_Utility_CaseInsensitiveDictionary( $header_data );
+		return $responce;
 	}
 }
