@@ -7,18 +7,11 @@ jobs:
   build:
     name: Deploy WordPress plugin
     runs-on: ubuntu-18.04
-    services:
-      workspace:
-        image: futureys/ansible-workspace-deploy-wordpress-plugin:20191127164500
-        env:
-          SSH_PASSWORD: p@ssW0rd
     steps:
-      - name: Set deploy version
-        run: echo ::set-env name=DEPLOY_VERSION::$(echo ${GITHUB_REF#refs/tags/})
+      - name: Checkout
+        uses: actions/checkout@v2
       - name: Deploy
-        uses: yukihiko-shinoda/action-deploy-wordpress-plugin@v1.0.0
-        with:
-          workspaceUserPassword: 'p@ssW0rd'
+        uses: yukihiko-shinoda/action-deploy-wordpress-plugin@v2.0.0
         env:
           SVN_REPOSITORY_URL: ${{ secrets.SvnRepositoryUrl }}
           SVN_USER_NAME: ${{ secrets.SvnUserName }}
