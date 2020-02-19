@@ -21,6 +21,7 @@ use staticpress\includes\static_press;
 delete_option( static_press_admin::OPTION_STATIC_URL );
 delete_option( static_press_admin::OPTION_STATIC_DIR );
 delete_option( static_press_admin::OPTION_STATIC_BASIC );
+delete_option( static_press_admin::OPTION_STATIC_TIMEOUT );
 
 global $wpdb;
 $wpdb->query( 'DROP TABLE IF EXISTS ' . static_press::url_table() );

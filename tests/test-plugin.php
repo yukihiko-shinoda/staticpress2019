@@ -18,9 +18,7 @@ class Plugin_Test extends \WP_UnitTestCase {
 	 */
 	private $path_to_plugin_file;
 	/**
-	 * Sets administrator as current user.
-	 *
-	 * @see https://wordpress.stackexchange.com/a/207363
+	 * Sets path to plugin file and require.
 	 */
 	public function setUp() {
 		parent::setUp();
