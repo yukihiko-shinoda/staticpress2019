@@ -47,22 +47,22 @@ if ( ! class_exists( 'staticpress\includes\static_press' ) ) {
 use staticpress\includes\static_press;
 
 load_plugin_textdomain( static_press_admin::TEXT_DOMAIN, false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
-$staticpress_instance = new static_press(
+$staticpress = new static_press(
 	plugin_basename( __FILE__ ),
 	static_press_admin::static_url(),
 	static_press_admin::static_dir(),
 	static_press_admin::remote_get_option()
 );
-add_filter( 'StaticPress::get_url', array( $staticpress_instance, 'replace_url' ) );
-add_filter( 'StaticPress::static_url', array( $staticpress_instance, 'static_url' ) );
-add_filter( 'StaticPress::put_content', array( $staticpress_instance, 'rewrite_generator_tag' ), 10, 2 );
-add_filter( 'StaticPress::put_content', array( $staticpress_instance, 'add_last_modified' ), 10, 2 );
-add_filter( 'StaticPress::put_content', array( $staticpress_instance, 'remove_link_tag' ), 10, 2 );
-add_filter( 'StaticPress::put_content', array( $staticpress_instance, 'replace_relative_URI' ), 10, 2 );
+add_filter( 'StaticPress::get_url', array( $staticpress, 'replace_url' ) );
+add_filter( 'StaticPress::static_url', array( $staticpress, 'static_url' ) );
+add_filter( 'StaticPress::put_content', array( $staticpress, 'rewrite_generator_tag' ), 10, 2 );
+add_filter( 'StaticPress::put_content', array( $staticpress, 'add_last_modified' ), 10, 2 );
+add_filter( 'StaticPress::put_content', array( $staticpress, 'remove_link_tag' ), 10, 2 );
+add_filter( 'StaticPress::put_content', array( $staticpress, 'replace_relative_URI' ), 10, 2 );
 add_filter( 'https_local_ssl_verify', '__return_false' );
 
-register_activation_hook( __FILE__, array( $staticpress_instance, 'activate' ) );
-register_deactivation_hook( __FILE__, array( $staticpress_instance, 'deactivate' ) );
+register_activation_hook( __FILE__, array( $staticpress, 'activate' ) );
+register_deactivation_hook( __FILE__, array( $staticpress, 'deactivate' ) );
 
 if ( is_admin() ) {
 	new static_press_admin( plugin_basename( __FILE__ ) );
