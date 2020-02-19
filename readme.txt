@@ -5,7 +5,7 @@ Tags: static
 Requires at least: 4.3
 Tested up to: 5.3
 Requires PHP: 5.6
-Stable tag: 0.4.9
+Stable tag: 0.4.10
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -46,6 +46,10 @@ none
 3. Rebuild!
 
 == Changelog ==
+
+**0.4.10 - February 20, 2020**
+
+Fix issue that StaticPress-S3 can't display option page
 
 **0.4.9 - February 20, 2020**
 
@@ -117,6 +121,9 @@ source code refactoring
 Initial release.
 
 == Upgrade Notice ==
+
+= 0.4.10 =
+This version fixes issue that StaticPress-S3 can't display option page.
 
 = 0.4.9 =
 This version fixes bug that  all options are not deleted when uninstall.
