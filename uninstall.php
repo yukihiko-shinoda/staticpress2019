@@ -11,10 +11,10 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 }
 
 if ( ! class_exists( 'static_press_admin' ) ) {
-	require dirname( __FILE__ ) . '/includes/class-static_press_admin.php';
+	require dirname( __FILE__ ) . '/includes/class-static-press-admin.php';
 }
 if ( ! class_exists( 'staticpress\includes\static_press' ) ) {
-	require dirname( __FILE__ ) . '/includes/class-static_press.php';
+	require dirname( __FILE__ ) . '/includes/class-static-press.php';
 }
 use staticpress\includes\static_press;
 
