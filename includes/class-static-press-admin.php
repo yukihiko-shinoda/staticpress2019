@@ -1,6 +1,6 @@
 <?php
 if ( !class_exists('InputValidator') )
-	require(dirname(__FILE__).'/class-InputValidator.php');
+	require(dirname(__FILE__).'/class-input-validator.php');
 
 class static_press_admin {
 	const OPTION_STATIC_URL   = 'StaticPress::static url';
