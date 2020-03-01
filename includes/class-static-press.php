@@ -1,10 +1,19 @@
 <?php
-namespace staticpress\includes;
+/**
+ * Class Static_Press
+ *
+ * @package static_press\includes
+ */
 
-class static_press {
+namespace static_press\includes;
+
+/**
+ * StaticPress.
+ */
+class Static_Press {
 	const FETCH_LIMIT        =   5;
 	const FETCH_LIMIT_STATIC = 100;
-	const EXPIRES            = 3600;	// 60min * 60sec = 1hour
+	const EXPIRES            = 3600; // 60min * 60sec = 1hour
 
 	static $instance;
 
@@ -28,21 +37,32 @@ class static_press {
 		'webm', 'ogg', 'oga', 'ogv', 'ogx', 'spx', 'opus',
 		);
 
-	function __construct($plugin_basename, $static_url = '/', $static_dir = '', $remote_get_option = array()){
+	/**
+	 * Constructor.
+	 * 
+	 * @param string $plugin_basename   Plugin base name.
+	 * @param string $static_url        Static URL.
+	 * @param string $static_dir        Directory to dump static files.
+	 * @param array  $remote_get_option Remote get options.
+	 */
+	public function __construct( $plugin_basename, $static_url = '/', $static_dir = '', $remote_get_option = array() ) {
 		self::$instance = $this;
 
 		$this->plugin_basename = $plugin_basename;
 		$this->url_table = self::url_table();
-		$this->init_params($static_url, $static_dir, $remote_get_option);
+		$this->init_params( $static_url, $static_dir, $remote_get_option );
 
-		add_action('wp_ajax_static_press_init', array($this, 'ajax_init'));
-		add_action('wp_ajax_static_press_fetch', array($this, 'ajax_fetch'));
-		add_action('wp_ajax_static_press_finalyze', array($this, 'ajax_finalyze'));
+		add_action( 'wp_ajax_static_press_init', array( $this, 'ajax_init' ) );
+		add_action( 'wp_ajax_static_press_fetch', array( $this, 'ajax_fetch' ) );
+		add_action( 'wp_ajax_static_press_finalyze', array( $this, 'ajax_finalyze' ) );
 	}
 
-	static public function url_table(){
+	/**
+	 * Returns database table name for URL list.
+	 */
+	public static function url_table() {
 		global $wpdb;
-		return $wpdb->prefix.'urls';
+		return $wpdb->prefix . 'urls';
 	}
 
 	private function init_params($static_url, $static_dir, $remote_get_option){
@@ -249,13 +269,20 @@ CREATE TABLE `{$this->url_table}` (
 		$this->json_output(apply_filters('StaticPress::ajax_finalyze', $result));
 	}
 
-	public function replace_url($url){
-		$site_url = trailingslashit($this->get_site_url());
-		$url = trim(str_replace($site_url, '/', $url));
-		$static_files_filter = apply_filters('StaticPress::static_files_filter', $this->static_files_ext);
-		if (!preg_match('#[^/]+\.' . implode('|', array_merge($static_files_filter, array('php'))) . '$#i', $url))
-			$url = trailingslashit($url);
-		unset($static_files_filter);
+	/**
+	 * Replaces URL.
+	 * 
+	 * @param  string $url URL.
+	 * @return string      Replaced URL.
+	 */
+	public function replace_url( $url ) {
+		$site_url            = trailingslashit( $this->get_site_url() );
+		$url                 = trim( str_replace( $site_url, '/', $url ) );
+		$static_files_filter = apply_filters( 'StaticPress::static_files_filter', $this->static_files_ext );
+		if ( ! preg_match( '#[^/]+\.' . implode( '|', array_merge( $static_files_filter, array( 'php' ) ) ) . '$#i', $url ) ) {
+			$url = trailingslashit( $url );
+		}
+		unset( $static_files_filter );
 		return $url;
 	}
 
@@ -275,25 +302,38 @@ CREATE TABLE `{$this->url_table}` (
 			);
 	}
 
+	/**
+	 * Gets transient key.
+	 * 
+	 * @return string
+	 */
 	private function get_transient_key() {
-		$current_user = function_exists('wp_get_current_user') ? wp_get_current_user() : '';
-		if (isset($current_user->ID) && $current_user->ID)
+		$current_user = function_exists( 'wp_get_current_user' ) ? wp_get_current_user() : '';
+		if ( isset( $current_user->ID ) && $current_user->ID ) {
 			return "{$this->transient_key} - {$current_user->ID}";
-		else
+		}
+		else {
 			return $this->transient_key;
+		}
 	}
 
+	/**
+	 * Fetches start time.
+	 * 
+	 * @return string
+	 */
 	private function fetch_start_time() {
 		$transient_key = $this->get_transient_key();
-		$param = get_transient($transient_key);
-		if (!is_array($param))
+		$param = get_transient( $transient_key );
+		if ( ! is_array( $param ) ) {
 			$param = array();
-		if (isset($param['fetch_start_time'])) {
+		}
+		if ( isset( $param['fetch_start_time'] ) ) {
 			return $param['fetch_start_time'];
 		} else {
-			$start_time = date('Y-m-d h:i:s', time());
+			$start_time = date( 'Y-m-d h:i:s', time() );
 			$param['fetch_start_time'] = $start_time;
-			set_transient($transient_key, $param, self::EXPIRES);
+			set_transient( $transient_key, $param, self::EXPIRES );
 			return $start_time;
 		}
 	}
@@ -336,21 +376,28 @@ CREATE TABLE `{$this->url_table}` (
 		}
 	}
 
+	/**
+	 * Gets all URL.
+	 * 
+	 * @return array
+	 */
 	private function get_all_url() {
 		global $wpdb;
 
 		$sql = $wpdb->prepare(
 			"select ID, type, url, pages from {$this->url_table} where `last_upload` < %s and enable = 1",
 			$this->fetch_start_time()
-			);
-		return $wpdb->get_results($sql);
+		);
+		return $wpdb->get_results( $sql );
 	}
 
 	private function dir_sep(){
 		return defined('DIRECTORY_SEPARATOR') ? DIRECTORY_SEPARATOR : '/';
 	}
 
-	// make subdirectries
+	/**
+	 * Makes subdirectries.
+	 */
 	private function make_subdirectories($file){
 		$dir_sep = $subdir = $this->dir_sep();
 		$directories = explode($dir_sep, dirname($file));
@@ -363,78 +410,98 @@ CREATE TABLE `{$this->url_table}` (
 		}
 	}
 
-	private function create_static_file($url, $file_type = 'other_page', $create_404 = true, $crawling = false) {
-		$url = apply_filters('StaticPress::get_url', $url);
-		$file_dest = untrailingslashit($this->static_dir) . $this->static_url($url);
-		$dir_sep = defined('DIRECTORY_SEPARATOR') ? DIRECTORY_SEPARATOR : '/';
-		if ( $dir_sep !== '/' )
-			$file_dest = str_replace('/', $dir_sep, $file_dest);
+	/**
+	 * Creates static file.
+	 * 
+	 * @param  string $url        URL.
+	 * @param  string $file_type  File type.
+	 * @param  bool   $create_404 Whether create even if HTTP status code is 404 or not.
+	 * @param  bool   $crawling   Whether crawl HTML body to check other URL or not.
+	 * @return string             Destination of file.
+	 */
+	private function create_static_file( $url, $file_type = 'other_page', $create_404 = true, $crawling = false ) {
+		$url       = apply_filters( 'StaticPress::get_url', $url );
+		$file_dest = untrailingslashit( $this->static_dir ) . $this->static_url( $url );
+		$dir_sep   = defined( 'DIRECTORY_SEPARATOR' ) ? DIRECTORY_SEPARATOR : '/';
+		if ( $dir_sep !== '/' ) {
+			$file_dest = str_replace( '/', $dir_sep, $file_dest );
+		}
 
-		$http_code = 200;
-		$blog_charset = get_option('blog_charset');
-		switch ($file_type) {
-		case 'front_page':
-		case 'single':
-		case 'term_archive':
-		case 'author_archive':
-		case 'seo_files':
-		case 'other_page':
-			// get remote file
-			if (($content = $this->remote_get($url)) && isset($content['body'])) {
-				if ($blog_charset === 'UTF-8') {
-					$content['body'] = $this->clean_utf8($content['body']);
-				}
-				$http_code = intval($content['code']);
-				switch ($http_code) {
-				case 200:
-					if ($crawling)
-						$this->other_url($content['body'], $url, $http_code);
-				case 404:
-					if ($create_404 || $http_code == 200) {
-						$content = apply_filters('StaticPress::put_content', $content['body'], $http_code);
-						$this->make_subdirectories($file_dest);
-						file_put_contents($file_dest, $content);
-						$file_date = date('Y-m-d h:i:s', filemtime($file_dest));
+		$http_code    = 200;
+		$blog_charset = get_option( 'blog_charset' );
+		switch ( $file_type ) {
+			case 'front_page':
+			case 'single':
+			case 'term_archive':
+			case 'author_archive':
+			case 'seo_files':
+			case 'other_page':
+				// get remote file.
+				if ( ( $content = $this->remote_get( $url ) ) && isset( $content['body'] ) ) {
+					if ( $blog_charset === 'UTF-8' ) {
+						$content['body'] = $this->clean_utf8( $content['body'] );
+					}
+					$http_code = intval( $content['code'] );
+					switch ( $http_code ) {
+						case 200:
+							if ( $crawling ) {
+								$this->other_url( $content['body'], $url, $http_code );
+							}
+						case 404:
+							if ( $create_404 || $http_code == 200 ) {
+								$content = apply_filters( 'StaticPress::put_content', $content['body'], $http_code );
+								$this->make_subdirectories( $file_dest );
+								file_put_contents( $file_dest, $content );
+								$file_date = date( 'Y-m-d h:i:s', filemtime( $file_dest ) );
+							}
 					}
 				}
-			}
-			break;
-		case 'static_file':
-			// get static file
-			$file_source = untrailingslashit(ABSPATH) . $url;
-			if ( $dir_sep !== '/' )
-				$file_source = str_replace('/', $dir_sep, $file_source);
-			if (!is_file($file_source) || !file_exists($file_source)) {
-				$this->delete_url(array($url));
-				return false;
-			}
-			if ($file_source != $file_dest && (!file_exists($file_dest) || filemtime($file_source) > filemtime($file_dest))) {
-				$file_date = date('Y-m-d h:i:s', filemtime($file_source));
-				$this->make_subdirectories($file_dest);
-				copy($file_source, $file_dest);
-			}
-			break;
+				break;
+			case 'static_file':
+				// get static file.
+				$file_source = untrailingslashit( ABSPATH ) . $url;
+				if ( $dir_sep !== '/' ) {
+					$file_source = str_replace( '/', $dir_sep, $file_source );
+				}
+				if ( ! is_file( $file_source ) || ! file_exists( $file_source ) ) {
+					$this->delete_url( array( $url ) );
+					return false;
+				}
+				if ( $file_source != $file_dest && ( ! file_exists( $file_dest ) || filemtime( $file_source ) > filemtime( $file_dest ) ) ) {
+					$file_date = date( 'Y-m-d h:i:s', filemtime( $file_source ) );
+					$this->make_subdirectories( $file_dest );
+					copy( $file_source, $file_dest );
+				}
+				break;
 		}
-		do_action('StaticPress::file_put', $file_dest, untrailingslashit($this->static_url). $this->static_url($url));
+		do_action( 'StaticPress::file_put', $file_dest, untrailingslashit( $this->static_url ) . $this->static_url( $url ) );
 
-		if (file_exists($file_dest)) {
-			$this->update_url(array(array(
-				'type' => $file_type,
-				'url' => $url,
-				'file_name' => $file_dest,
-				'file_date' => $file_date,
-				'last_statuscode' => $http_code,
-				'last_upload' => date('Y-m-d h:i:s', time()),
-				)));
+		if ( file_exists( $file_dest ) ) {
+			$this->update_url(
+				array(
+					array(
+						'type' => $file_type,
+						'url' => $url,
+						'file_name' => $file_dest,
+						'file_date' => $file_date,
+						'last_statuscode' => $http_code,
+						'last_upload' => date( 'Y-m-d h:i:s', time() ),
+					),
+				)
+			);
 		} else {
 			$file_dest = false;
-			$this->update_url(array(array(
-				'type' => $file_type,
-				'url' => $url,
-				'file_name' => '',
-				'last_statuscode' => 404,
-				'last_upload' => date('Y-m-d h:i:s', time()),
-				)));
+			$this->update_url(
+				array(
+					array(
+						'type' => $file_type,
+						'url' => $url,
+						'file_name' => '',
+						'last_statuscode' => 404,
+						'last_upload' => date( 'Y-m-d h:i:s', time() ),
+					),
+				)
+			);
 		}
 
 		return $file_dest;
@@ -481,11 +548,19 @@ CREATE TABLE `{$this->url_table}` (
 		return $content;
 	}
 
-	public function	rewrite_generator_tag($content, $http_code = 200) {
+	/**
+	 * Rewrites generator tag.
+	 * 
+	 * @param  string $content   Content.
+	 * @param  int    $http_code HTTP status code.
+	 * @return string
+	 */
+	public function	rewrite_generator_tag( $content, $http_code = 200 ) {
 		$content = preg_replace(
 			'#(<meta [^>]*name=[\'"]generator[\'"] [^>]*content=[\'"])([^\'"]*)([\'"][^>]*/?>)#ism',
-			'$1$2 with '.$this->plugin_name.(!empty($this->plugin_version) ? ' ver.'.$this->plugin_version : '').'$3',
-			$content);
+			'$1$2 with '.$this->plugin_name . ( ! empty( $this->plugin_version ) ? ' ver.' . $this->plugin_version : '' ) . '$3',
+			$content
+		);
 		return $content;
 	}
 
@@ -542,86 +617,95 @@ CREATE TABLE `{$this->url_table}` (
 		return $this->update_url($urls);
 	}
 
-	private function update_url($urls){
+	/**
+	 * Updates URL.
+	 * 
+	 * @return array
+	 */
+	private function update_url( $urls ) {
 		global $wpdb;
 
-		foreach ((array)$urls as $url){
-			if (!isset($url['url']) || !$url['url'])
+		foreach ( (array)$urls as $url ) {
+			if ( ! isset( $url['url'] ) || !$url['url'] ) {
 				continue;
+			}
 			$sql = $wpdb->prepare(
 				"select ID from {$this->url_table} where url=%s limit 1",
-				$url['url']);
+				$url['url']
+			);
 
 			$url['enable'] = 1;
-			if (preg_match('#\.php$#i', $url['url'])) {
+			if ( preg_match( '#\.php$#i', $url['url'] ) ) {
 				$url['enable'] = 0;
-			} else if (preg_match('#\?[^=]+[=]?#i', $url['url'])) {
+			} else if ( preg_match( '#\?[^=]+[=]?#i', $url['url'] ) ) {
 				$url['enable'] = 0;
-			} else if (preg_match('#/wp-admin/$#i', $url['url'])) {
+			} else if ( preg_match( '#/wp-admin/$#i', $url['url'] ) ) {
 				$url['enable'] = 0;
-			} else if (isset($url['type']) && $url['type'] == 'static_file') {
-				$plugin_dir  = trailingslashit(str_replace(ABSPATH, '/', WP_PLUGIN_DIR));
-				$theme_dir   = trailingslashit(str_replace(ABSPATH, '/', WP_CONTENT_DIR) . '/themes');
-				$file_source = untrailingslashit(ABSPATH) . $url['url'];
-				$file_dest   = untrailingslashit($this->static_dir) . $url['url'];
-				$pattern     = '#^(/(readme|readme-[^\.]+|license)\.(txt|html?)|('.preg_quote($plugin_dir).'|'.preg_quote($theme_dir).').*/((readme|changelog|license)\.(txt|html?)|(screenshot|screenshot-[0-9]+)\.(png|jpe?g|gif)))$#i';
-				if ($file_source === $file_dest) {
+			} else if ( isset( $url['type'] ) && $url['type'] == 'static_file' ) {
+				$plugin_dir  = trailingslashit( str_replace( ABSPATH, '/', WP_PLUGIN_DIR ) );
+				$theme_dir   = trailingslashit( str_replace( ABSPATH, '/', WP_CONTENT_DIR ) . '/themes' );
+				$file_source = untrailingslashit( ABSPATH ) . $url['url'];
+				$file_dest   = untrailingslashit( $this->static_dir ) . $url['url'];
+				$pattern     = '#^(/(readme|readme-[^\.]+|license)\.(txt|html?)|(' . preg_quote( $plugin_dir ) . '|' . preg_quote( $theme_dir ) . ').*/((readme|changelog|license)\.(txt|html?)|(screenshot|screenshot-[0-9]+)\.(png|jpe?g|gif)))$#i';
+				if ( $file_source === $file_dest ) {
 					$url['enable'] = 0;
-				} else if (preg_match($pattern, $url['url'])) {
+				} else if ( preg_match( $pattern, $url['url'] ) ) {
 					$url['enable'] = 0;
-				} else if (!file_exists($file_source)) {
+				} else if ( ! file_exists( $file_source ) ) {
 					$url['enable'] = 0;
-				} else if (!file_exists($file_dest))  {
+				} else if ( ! file_exists( $file_dest ) )  {
 					$url['enable'] = 1;
-				} else if (filemtime($file_source) <= filemtime($file_dest)) {
+				} else if ( filemtime( $file_source ) <= filemtime( $file_dest ) ) {
 					$url['enable'] = 0;
 				}
 
-				if ($url['enable'] == 1) {
-					if (preg_match('#^'.preg_quote($plugin_dir).'#i', $url['url'])){
+				if ( $url['enable'] == 1 ) {
+					if ( preg_match( '#^' . preg_quote( $plugin_dir ) . '#i', $url['url'] ) ) {
 						$url['enable'] = 0;
-						$active_plugins = get_option('active_plugins');
-						foreach ($active_plugins as $active_plugin) {
-							$active_plugin = trailingslashit($plugin_dir . dirname($active_plugin));
-							if ($active_plugin == trailingslashit($plugin_dir . '.'))
+						$active_plugins = get_option( 'active_plugins' );
+						foreach ( $active_plugins as $active_plugin ) {
+							$active_plugin = trailingslashit( $plugin_dir . dirname( $active_plugin ) );
+							if ( $active_plugin == trailingslashit( $plugin_dir . '.' ) ) {
 								continue;
-							if (preg_match('#^'.preg_quote($active_plugin).'#i', $url['url'])) {
+							}
+							if ( preg_match('#^' . preg_quote( $active_plugin ) . '#i', $url['url'] ) ) {
 								$url['enable'] = 1;
 								break;
 							}
 						}
-					} else if (preg_match('#^'.preg_quote($theme_dir).'#i', $url['url'])) {
+					} else if ( preg_match( '#^' . preg_quote( $theme_dir ) . '#i', $url['url'] ) ) {
 						$url['enable'] = 0;
-						$current_theme = trailingslashit($theme_dir . get_stylesheet());
-						if (preg_match('#^'.preg_quote($current_theme).'#i', $url['url'])) {
+						$current_theme = trailingslashit( $theme_dir . get_stylesheet() );
+						if ( preg_match( '#^' . preg_quote( $current_theme ) . '#i', $url['url'] ) ) {
 							$url['enable'] = 1;
 						}
 					}
 				}
 			}
 
-			if ($id = $wpdb->get_var($sql)){
+			if ( $id = $wpdb->get_var( $sql ) ) {
 				$sql = "update {$this->url_table}";
 				$update_sql = array();
-				foreach($url as $key => $val){
+				foreach ( $url as $key => $val ) {
 					$update_sql[] = $wpdb->prepare("{$key} = %s", $val);
 				}
-				$sql .= ' set '.implode(',', $update_sql);
-				$sql .= $wpdb->prepare(' where ID=%s', $id);
+				$sql .= ' set '.implode( ',', $update_sql );
+				$sql .= $wpdb->prepare( ' where ID=%s', $id );
 			} else {
 				$sql = "insert into {$this->url_table}";
-				$sql .= ' (`' . implode('`,`', array_keys($url)). '`,`create_date`)';
+				$sql .= ' (`' . implode( '`,`', array_keys( $url ) ). '`,`create_date`)';
 				$insert_val = array();
-				foreach($url as $key => $val){
-					$insert_val[] = $wpdb->prepare("%s", $val);
+				foreach ( $url as $key => $val ) {
+					$insert_val[] = $wpdb->prepare( "%s", $val );
 				}
-				$insert_val[] = $wpdb->prepare("%s", date('Y-m-d h:i:s'));
-				$sql .= ' values (' . implode(',', $insert_val) . ')';
+				$insert_val[] = $wpdb->prepare( "%s", date( 'Y-m-d h:i:s' ) );
+				$sql .= ' values (' . implode( ',', $insert_val ) . ')';
 			}
-			if ($sql)
+			if ( $sql ) {
 				$wpdb->query($sql);
+			}
 
-			do_action('StaticPress::update_url', $url);
+			do_action( 'StaticPress::update_url', $url );
 		}
 		return $urls;
 	}
@@ -888,52 +972,67 @@ SELECT DISTINCT post_author, COUNT(ID) AS count, MAX(post_modified) AS modified
 		return $urls;
 	}
 
-	private function url_exists($link) {
+	/**
+	 * Check whether URL exists or not.
+	 * 
+	 * @param  string $link URL.
+	 * @return bool
+	 */
+	private function url_exists( $link ) {
 		global $wpdb;
 
-		$link = apply_filters('StaticPress::get_url', $link);
-		$count = intval(wp_cache_get('StaticPress::'.$link, 'static_press'));
-		if ($count > 0)
+		$link  = apply_filters( 'StaticPress::get_url', $link );
+		$count = intval( wp_cache_get( 'StaticPress::' . $link, 'static_press' ) );
+		if ( $count > 0 ) {
 			return true;
+		}
 
-		$sql = $wpdb->prepare(
+		$sql   = $wpdb->prepare(
 			"select count(*) from {$this->url_table} where `url` = %s limit 1",
 			$link
-			);
-		$count = intval($wpdb->get_var($sql));
-		wp_cache_set('StaticPress::'.$link, $count, 'static_press');
+		);
+		$count = intval( $wpdb->get_var( $sql ) );
+		wp_cache_set( 'StaticPress::' . $link, $count, 'static_press' );
 		
 		return $count > 0;
 	}
 
-	private function other_url($content, $url){
+	/**
+	 * Checks other URL.
+	 * 
+	 * @param string $content Content.
+	 * @param string $url     URL.
+	 * @return array
+	 */
+	private function other_url( $content, $url ) {
 		$urls = array();
 
-		while (($url = dirname($url)) && $url != '/') {
-			if (!$this->url_exists($url)) {
+		while ( ( $url = dirname( $url ) ) && $url != '/' ) {
+			if ( ! $this->url_exists( $url ) ) {
 				$urls[] = array(
-					'url' => apply_filters('StaticPress::get_url', $url),
-					'last_modified' => date('Y-m-d h:i:s'),
-					);
+					'url'           => apply_filters( 'StaticPress::get_url', $url ),
+					'last_modified' => date( 'Y-m-d h:i:s' ),
+				);
 			}
 		}
 
-		$pattern = '#href=[\'"](' . preg_quote($this->get_site_url()) . '[^\'"\?\#]+)[^\'"]*[\'"]#i';
-		if ( preg_match_all($pattern, $content, $matches) ){
-			$matches = array_unique($matches[1]);
-			foreach ($matches as $link) {
-				if (!$this->url_exists($link)) {
+		$pattern = '#href=[\'"](' . preg_quote( $this->get_site_url() ) . '[^\'"\?\#]+)[^\'"]*[\'"]#i';
+		if ( preg_match_all( $pattern, $content, $matches ) ) {
+			$matches = array_unique( $matches[1] );
+			foreach ( $matches as $link ) {
+				if ( ! $this->url_exists( $link ) ) {
 					$urls[] = array(
-						'url' => apply_filters('StaticPress::get_url', $link),
-						'last_modified' => date('Y-m-d h:i:s'),
-						);
+						'url'           => apply_filters( 'StaticPress::get_url', $link ),
+						'last_modified' => date( 'Y-m-d h:i:s' ),
+					);
 				}
 			}
 		}
-		unset($matches);
+		unset( $matches );
 
-		if (count($urls) > 0)
-			$this->update_url($urls);
+		if ( count( $urls ) > 0 ) {
+			$this->update_url( $urls );
+		}
 
 		return $urls;
 	}
@@ -968,11 +1067,12 @@ SELECT DISTINCT post_author, COUNT(ID) AS count, MAX(post_modified) AS modified
 	 * Sometimes the content of a page contains invalid utf8 characters.
 	 * This breaks the static publishing process.
 	 * In order to prevent this, utf8 content gets cleaned before publishing.
+	 * 
 	 * @see https://github.com/megumiteam/staticpress/pull/13
-	 * @param $content
+	 * @param  string $content Content.
 	 * @return string|string[]|null
 	 */
-	private function clean_utf8($content) {
+	private function clean_utf8( $content ) {
 		$regex = <<<'END'
 		/
 		  (
@@ -985,6 +1085,6 @@ SELECT DISTINCT post_author, COUNT(ID) AS count, MAX(post_modified) AS modified
 		| .                                 # anything else
 		/x
 END;
-		return preg_replace($regex, '$1', $content);
+		return preg_replace( $regex, '$1', $content );
 	}
 }

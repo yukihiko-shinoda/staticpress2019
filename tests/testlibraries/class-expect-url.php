@@ -2,10 +2,10 @@
 /**
  * Expect_Url
  *
- * @package plugin\staticpress\tests\testlibraries
+ * @package static_press\tests\testlibraries
  */
 
-namespace staticpress\tests\testlibraries;
+namespace static_press\tests\testlibraries;
 
 /**
  * Class Expect_Url

@@ -2,7 +2,7 @@
 /**
  * Class SampleTest
  *
- * @package StaticPress
+ * @package static_press/tests
  */
 
 /**

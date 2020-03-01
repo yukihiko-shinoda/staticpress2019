@@ -1,14 +1,14 @@
 <?php
 /**
- * Class StaticPressTest
+ * Class Static_Press_Test
  *
- * @package staticpress\tests\includes
+ * @package static_press\tests\includes
  */
 
-namespace staticpress\includes;
+namespace static_press\includes;
 
 require_once dirname( __FILE__ ) . '/../testlibraries/class-expect-url.php';
-use staticpress\tests\includes\Static_Press_Test;
+use static_press\tests\includes\Static_Press_Test;
 
 const DATE_FOR_TEST = '2019-12-23 12:34:56';
 const TIME_FOR_TEST = '12:34:56';
@@ -41,11 +41,12 @@ function wp_remote_get( $url, $args = array() ) {
 	return Static_Press_Test::$wordpress_mock->wp_remote_get( $url, $args );
 }
 
-namespace staticpress\tests\includes;
+namespace static_press\tests\includes;
 
-use const staticpress\includes\DATE_FOR_TEST;
-use staticpress\includes\static_press;
-use staticpress\tests\testlibraries\Expect_Url;
+// Reason: This project no longer support PHP 5.5 nor lower.
+use const static_press\includes\DATE_FOR_TEST; // phpcs:ignore
+use static_press\includes\static_press;
+use static_press\tests\testlibraries\Expect_Url;
 use ReflectionException;
 use Mockery;
 
@@ -110,7 +111,7 @@ class Static_Press_Test extends \WP_UnitTestCase {
 	 * @param string $expect Expect return value.
 	 */
 	public function test_replace_url( $url, $expect ) {
-		$static_press = new static_press( 'staticpress' );
+		$static_press = new Static_Press( 'staticpress' );
 		$this->assertEquals( $expect, $static_press->replace_url( $url ) );
 	}
 
@@ -147,7 +148,7 @@ class Static_Press_Test extends \WP_UnitTestCase {
 	public function test_create_static_file( $url, $file_type, $expect, $expect_file ) {
 		self::$wordpress_mock = Mockery::mock( 'alias:WordPress_Mock' );
 		self::$wordpress_mock->shouldReceive( 'wp_remote_get' )->andReturn( $this->create_response( $url ) );
-		$static_press = new static_press( 'staticpress', '/', self::OUTPUT_DIRECTORY );
+		$static_press = new Static_Press( 'staticpress', '/', self::OUTPUT_DIRECTORY );
 		$reflection   = new \ReflectionClass( get_class( $static_press ) );
 		$method       = $reflection->getMethod( 'create_static_file' );
 		$method->setAccessible( true );
@@ -196,7 +197,7 @@ class Static_Press_Test extends \WP_UnitTestCase {
 				'url' => '/test/',
 			),
 		);
-		$static_press = new static_press( 'staticpress' );
+		$static_press = new Static_Press( 'staticpress' );
 		$reflection   = new \ReflectionClass( get_class( $static_press ) );
 		$method       = $reflection->getMethod( 'update_url' );
 		$method->setAccessible( true );
@@ -372,7 +373,7 @@ class Static_Press_Test extends \WP_UnitTestCase {
 		$plugin_version = $file_data['version'];
 		$expect         = '<meta name="generator" content="WordPress 5.3 with ' . $plugin_name . ' ver.' . $plugin_version . '" />';
 
-		$static_press = new static_press( 'staticpress' );
+		$static_press = new Static_Press( 'staticpress' );
 		$result       = $static_press->rewrite_generator_tag( $content );
 		$this->assertEquals( $expect, $result );
 	}
@@ -394,7 +395,7 @@ class Static_Press_Test extends \WP_UnitTestCase {
 			),
 		);
 
-		$static_press = new static_press( 'staticpress' );
+		$static_press = new Static_Press( 'staticpress' );
 		$reflection   = new \ReflectionClass( get_class( $static_press ) );
 		$method       = $reflection->getMethod( 'update_url' );
 		$method->setAccessible( true );
@@ -421,6 +422,8 @@ class Static_Press_Test extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * TODO: Write short description
+	 * 
 	 * @throws ReflectionException When fail to create ReflectionClass instance.
 	 */
 	public function test_update_url() {
@@ -437,7 +440,7 @@ class Static_Press_Test extends \WP_UnitTestCase {
 			new Expect_Url( Expect_Url::TYPE_OTHER_PAGE, '/test/', '1' ),
 		);
 
-		$static_press = new static_press( 'staticpress' );
+		$static_press = new Static_Press( 'staticpress' );
 		$reflection   = new \ReflectionClass( get_class( $static_press ) );
 		$method       = $reflection->getMethod( 'update_url' );
 		$method->setAccessible( true );
@@ -466,7 +469,7 @@ class Static_Press_Test extends \WP_UnitTestCase {
 			),
 		);
 
-		$static_press = new static_press( 'staticpress' );
+		$static_press = new Static_Press( 'staticpress' );
 		$reflection   = new \ReflectionClass( get_class( $static_press ) );
 		$method       = $reflection->getMethod( 'update_url' );
 		$method->setAccessible( true );
@@ -511,7 +514,7 @@ class Static_Press_Test extends \WP_UnitTestCase {
 	 * @throws ReflectionException When fail to create ReflectionClass instance.
 	 */
 	public function test_fetch_start_time() {
-		$static_press = new static_press( 'staticpress' );
+		$static_press = new Static_Press( 'staticpress' );
 		$reflection   = new \ReflectionClass( get_class( $static_press ) );
 		$method       = $reflection->getMethod( 'fetch_start_time' );
 		$method->setAccessible( true );
@@ -530,7 +533,7 @@ class Static_Press_Test extends \WP_UnitTestCase {
 		$start_time                = '2019-12-23 12:34:56';
 		$param['fetch_start_time'] = $start_time;
 		set_transient( 'static static', $param, 3600 );
-		$static_press = new static_press( 'staticpress' );
+		$static_press = new Static_Press( 'staticpress' );
 		$reflection   = new \ReflectionClass( get_class( $static_press ) );
 		$method       = $reflection->getMethod( 'fetch_start_time' );
 		$method->setAccessible( true );
@@ -545,7 +548,7 @@ class Static_Press_Test extends \WP_UnitTestCase {
 	 * @throws ReflectionException When fail to create ReflectionClass instance.
 	 */
 	public function test_get_transient_key() {
-		$static_press = new static_press( 'staticpress' );
+		$static_press = new Static_Press( 'staticpress' );
 		$reflection   = new \ReflectionClass( get_class( $static_press ) );
 		$method       = $reflection->getMethod( 'get_transient_key' );
 		$method->setAccessible( true );
@@ -561,7 +564,7 @@ class Static_Press_Test extends \WP_UnitTestCase {
 	 */
 	public function test_get_transient_key_current_user() {
 		wp_set_current_user( 1 );
-		$static_press = new static_press( 'staticpress' );
+		$static_press = new Static_Press( 'staticpress' );
 		$reflection   = new \ReflectionClass( get_class( $static_press ) );
 		$method       = $reflection->getMethod( 'get_transient_key' );
 		$method->setAccessible( true );

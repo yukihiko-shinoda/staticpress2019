@@ -1,20 +1,37 @@
 <?php
-if ( !class_exists('InputValidator') )
-	require(dirname(__FILE__).'/class-input-validator.php');
+/**
+ * Class Static_Press_Admin
+ */
 
-class static_press_admin {
-	const OPTION_STATIC_URL   = 'StaticPress::static url';
-	const OPTION_STATIC_DIR   = 'StaticPress::static dir';
-	const OPTION_STATIC_BASIC = 'StaticPress::basic auth';
+if ( ! class_exists( 'InputValidator' ) )
+	require dirname( __FILE__ ) . '/class-input-validator.php';
+
+/**
+ * StaticPress Admin page.
+ */
+class Static_Press_Admin {
+	const OPTION_STATIC_URL     = 'StaticPress::static url';
+	const OPTION_STATIC_DIR     = 'StaticPress::static dir';
+	const OPTION_STATIC_BASIC   = 'StaticPress::basic auth';
 	const OPTION_STATIC_TIMEOUT = 'StaticPress::timeout';
 	const OPTION_PAGE = 'static-press';
-	const TEXT_DOMAIN = 'static-press';
+	/**
+	 * Plugin name.
+	 * 
+	 * @var string
+	 */
+	const TEXT_DOMAIN  = 'static-press';
 	const DEBUG_MODE  = false;
 	const ACCESS_LEVEL = 'manage_options';
 
 	static $instance;
 
 	private $plugin_basename;
+	/**
+	 * Plugin name.
+	 * 
+	 * @var string
+	 */
 	private $plugin_name;
 	private $plugin_version;
 
@@ -83,30 +100,31 @@ class static_press_admin {
 			);
 	}
 
-	//**************************************************************************************
-	// Add Admin Menu
-	//**************************************************************************************
+	/**
+	 * Add Admin Menu.
+	 */
 	public function admin_menu() {
+		$translated_plugin_name = __( $this->plugin_name, self::TEXT_DOMAIN );
 		$hook = add_menu_page(
-			__($this->plugin_name, self::TEXT_DOMAIN) ,
-			__($this->plugin_name, self::TEXT_DOMAIN) ,
+			$translated_plugin_name,
+			$translated_plugin_name,
 			self::ACCESS_LEVEL,
-			self::OPTION_PAGE ,
-			array($this, 'static_press_page') ,
-			plugins_url('images/staticpress.png', dirname(__FILE__))
-			);
-		add_action('admin_print_scripts-'.$hook, array($this, 'add_admin_scripts'));
+			self::OPTION_PAGE,
+			array( $this, 'static_press_page' ),
+			plugins_url( 'images/staticpress.png', dirname( __FILE__ ) )
+		);
+		add_action( 'admin_print_scripts-' . $hook, array( $this, 'add_admin_scripts' ) );
 
 		$hook = add_submenu_page(
-			self::OPTION_PAGE ,
-			__($this->plugin_name.' Options', self::TEXT_DOMAIN) ,
-			__($this->plugin_name.' Options', self::TEXT_DOMAIN) ,
+			self::OPTION_PAGE,
+			$translated_plugin_name,
+			$translated_plugin_name,
 			self::ACCESS_LEVEL,
-			self::OPTION_PAGE . '-options' ,
-			array($this, 'options_page')
-			);
+			self::OPTION_PAGE . '-options',
+			array( $this, 'options_page' )
+		);
 
-		do_action('StaticPress::admin_menu', self::OPTION_PAGE);
+		do_action( 'StaticPress::admin_menu', self::OPTION_PAGE );
 	}
 
 	public function add_admin_scripts(){
