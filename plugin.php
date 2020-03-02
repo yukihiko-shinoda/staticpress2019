@@ -44,7 +44,7 @@ if ( ! class_exists( 'Static_Press_Admin' ) ) {
 if ( ! class_exists( 'static_press\includes\Static_Press' ) ) {
 	require dirname( __FILE__ ) . '/includes/class-static-press.php';
 }
-use static_press\includes\static_press;
+use static_press\includes\Static_Press;
 
 load_plugin_textdomain( Static_Press_Admin::TEXT_DOMAIN, false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
 // Reason: StaticPress-S3 refers this global variable not $static_press but $staticpress.

@@ -6,6 +6,10 @@
  */
 
 namespace static_press\includes;
+if ( ! class_exists( 'static_press\includes\Static_Press_Plugin_Information' ) ) {
+	require dirname( __FILE__ ) . '/class-static-press-plugin-information.php';
+}
+use static_press\includes\Static_Press_Plugin_Information;
 
 /**
  * StaticPress.
@@ -17,15 +21,11 @@ class Static_Press {
 
 	static $instance;
 
-	private $plugin_basename;
-	private $plugin_name;
-	private $plugin_version;
+	private $plugin_information;
 
 	private $static_url;
-	private $home_url;
-	private $static_home_url;
 	private $url_table;
-	private $static_dir;
+	private $dump_directory;
 	private $remote_get_option;
 
 	private $transient_key = 'static static';
@@ -42,15 +42,19 @@ class Static_Press {
 	 * 
 	 * @param string $plugin_basename   Plugin base name.
 	 * @param string $static_url        Static URL.
-	 * @param string $static_dir        Directory to dump static files.
+	 * @param string $dump_directory    Directory to dump static files.
 	 * @param array  $remote_get_option Remote get options.
 	 */
-	public function __construct( $plugin_basename, $static_url = '/', $static_dir = '', $remote_get_option = array() ) {
-		self::$instance = $this;
-
+	public function __construct( $plugin_basename, $static_url = '/', $dump_directory = '', $remote_get_option = array() ) {
+		self::$instance        = $this;
 		$this->plugin_basename = $plugin_basename;
-		$this->url_table = self::url_table();
-		$this->init_params( $static_url, $static_dir, $remote_get_option );
+		$this->url_table       = self::url_table();
+		$this->static_url      = $this->init_static_url( $static_url );
+		$this->dump_directory  = $this->init_dump_directory( $dump_directory );
+		$this->make_subdirectories( $this->dump_directory );
+		$this->remote_get_option  = $remote_get_option;
+		$this->plugin_information = new Static_Press_Plugin_Information();
+		$this->create_table();
 
 		add_action( 'wp_ajax_static_press_init', array( $this, 'ajax_init' ) );
 		add_action( 'wp_ajax_static_press_fetch', array( $this, 'ajax_fetch' ) );
@@ -65,40 +69,33 @@ class Static_Press {
 		return $wpdb->prefix . 'urls';
 	}
 
-	private function init_params($static_url, $static_dir, $remote_get_option){
-		global $wpdb;
-
-		$parsed   = parse_url($this->get_site_url());
-		$scheme   =
-			isset($parsed['scheme'])
+	/**
+	 * Initializes static URL.
+	 * Static URL surely become absolute URL start with (http or https)://.
+	 */
+	private function init_static_url( $static_url ) {
+		if ( preg_match( '#^https?://#i', $static_url ) ) {
+			return $static_url;
+		}
+		$parsed = parse_url($this->get_site_url());
+		$scheme =
+			isset( $parsed['scheme'] )
 			? $parsed['scheme']
 			: 'http';
-		$host     = 
-			isset($parsed['host'])
+		$host   =
+			isset( $parsed['host'] )
 			? $parsed['host']
-			: (defined('DOMAIN_CURRENT_SITE') ? DOMAIN_CURRENT_SITE : $_SERVER['HTTP_HOST']);
-		$this->home_url = "{$scheme}://{$host}/";
-		$this->static_url = preg_match('#^https?://#i', $static_url) ? $static_url : $this->home_url;
-		$this->static_home_url = preg_replace('#^https?://[^/]+/#i', '/', trailingslashit($this->static_url));
+			: ( defined( 'DOMAIN_CURRENT_SITE' ) ? DOMAIN_CURRENT_SITE : $_SERVER['HTTP_HOST'] );
+		return "{$scheme}://{$host}/";
+	}
 
-		$this->static_dir = untrailingslashit(!empty($static_dir) ? $static_dir : ABSPATH);
-		if (preg_match('#^https?://#i', $this->static_home_url)) {
-			$this->static_dir .= preg_replace('#^https?://[^/]+/#i', '/', $this->static_home_url);
-		} else {
-			$this->static_dir .= $this->static_home_url;
-		}
-		$this->make_subdirectories($this->static_dir);
-
-		$this->remote_get_option = $remote_get_option;
-
-	    $data = get_file_data(
-	    	dirname(dirname(__FILE__)).'/plugin.php',
-	    	array('pluginname' => 'Plugin Name', 'version' => 'Version')
-	    	);
-		$this->plugin_name    = isset($data['pluginname']) ? $data['pluginname'] : 'StaticPress';
-		$this->plugin_version = isset($data['version']) ? $data['version'] : '';
-
-		$this->create_table();
+	/**
+	 * Initializes dump directory.
+	 * Static URL surely become absolute URL start with (http or https)://.
+	 */
+	private function init_dump_directory( $dump_directory ) {
+		$dump_directory = ! empty( $dump_directory ) ? $dump_directory : ABSPATH;
+		return untrailingslashit( $dump_directory ) . preg_replace( '#^https?://[^/]+/#i', '/', trailingslashit( $this->static_url ) );
 	}
 
 	public function activate(){
@@ -421,7 +418,7 @@ CREATE TABLE `{$this->url_table}` (
 	 */
 	private function create_static_file( $url, $file_type = 'other_page', $create_404 = true, $crawling = false ) {
 		$url       = apply_filters( 'StaticPress::get_url', $url );
-		$file_dest = untrailingslashit( $this->static_dir ) . $this->static_url( $url );
+		$file_dest = untrailingslashit( $this->dump_directory ) . $this->static_url( $url );
 		$dir_sep   = defined( 'DIRECTORY_SEPARATOR' ) ? DIRECTORY_SEPARATOR : '/';
 		if ( $dir_sep !== '/' ) {
 			$file_dest = str_replace( '/', $dir_sep, $file_dest );
@@ -558,7 +555,7 @@ CREATE TABLE `{$this->url_table}` (
 	public function	rewrite_generator_tag( $content, $http_code = 200 ) {
 		$content = preg_replace(
 			'#(<meta [^>]*name=[\'"]generator[\'"] [^>]*content=[\'"])([^\'"]*)([\'"][^>]*/?>)#ism',
-			'$1$2 with '.$this->plugin_name . ( ! empty( $this->plugin_version ) ? ' ver.' . $this->plugin_version : '' ) . '$3',
+			'$1$2 with ' . ( ( string ) $this->plugin_information ) . '$3',
 			$content
 		);
 		return $content;
@@ -645,7 +642,7 @@ CREATE TABLE `{$this->url_table}` (
 				$plugin_dir  = trailingslashit( str_replace( ABSPATH, '/', WP_PLUGIN_DIR ) );
 				$theme_dir   = trailingslashit( str_replace( ABSPATH, '/', WP_CONTENT_DIR ) . '/themes' );
 				$file_source = untrailingslashit( ABSPATH ) . $url['url'];
-				$file_dest   = untrailingslashit( $this->static_dir ) . $url['url'];
+				$file_dest   = untrailingslashit( $this->dump_directory ) . $url['url'];
 				$pattern     = '#^(/(readme|readme-[^\.]+|license)\.(txt|html?)|(' . preg_quote( $plugin_dir ) . '|' . preg_quote( $theme_dir ) . ').*/((readme|changelog|license)\.(txt|html?)|(screenshot|screenshot-[0-9]+)\.(png|jpe?g|gif)))$#i';
 				if ( $file_source === $file_dest ) {
 					$url['enable'] = 0;

@@ -16,7 +16,7 @@ if ( ! class_exists( 'Static_Press_Admin' ) ) {
 if ( ! class_exists( 'static_press\includes\Static_Press' ) ) {
 	require dirname( __FILE__ ) . '/includes/class-static-press.php';
 }
-use static_press\includes\static_press;
+use static_press\includes\Static_Press;
 
 delete_option( Static_Press_Admin::OPTION_STATIC_URL );
 delete_option( Static_Press_Admin::OPTION_STATIC_DIR );

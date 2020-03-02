@@ -45,7 +45,7 @@ namespace static_press\tests\includes;
 
 // Reason: This project no longer support PHP 5.5 nor lower.
 use const static_press\includes\DATE_FOR_TEST; // phpcs:ignore
-use static_press\includes\static_press;
+use static_press\includes\Static_Press;
 use static_press\tests\testlibraries\Expect_Url;
 use ReflectionException;
 use Mockery;
@@ -100,6 +100,75 @@ class Static_Press_Test extends \WP_UnitTestCase {
 	 */
 	public function test_url_table() {
 		$this->assertEquals( 'wptests_urls', static_press::url_table() );
+	}
+
+	/**
+	 * Test steps for constructor.
+	 * 
+	 * @dataProvider provider_init_param_static_url
+	 * 
+	 * @param string $static_url Argument.
+	 * @param string $expect     Expect return value.
+	 */
+	public function test_init_param_static_url( $static_url, $expect ) {
+		$static_press       = new Static_Press( 'staticpress', $static_url );
+		$reflector          = new \ReflectionClass( $static_press );
+		$reflector_property = $reflector->getProperty( 'static_url' );
+		$reflector_property->setAccessible( true );
+
+		$this->assertEquals( $expect, $reflector_property->getValue( $static_press ) );
+	}
+
+	/**
+	 * Function init_param() should set
+	 * persed home URL or DOMAIN_CURRENT_SITE or contents of the Host: header from the current request
+	 * when parameter is not HTTP nor HTTPS.
+	 * Function init_param() should set parameter when parameter is HTTP.
+	 * Function init_param() should set parameter when parameter is HTTPS.
+	 */
+	public function provider_init_param_static_url() {
+		return array(
+			array( '/', 'http://example.org/' ),
+			array( '//domain.com/', 'http://example.org/' ),
+			array( 'http://domain.com/', 'http://domain.com/' ),
+			array( 'https://domain.com/', 'https://domain.com/' ),
+		);
+	}
+
+	/**
+	 * Test steps for constructor.
+	 * 
+	 * @dataProvider provider_init_param_dump_directory
+	 * 
+	 * @param string $static_url     Argument.
+	 * @param string $dump_directory Argument.
+	 * @param string $expect         Expect return value.
+	 */
+	public function test_init_param_dump_directory( $static_url, $dump_directory, $expect ) {
+		$static_press       = new Static_Press( 'staticpress', $static_url, $dump_directory );
+		$reflector          = new \ReflectionClass( $static_press );
+		$reflector_property = $reflector->getProperty( 'dump_directory' );
+		$reflector_property->setAccessible( true );
+
+		$this->assertEquals( $expect, $reflector_property->getValue( $static_press ) );
+	}
+
+	/**
+	 * Function init_param() should set WordPress directory when parameter is empty.
+	 * Function init_param() should set parameter when parameter is not empty.
+	 * Function init_param() should set path which end with slash.
+	 * Function init_param() should set path added relative URL.
+	 */
+	public function provider_init_param_dump_directory() {
+		return array(
+			array( '/', '', '/usr/src/wordpress/' ),
+			array( 'http://domain.com/', '', '/usr/src/wordpress/' ),
+			array( 'https://domain.com/test', '', '/usr/src/wordpress/test/' ),
+			array( '/', '/tmp/', '/tmp/' ),
+			array( '/', '/tmp', '/tmp/' ),
+			array( 'http://domain.com/', '/tmp', '/tmp/' ),
+			array( 'https://domain.com/test', '/tmp/', '/tmp/test/' ),
+		);
 	}
 
 	/**
@@ -514,12 +583,7 @@ class Static_Press_Test extends \WP_UnitTestCase {
 	 * @throws ReflectionException When fail to create ReflectionClass instance.
 	 */
 	public function test_fetch_start_time() {
-		$static_press = new Static_Press( 'staticpress' );
-		$reflection   = new \ReflectionClass( get_class( $static_press ) );
-		$method       = $reflection->getMethod( 'fetch_start_time' );
-		$method->setAccessible( true );
-
-		$result = $method->invokeArgs( $static_press, array() );
+		$result = $this->create_accessable_method( 'fetch_start_time', array() );
 		$this->assertEquals( $result, DATE_FOR_TEST );
 	}
 
@@ -533,12 +597,7 @@ class Static_Press_Test extends \WP_UnitTestCase {
 		$start_time                = '2019-12-23 12:34:56';
 		$param['fetch_start_time'] = $start_time;
 		set_transient( 'static static', $param, 3600 );
-		$static_press = new Static_Press( 'staticpress' );
-		$reflection   = new \ReflectionClass( get_class( $static_press ) );
-		$method       = $reflection->getMethod( 'fetch_start_time' );
-		$method->setAccessible( true );
-
-		$result = $method->invokeArgs( $static_press, array() );
+		$result = $this->create_accessable_method( 'fetch_start_time', array() );
 		$this->assertEquals( $start_time, $result );
 	}
 
@@ -548,12 +607,7 @@ class Static_Press_Test extends \WP_UnitTestCase {
 	 * @throws ReflectionException When fail to create ReflectionClass instance.
 	 */
 	public function test_get_transient_key() {
-		$static_press = new Static_Press( 'staticpress' );
-		$reflection   = new \ReflectionClass( get_class( $static_press ) );
-		$method       = $reflection->getMethod( 'get_transient_key' );
-		$method->setAccessible( true );
-
-		$result = $method->invokeArgs( $static_press, array() );
+		$result = $this->create_accessable_method( 'get_transient_key', array() );
 		$this->assertEquals( 'static static', $result );
 	}
 
@@ -564,15 +618,23 @@ class Static_Press_Test extends \WP_UnitTestCase {
 	 */
 	public function test_get_transient_key_current_user() {
 		wp_set_current_user( 1 );
-		$static_press = new Static_Press( 'staticpress' );
-		$reflection   = new \ReflectionClass( get_class( $static_press ) );
-		$method       = $reflection->getMethod( 'get_transient_key' );
-		$method->setAccessible( true );
-
-		$result = $method->invokeArgs( $static_press, array() );
+		$result = $this->create_accessable_method( 'get_transient_key', array() );
 		$this->assertEquals( 'static static - 1', $result );
 	}
 
+	/**
+	 * Creates accessable method.
+	 * 
+	 * @param string $method_name     Method name.
+	 * @param array  $array_parameter Array of parameter.
+	 */
+	private function create_accessable_method( $method_name, $array_parameter ) {
+		$static_press = new Static_Press( 'staticpress' );
+		$reflection   = new \ReflectionClass( get_class( $static_press ) );
+		$method       = $reflection->getMethod( $method_name );
+		$method->setAccessible( true );
+		return $method->invokeArgs( $static_press, $array_parameter );
+	}
 	/**
 	 * Creates response.
 	 * 
