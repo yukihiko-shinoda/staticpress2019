@@ -172,6 +172,157 @@ class Static_Press_Test extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * Function activate() should ensure that database table which listup URL exists.
+	 */
+	public function test_constructor_create_table() {
+		global $wpdb;
+		remove_filter( 'query', array( $this, '_create_temporary_tables' ) );
+		remove_filter( 'query', array( $this, '_drop_temporary_tables' ) );
+		if ( $wpdb->get_var( "show tables like '{$this->url_table()}'" ) == $this->url_table() ) {
+			$wpdb->query( "DROP TABLE `{$this->url_table()}`" );
+		}
+		$this->assertNotEquals( $this->url_table(), $wpdb->get_var( "show tables like '{$this->url_table()}'" ) );
+		$static_press = new Static_Press( 'staticpress' );
+		$this->assertEquals( $this->url_table(), $wpdb->get_var( "show tables like '{$this->url_table()}'" ) );
+		add_filter( 'query', array( $this, '_create_temporary_tables' ) );
+		add_filter( 'query', array( $this, '_drop_temporary_tables' ) );
+	}
+
+	/**
+	 * Function activate() should ensure that database table which listup URL exists.
+	 */
+	public function test_activate() {
+		global $wpdb;
+		remove_filter( 'query', array( $this, '_create_temporary_tables' ) );
+		remove_filter( 'query', array( $this, '_drop_temporary_tables' ) );
+		$static_press = new Static_Press( 'staticpress' );
+		if ( $wpdb->get_var( "show tables like '{$this->url_table()}'" ) == $this->url_table() ) {
+			$wpdb->query( "DROP TABLE `{$this->url_table()}`" );
+		}
+		$this->assertNotEquals( $this->url_table(), $wpdb->get_var( "show tables like '{$this->url_table()}'" ) );
+		$static_press->activate();
+		$this->assertEquals( $this->url_table(), $wpdb->get_var( "show tables like '{$this->url_table()}'" ) );
+		add_filter( 'query', array( $this, '_create_temporary_tables' ) );
+		add_filter( 'query', array( $this, '_drop_temporary_tables' ) );
+	}
+
+	/**
+	 * Function activate() should ensure that database table which listup URL has column 'enable'.
+	 */
+	public function test_activate_2() {
+		global $wpdb;
+		remove_filter( 'query', array( $this, '_create_temporary_tables' ) );
+		remove_filter( 'query', array( $this, '_drop_temporary_tables' ) );
+		if ( $wpdb->get_var( "show tables like '{$this->url_table()}'" ) == $this->url_table() ) {
+			$wpdb->query( "DROP TABLE `{$this->url_table()}`" );
+		}
+		$this->create_legacy_table();
+		$columns = $wpdb->get_results( "show columns from {$this->url_table()} like 'enable'" );
+		$this->assertEquals( 0, count( $columns ) );
+		$static_press = new Static_Press( 'staticpress' );
+		$static_press->activate();
+		$columns = $wpdb->get_results( "show columns from {$this->url_table()} like 'enable'" );
+		$this->assertEquals( 1, count( $columns ) );
+		$column = $columns[0];
+		$this->assertEquals( 'enable', $column->Field );         // phpcs:ignore
+		$this->assertEquals( 'int(1) unsigned', $column->Type ); // phpcs:ignore
+		$this->assertEquals( 'NO', $column->Null );              // phpcs:ignore
+		$this->assertEquals( '', $column->Key );                 // phpcs:ignore
+		$this->assertEquals( '1', $column->Default );            // phpcs:ignore
+		$this->assertEquals( '', $column->Extra );               // phpcs:ignore
+		add_filter( 'query', array( $this, '_create_temporary_tables' ) );
+		add_filter( 'query', array( $this, '_drop_temporary_tables' ) );
+	}
+
+	/**
+	 * Creates legacy table.
+	 */
+	private function create_legacy_table() {
+		global $wpdb;
+		$wpdb->query(
+			"CREATE TABLE `{$this->url_table()}` (
+				`ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+				`type` varchar(255) NOT NULL DEFAULT 'other_page',
+				`url` varchar(255) NOT NULL,
+				`object_id` bigint(20) unsigned NULL,
+				`object_type` varchar(20) NULL ,
+				`parent` bigint(20) unsigned NOT NULL DEFAULT 0,
+				`pages` bigint(20) unsigned NOT NULL DEFAULT 1,
+				`file_name` varchar(255) NOT NULL,
+				`file_date` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+				`last_statuscode` int(20) NULL,
+				`last_modified` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+				`last_upload` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+				`create_date` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+				PRIMARY KEY (`ID`),
+				KEY `type` (`type`),
+				KEY `url` (`url`),
+				KEY `file_name` (`file_name`),
+				KEY `file_date` (`file_date`),
+				KEY `last_upload` (`last_upload`)
+			)"
+		);
+	}
+
+	/**
+	 * Creates latest table.
+	 */
+	private function create_latest_table() {
+		global $wpdb;
+		$wpdb->query(
+			"CREATE TABLE `{$this->url_table()}` (
+				`ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+				`type` varchar(255) NOT NULL DEFAULT 'other_page',
+				`url` varchar(255) NOT NULL,
+				`object_id` bigint(20) unsigned NULL,
+				`object_type` varchar(20) NULL ,
+				`parent` bigint(20) unsigned NOT NULL DEFAULT 0,
+				`pages` bigint(20) unsigned NOT NULL DEFAULT 1,
+				`enable` int(1) unsigned NOT NULL DEFAULT '1',
+				`file_name` varchar(255) NOT NULL DEFAULT '',
+				`file_date` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+				`last_statuscode` int(20) NULL,
+				`last_modified` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+				`last_upload` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+				`create_date` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+				PRIMARY KEY (`ID`),
+				KEY `type` (`type`),
+				KEY `url` (`url`),
+				KEY `file_name` (`file_name`),
+				KEY `file_date` (`file_date`),
+				KEY `last_upload` (`last_upload`)
+			)"
+		);
+	}
+
+	/**
+	 * Function activate() should ensure that database table which listup URL exists.
+	 */
+	public function test_deactivate() {
+		global $wpdb;
+		remove_filter( 'query', array( $this, '_create_temporary_tables' ) );
+		remove_filter( 'query', array( $this, '_drop_temporary_tables' ) );
+		$static_press = new Static_Press( 'staticpress' );
+		if ( $wpdb->get_var( "show tables like '{$this->url_table()}'" ) != $this->url_table() ) {
+			$this->create_latest_table();
+		}
+		$this->assertEquals( $this->url_table(), $wpdb->get_var( "show tables like '{$this->url_table()}'" ) );
+		$static_press->deactivate();
+		$this->assertNotEquals( $this->url_table(), $wpdb->get_var( "show tables like '{$this->url_table()}'" ) );
+		$this->create_latest_table();
+		add_filter( 'query', array( $this, '_create_temporary_tables' ) );
+		add_filter( 'query', array( $this, '_drop_temporary_tables' ) );
+	}
+
+	/**
+	 * Returns database table name for URL list.
+	 */
+	private static function url_table() {
+		global $wpdb;
+		return $wpdb->prefix . 'urls';
+	}
+
+	/**
 	 * Test steps for replace_url().
 	 *
 	 * @dataProvider provider_replace_url

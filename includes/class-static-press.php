@@ -6,10 +6,15 @@
  */
 
 namespace static_press\includes;
+
 if ( ! class_exists( 'static_press\includes\Static_Press_Plugin_Information' ) ) {
 	require dirname( __FILE__ ) . '/class-static-press-plugin-information.php';
 }
+if ( ! class_exists( 'static_press\includes\Static_Press_Repository' ) ) {
+	require dirname( __FILE__ ) . '/class-static-press-repository.php';
+}
 use static_press\includes\Static_Press_Plugin_Information;
+use static_press\includes\Static_Press_Repository;
 
 /**
  * StaticPress.
@@ -22,6 +27,12 @@ class Static_Press {
 	static $instance;
 
 	private $plugin_information;
+	/**
+	 * Database access instance.
+	 * 
+	 * @var Static_Press_Repository
+	 */
+	private $repository;
 
 	private $static_url;
 	private $url_table;
@@ -54,7 +65,8 @@ class Static_Press {
 		$this->make_subdirectories( $this->dump_directory );
 		$this->remote_get_option  = $remote_get_option;
 		$this->plugin_information = new Static_Press_Plugin_Information();
-		$this->create_table();
+		$this->repository = new Static_Press_Repository();
+		$this->repository->create_table();
 
 		add_action( 'wp_ajax_static_press_init', array( $this, 'ajax_init' ) );
 		add_action( 'wp_ajax_static_press_fetch', array( $this, 'ajax_fetch' ) );
@@ -72,12 +84,15 @@ class Static_Press {
 	/**
 	 * Initializes static URL.
 	 * Static URL surely become absolute URL start with (http or https)://.
+	 * 
+	 * @param  string $static_url The URL of web site to deploy dumped static files.
+	 * @return string             The URL of web site to deploy dumped static files.
 	 */
 	private function init_static_url( $static_url ) {
 		if ( preg_match( '#^https?://#i', $static_url ) ) {
 			return $static_url;
 		}
-		$parsed = parse_url($this->get_site_url());
+		$parsed = parse_url( $this->get_site_url() );
 		$scheme =
 			isset( $parsed['scheme'] )
 			? $parsed['scheme']
@@ -91,65 +106,29 @@ class Static_Press {
 
 	/**
 	 * Initializes dump directory.
-	 * Static URL surely become absolute URL start with (http or https)://.
+	 * 
+	 * @param  string $dump_directory Path to directory to dump static files.
+	 * @return string                 Path to directory to dump static files.
 	 */
 	private function init_dump_directory( $dump_directory ) {
 		$dump_directory = ! empty( $dump_directory ) ? $dump_directory : ABSPATH;
 		return untrailingslashit( $dump_directory ) . preg_replace( '#^https?://[^/]+/#i', '/', trailingslashit( $this->static_url ) );
 	}
 
-	public function activate(){
-		global $wpdb;
-
-		if ($wpdb->get_var("show tables like '{$this->url_table}'") != $this->url_table)
-			$this->create_table();
-		else if (!$wpdb->get_row("show fields from `{$this->url_table}` where field = 'enable'"))
-			$wpdb->query("ALTER TABLE `{$this->url_table}` ADD COLUMN `enable` int(1) unsigned NOT NULL DEFAULT '1'");
+	/**
+	 * Activate StaticPress.
+	 * This function is called by WordPress when activate this plugin.
+	 */
+	public function activate() {
+		$this->repository->ensure_table_exists();
 	}
 
-	public function deactivate(){
-		global $wpdb;
-
-		if ($wpdb->get_var("show tables like '{$this->url_table}'") != $this->url_table)
-			$this->drop_table();
-	}
-
-	private function create_table(){
-		global $wpdb;
-
-		if ($wpdb->get_var("show tables like '{$this->url_table}'") != $this->url_table) {
-			$wpdb->query("
-CREATE TABLE `{$this->url_table}` (
- `ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
- `type` varchar(255) NOT NULL DEFAULT 'other_page',
- `url` varchar(255) NOT NULL,
- `object_id` bigint(20) unsigned NULL,
- `object_type` varchar(20) NULL ,
- `parent` bigint(20) unsigned NOT NULL DEFAULT 0,
- `pages` bigint(20) unsigned NOT NULL DEFAULT 1,
- `enable` int(1) unsigned NOT NULL DEFAULT '1',
- `file_name` varchar(255) NOT NULL DEFAULT '',
- `file_date` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
- `last_statuscode` int(20) NULL,
- `last_modified` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
- `last_upload` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
- `create_date` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
- PRIMARY KEY (`ID`),
- KEY `type` (`type`),
- KEY `url` (`url`),
- KEY `file_name` (`file_name`),
- KEY `file_date` (`file_date`),
- KEY `last_upload` (`last_upload`)
-)");
-		}
-	}
-
-	private function drop_table(){
-		global $wpdb;
-
-		if ($wpdb->get_var("show tables like '{$this->url_table}'") != $this->url_table) {
-			$wpdb->query("DROP TABLE `{$this->url_table}`");
-		}
+	/**
+	 * Deactivate StaticPress.
+	 * This function is called by WordPress when deactivate this plugin.
+	 */
+	public function deactivate() {
+		$this->repository->ensure_table_not_exists();
 	}
 
 	private function json_output($content){
