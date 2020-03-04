@@ -8,7 +8,7 @@
 namespace static_press\includes;
 
 /**
- * Plugin information.
+ * Repository (DDD).
  */
 class Static_Press_Repository {
 	/**
@@ -90,5 +90,73 @@ class Static_Press_Repository {
 	private function drop_table() {
 		global $wpdb;
 		$wpdb->query( "DROP TABLE `{$this->url_table}`" );
+	}
+
+	/**
+	 * Gets ID of URL.
+	 * 
+	 * @param  string $url URL.
+	 * @return string ID
+	 */
+	public function get_id( $url ) {
+		global $wpdb;
+		$sql = $wpdb->prepare(
+			"select ID from {$this->url_table} where url=%s limit 1",
+			$url
+		);
+
+		return $wpdb->get_var( $sql );
+	}
+
+	/**
+	 * Inserts URL.
+	 * 
+	 * @param array $url URL.
+	 */
+	public function insert_url( $url ) {
+		global $wpdb;
+		$sql        = "insert into {$this->url_table}";
+		$sql       .= ' (`' . implode( '`,`', array_keys( $url ) ) . '`,`create_date`)';
+		$insert_val = array();
+		foreach ( $url as $val ) {
+			$insert_val[] = $wpdb->prepare( '%s', $val );
+		}
+		$insert_val[] = $wpdb->prepare( '%s', date( 'Y-m-d h:i:s' ) );
+		$sql         .= ' values (' . implode( ',', $insert_val ) . ')';
+		$wpdb->query( $sql );
+	}
+
+	/**
+	 * Updates URL.
+	 * 
+	 * @param string $id  ID.
+	 * @param array  $url URL.
+	 */
+	public function update_url( $id, $url ) {
+		global $wpdb;
+		$sql        = "update {$this->url_table}";
+		$update_sql = array();
+		foreach ( $url as $key => $val ) {
+			$update_sql[] = $wpdb->prepare( "{$key} = %s", $val );
+		}
+		$sql .= ' set ' . implode( ',', $update_sql );
+		$sql .= $wpdb->prepare( ' where ID=%s', $id );
+		$wpdb->query( $sql );
+	}
+
+	/**
+	 * Gets all URL.
+	 * 
+	 * @param  string $start_time Start time.
+	 * @return array
+	 */
+	public function get_all_url( $start_time ) {
+		global $wpdb;
+
+		$sql = $wpdb->prepare(
+			"select ID, type, url, pages from {$this->url_table} where `last_upload` < %s and enable = 1",
+			$start_time
+		);
+		return $wpdb->get_results( $sql );
 	}
 }

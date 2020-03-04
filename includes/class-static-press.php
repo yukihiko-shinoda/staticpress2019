@@ -13,8 +13,12 @@ if ( ! class_exists( 'static_press\includes\Static_Press_Plugin_Information' ) )
 if ( ! class_exists( 'static_press\includes\Static_Press_Repository' ) ) {
 	require dirname( __FILE__ ) . '/class-static-press-repository.php';
 }
+if ( ! class_exists( 'static_press\includes\Static_Press_Terminator' ) ) {
+	require dirname( __FILE__ ) . '/class-static-press-terminator.php';
+}
 use static_press\includes\Static_Press_Plugin_Information;
 use static_press\includes\Static_Press_Repository;
+use static_press\includes\Static_Press_Terminator;
 
 /**
  * StaticPress.
@@ -33,6 +37,12 @@ class Static_Press {
 	 * @var Static_Press_Repository
 	 */
 	private $repository;
+	/**
+	 * Terminator instance.
+	 * 
+	 * @var Static_Press_Terminator
+	 */
+	private $terminator;
 
 	private $static_url;
 	private $url_table;
@@ -51,12 +61,13 @@ class Static_Press {
 	/**
 	 * Constructor.
 	 * 
-	 * @param string $plugin_basename   Plugin base name.
-	 * @param string $static_url        Static URL.
-	 * @param string $dump_directory    Directory to dump static files.
-	 * @param array  $remote_get_option Remote get options.
+	 * @param string                  $plugin_basename   Plugin base name.
+	 * @param string                  $static_url        Static URL.
+	 * @param string                  $dump_directory    Directory to dump static files.
+	 * @param array                   $remote_get_option Remote get options.
+	 * @param Static_Press_terminator $terminator        Terminator.
 	 */
-	public function __construct( $plugin_basename, $static_url = '/', $dump_directory = '', $remote_get_option = array() ) {
+	public function __construct( $plugin_basename, $static_url = '/', $dump_directory = '', $remote_get_option = array(), $terminator = null ) {
 		self::$instance        = $this;
 		$this->plugin_basename = $plugin_basename;
 		$this->url_table       = self::url_table();
@@ -66,6 +77,8 @@ class Static_Press {
 		$this->remote_get_option  = $remote_get_option;
 		$this->plugin_information = new Static_Press_Plugin_Information();
 		$this->repository = new Static_Press_Repository();
+		$this->terminator = $terminator ? $terminator : new Static_Press_Terminator();
+
 		$this->repository->create_table();
 
 		add_action( 'wp_ajax_static_press_init', array( $this, 'ajax_init' ) );
@@ -131,10 +144,15 @@ class Static_Press {
 		$this->repository->ensure_table_not_exists();
 	}
 
-	private function json_output($content){
-		header('Content-Type: application/json; charset='.get_option('blog_charset'));
-		echo json_encode($content);
-		die();
+	/**
+	 * Dumps JSON responce.
+	 * 
+	 * @param array $content Content.
+	 */
+	private function json_output( $content ) {
+		header( 'Content-Type: application/json; charset=' . get_option( 'blog_charset' ) );
+		echo json_encode( $content );
+		$this->terminator->terminate();
 	}
 
 	public function ajax_init(){
@@ -269,13 +287,18 @@ class Static_Press {
 			: trailingslashit(trim($permalink)) . 'index.html');
 	}
 
-	private function get_site_url(){
+	/**
+	 * Gets site URL.
+	 * 
+	 * @return string Site URL.
+	 */
+	private function get_site_url() {
 		global $current_blog;
 		return trailingslashit(
-			isset($current_blog)
-			? get_home_url($current_blog->blog_id)
+			isset( $current_blog )
+			? get_home_url( $current_blog->blog_id )
 			: get_home_url()
-			);
+		);
 	}
 
 	/**
@@ -352,37 +375,25 @@ class Static_Press {
 		}
 	}
 
-	/**
-	 * Gets all URL.
-	 * 
-	 * @return array
-	 */
-	private function get_all_url() {
-		global $wpdb;
-
-		$sql = $wpdb->prepare(
-			"select ID, type, url, pages from {$this->url_table} where `last_upload` < %s and enable = 1",
-			$this->fetch_start_time()
-		);
-		return $wpdb->get_results( $sql );
-	}
-
 	private function dir_sep(){
 		return defined('DIRECTORY_SEPARATOR') ? DIRECTORY_SEPARATOR : '/';
 	}
 
 	/**
 	 * Makes subdirectries.
+	 * 
+	 * @param string $file File.
 	 */
-	private function make_subdirectories($file){
+	private function make_subdirectories( $file ) {
 		$dir_sep = $subdir = $this->dir_sep();
-		$directories = explode($dir_sep, dirname($file));
-		foreach ($directories as $dir){
-			if (empty($dir))
+		$directories = explode( $dir_sep, dirname( $file ) );
+		foreach ( $directories as $dir ) {
+			if ( empty( $dir ) )
 				continue;
-			$subdir .= trailingslashit($dir);
-			if (!file_exists($subdir))
-				mkdir($subdir, 0755);
+			$subdir .= trailingslashit( $dir );
+			if ( ! file_exists( $subdir ) ) {
+				mkdir( $subdir, 0755 );
+			}
 		}
 	}
 
@@ -596,42 +607,44 @@ class Static_Press {
 	/**
 	 * Updates URL.
 	 * 
+	 * @param  array $urls URLs.
 	 * @return array
 	 */
 	private function update_url( $urls ) {
-		global $wpdb;
-
-		foreach ( (array)$urls as $url ) {
-			if ( ! isset( $url['url'] ) || !$url['url'] ) {
+		foreach ( (array) $urls as $url ) {
+			if ( ! isset( $url['url'] ) || ! $url['url'] ) {
 				continue;
 			}
-			$sql = $wpdb->prepare(
-				"select ID from {$this->url_table} where url=%s limit 1",
-				$url['url']
-			);
 
 			$url['enable'] = 1;
 			if ( preg_match( '#\.php$#i', $url['url'] ) ) {
+				// Seems to intend PHP file.
 				$url['enable'] = 0;
 			} else if ( preg_match( '#\?[^=]+[=]?#i', $url['url'] ) ) {
+				// Seems to intend get request with parameter.
 				$url['enable'] = 0;
 			} else if ( preg_match( '#/wp-admin/$#i', $url['url'] ) ) {
+				// Seems to intend WordPress admin home page.
 				$url['enable'] = 0;
-			} else if ( isset( $url['type'] ) && $url['type'] == 'static_file' ) {
+			} else if ( isset( $url['type'] ) && 'static_file' == $url['type'] ) {
 				$plugin_dir  = trailingslashit( str_replace( ABSPATH, '/', WP_PLUGIN_DIR ) );
 				$theme_dir   = trailingslashit( str_replace( ABSPATH, '/', WP_CONTENT_DIR ) . '/themes' );
 				$file_source = untrailingslashit( ABSPATH ) . $url['url'];
 				$file_dest   = untrailingslashit( $this->dump_directory ) . $url['url'];
 				$pattern     = '#^(/(readme|readme-[^\.]+|license)\.(txt|html?)|(' . preg_quote( $plugin_dir ) . '|' . preg_quote( $theme_dir ) . ').*/((readme|changelog|license)\.(txt|html?)|(screenshot|screenshot-[0-9]+)\.(png|jpe?g|gif)))$#i';
 				if ( $file_source === $file_dest ) {
+					// Seems to intend to prevent from being duplicate dump process for already dumped files.
 					$url['enable'] = 0;
 				} else if ( preg_match( $pattern, $url['url'] ) ) {
+					// Seems to intend readme, license, changelog, screenshot in plugin directory or theme directory.
 					$url['enable'] = 0;
 				} else if ( ! file_exists( $file_source ) ) {
+					// Seems to intend to prevent from processing non exist files.
 					$url['enable'] = 0;
-				} else if ( ! file_exists( $file_dest ) )  {
+				} else if ( ! file_exists( $file_dest ) ) {
 					$url['enable'] = 1;
 				} else if ( filemtime( $file_source ) <= filemtime( $file_dest ) ) {
+					// Seems to intend to skip non update files.
 					$url['enable'] = 0;
 				}
 
@@ -659,26 +672,11 @@ class Static_Press {
 				}
 			}
 
-			if ( $id = $wpdb->get_var( $sql ) ) {
-				$sql = "update {$this->url_table}";
-				$update_sql = array();
-				foreach ( $url as $key => $val ) {
-					$update_sql[] = $wpdb->prepare("{$key} = %s", $val);
-				}
-				$sql .= ' set '.implode( ',', $update_sql );
-				$sql .= $wpdb->prepare( ' where ID=%s', $id );
+			$id = $this->repository->get_id( $url['url'] );
+			if ( $id ) {
+				$this->repository->update_url( $id, $url );
 			} else {
-				$sql = "insert into {$this->url_table}";
-				$sql .= ' (`' . implode( '`,`', array_keys( $url ) ). '`,`create_date`)';
-				$insert_val = array();
-				foreach ( $url as $key => $val ) {
-					$insert_val[] = $wpdb->prepare( "%s", $val );
-				}
-				$insert_val[] = $wpdb->prepare( "%s", date( 'Y-m-d h:i:s' ) );
-				$sql .= ' values (' . implode( ',', $insert_val ) . ')';
-			}
-			if ( $sql ) {
-				$wpdb->query($sql);
+				$this->repository->insert_url( $url );
 			}
 
 			do_action( 'StaticPress::update_url', $url );
@@ -770,21 +768,24 @@ class Static_Press {
 		return $urls;
 	}
 
-	private function single_url($url_type = 'single') {
+	private function single_url( $url_type = 'single' ) {
 		global $wpdb;
 
-		if (!isset($this->post_types) || empty($this->post_types))
-			$this->post_types = "'".implode("','",get_post_types(array('public' => true)))."'";
+		if ( !isset( $this->post_types ) || empty( $this->post_types ) ) {
+			$this->post_types = "'" . implode( "','", get_post_types(array( 'public' => true ) ) ) . "'";
+		}
 
 		$urls = array();
-		$posts = $wpdb->get_results("
-select ID, post_type, post_content, post_status, post_modified
- from {$wpdb->posts}
- where (post_status = 'publish' or post_type = 'attachment')
- and post_type in ({$this->post_types})
- order by post_type, ID
-");
-		foreach ($posts as $post) {
+		$posts = $wpdb->get_results(
+			"
+			select ID, post_type, post_content, post_status, post_modified
+			from {$wpdb->posts}
+			where (post_status = 'publish' or post_type = 'attachment')
+			and post_type in ({$this->post_types})
+			order by post_type, ID
+			"
+		);
+		foreach ( $posts as $post ) {
 			$post_id = $post->ID;
 			$modified = $post->post_modified;
 			$permalink = get_permalink($post->ID);
