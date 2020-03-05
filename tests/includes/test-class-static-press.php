@@ -368,14 +368,6 @@ class Static_Press_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Function get_site_url() should return site URL.
-	 */
-	public function test_single_url() {
-		$result = $this->create_accessable_method( 'single_url', array() );
-		$this->assertEquals( array(), $result );
-	}
-
-	/**
 	 * Test steps for replace_url().
 	 *
 	 * @dataProvider provider_replace_url
@@ -703,6 +695,9 @@ class Static_Press_Test extends \WP_UnitTestCase {
 	 * Function update_url() should save as disable when URL is WordPress admin home page.
 	 * Function update_url() should save as disable when URL is readme.
 	 * Function update_url() should save as disable when URL is not exist.
+	 * Function update_url() should save as enable when URL is activated plugin's static file.
+	 * Function update_url() should save as disable when URL is not current theme's static file.
+	 * Function update_url() should save as enable when URL is current theme's static file.
 	 * 
 	 * @throws ReflectionException When fail to create ReflectionClass instance.
 	 */
@@ -732,7 +727,15 @@ class Static_Press_Test extends \WP_UnitTestCase {
 				'type' => 'static_file',
 			),
 			array(
+				'url'  => '/wp-content/plugins/akismet/_inc/akismet.css',
+				'type' => 'static_file',
+			),
+			array(
 				'url'  => '/wp-content/themes/twentynineteen/style.css',
+				'type' => 'static_file',
+			),
+			array(
+				'url'  => '/wp-content/themes/twentytwenty/style.css',
 				'type' => 'static_file',
 			),
 		);
@@ -754,10 +757,13 @@ class Static_Press_Test extends \WP_UnitTestCase {
 		);
 		Repository_For_Test::insert_url( $url );
 		$expect_urls_in_database = array(
-			new Expect_Url( Expect_Url::TYPE_OTHER_PAGE, '/test/', '1', 1 ),
-			new Expect_Url( Expect_Url::TYPE_OTHER_PAGE, '/', '1', 1 ),
+			new Expect_Url( Expect_Url::TYPE_OTHER_PAGE, '/test/', '1' ),
+			new Expect_Url( Expect_Url::TYPE_OTHER_PAGE, '/', '1' ),
+			new Expect_Url( Expect_Url::TYPE_STATIC_FILE, '/wp-content/plugins/akismet/_inc/akismet.css', '1' ),
+			new Expect_Url( Expect_Url::TYPE_STATIC_FILE, '/wp-content/themes/twentytwenty/style.css', '1' ),
 		);
-
+		activate_plugin( 'akismet/akismet.php' );
+		switch_theme( 'twentytwenty' );
 		$static_press = new Static_Press( 'staticpress', '/', self::OUTPUT_DIRECTORY );
 		$reflection   = new \ReflectionClass( get_class( $static_press ) );
 		$method       = $reflection->getMethod( 'update_url' );
@@ -826,6 +832,142 @@ class Static_Press_Test extends \WP_UnitTestCase {
 		$repository = new Static_Press_Repository();
 		$results    = $repository->get_all_url( $start_time );
 		Expect_Url::assert_url( $this, $expect_urls_in_database, $results );
+	}
+
+	/**
+	 * Function update_url() should save as disable when URL is not activated plugin's static file.
+	 */
+	public function test_update_url_case_non_active_plugin_static_file() {
+		deactivate_plugins( array( 'akismet/akismet.php' ) );
+		$urls                    = array(
+			array(
+				'url'  => '/wp-content/plugins/akismet/_inc/akismet.css',
+				'type' => 'static_file',
+			),
+		);
+		$expect_urls_in_database = array();
+		$static_press            = new Static_Press( 'staticpress', '/', self::OUTPUT_DIRECTORY );
+		$reflection              = new \ReflectionClass( get_class( $static_press ) );
+		$method                  = $reflection->getMethod( 'update_url' );
+		$method->setAccessible( true );
+
+		$result = $method->invokeArgs( $static_press, array( $urls ) );
+		$this->assertEquals( $result, $urls );
+		$method = $reflection->getMethod( 'fetch_start_time' );
+		$method->setAccessible( true );
+		$start_time = $method->invokeArgs( $static_press, array() );
+		$repository = new Static_Press_Repository();
+		$results    = $repository->get_all_url( $start_time );
+		Expect_Url::assert_url( $this, $expect_urls_in_database, $results );
+	}
+
+	/**
+	 * Function update_url() should save as disable when URL is not activated plugin's static file.
+	 */
+	public function test_update_url_case_static_file_not_plugin_nor_theme() {
+		file_put_contents( '/usr/src/wordpress/wp-content/uploads/2020/03/test.txt', '' );
+		$urls                    = array(
+			array(
+				'url'  => '/wp-content/uploads/2020/03/test.txt',
+				'type' => 'static_file',
+			),
+		);
+		$expect_urls_in_database = array(
+			new Expect_Url( Expect_Url::TYPE_STATIC_FILE, '/wp-content/uploads/2020/03/test.txt', '1' ),
+		);
+		$static_press            = new Static_Press( 'staticpress', '/', self::OUTPUT_DIRECTORY );
+		$reflection              = new \ReflectionClass( get_class( $static_press ) );
+		$method                  = $reflection->getMethod( 'update_url' );
+		$method->setAccessible( true );
+
+		$result = $method->invokeArgs( $static_press, array( $urls ) );
+		$this->assertEquals( $result, $urls );
+		$method = $reflection->getMethod( 'fetch_start_time' );
+		$method->setAccessible( true );
+		$start_time = $method->invokeArgs( $static_press, array() );
+		$repository = new Static_Press_Repository();
+		$results    = $repository->get_all_url( $start_time );
+		Expect_Url::assert_url( $this, $expect_urls_in_database, $results );
+	}
+
+	/**
+	 * Function front_page_url() should return appropriate URLs.
+	 */
+	public function test_front_page_url() {
+		$expect        = array(
+			array(
+				'type'          => 'front_page',
+				'url'           => '/',
+				'last_modified' => '2019-12-23 12:34:56',
+			),
+		);
+		$actual        = $this->create_accessable_method( 'front_page_url', array() );
+		$length_expect = count( $expect );
+		$this->assertEquals( $length_expect, count( $actual ) );
+		for ( $index = 0; $index < $length_expect; $index ++ ) {
+			$expect_url = $expect[ $index ];
+			$actual_url = $actual[ $index ];
+			$this->assertEquals( $expect_url, $actual_url );
+		}
+	}
+
+	/**
+	 * Function single_url() should return URLs of posts.
+	 * Function single_url() should return number of pages by split post content by nextpage tag.
+	 */
+	public function test_single_url() {
+		$expect = array(
+			array(
+				'type'        => 'single',
+				'url'         => '/?attachment_id=4/',
+				'object_id'   => 4,
+				'object_type' => 'attachment',
+				'pages'       => 1,
+			),
+			array(
+				'type'        => 'single',
+				'url'         => '/?attachment_id=5/',
+				'object_id'   => 5,
+				'object_type' => 'attachment',
+				'pages'       => 3,
+			),
+		);
+		wp_insert_post(
+			array(
+				'post_title'   => '',
+				'post_content' => '',
+				'post_status'  => 'publish',
+				'post_type'    => 'attachment',
+			)
+		);
+		wp_insert_post(
+			array(
+				'post_title'   => '',
+				'post_content' => 'test<!--nextpage-->test<!--nextpage-->test',
+				'post_status'  => 'publish',
+				'post_type'    => 'attachment',
+			)
+		);
+		$actual = $this->create_accessable_method( 'single_url', array() );
+		$this->assert_urls( $expect, $actual );
+	}
+
+	/**
+	 * Asserts URLs.
+	 * 
+	 * @param array $expect Expect URLs.
+	 * @param array $actual Actual URLs.
+	 */
+	private function assert_urls( $expect, $actual ) {
+		$length_expect = count( $expect );
+		$this->assertEquals( $length_expect, count( $actual ) );
+		for ( $index = 0; $index < $length_expect; $index ++ ) {
+			$expect_url = $expect[ $index ];
+			$actual_url = $actual[ $index ];
+			$this->assertRegExp( '/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/i', $actual_url['last_modified'] );
+			unset( $actual_url['last_modified'] );
+			$this->assertEquals( $expect_url, $actual_url );
+		}
 	}
 
 	/**

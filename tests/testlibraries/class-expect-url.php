@@ -11,7 +11,8 @@ namespace static_press\tests\testlibraries;
  * Class Expect_Url
  */
 class Expect_Url {
-	const TYPE_OTHER_PAGE = 'other_page';
+	const TYPE_OTHER_PAGE  = 'other_page';
+	const TYPE_STATIC_FILE = 'static_file';
 
 	/**
 	 * Expect type of URL object.
@@ -53,9 +54,10 @@ class Expect_Url {
 	 * @param array|object|null          $actual    Actual url data.
 	 */
 	public static function assert_url( $test_case, $expect, $actual ) {
-		$length = count( $expect );
-		$test_case->assertEquals( $length, count( $actual ) );
-		for ( $index = 0; $index < $length; $index ++ ) {
+		$length_expect = count( $expect );
+		$length_actual = count( $actual );
+		$test_case->assertEquals( $length_expect, $length_actual, "Expect $length_expect, but $length_actual.\n\$expect = " . implode( ',', $expect ) . "\n\$actual = " . self::convert_actual_to_string( $actual ) );
+		for ( $index = 0; $index < $length_expect; $index ++ ) {
 			$expect_url = $expect[ $index ];
 			$actual_url = $actual[ $index ];
 			$test_case->assertInternalType( 'string', $actual_url->ID );
@@ -64,5 +66,27 @@ class Expect_Url {
 			$test_case->assertEquals( $expect_url->url, $actual_url->url );
 			$test_case->assertEquals( $expect_url->pages, $actual_url->pages );
 		}
+	}
+
+	/**
+	 * For debug.
+	 * 
+	 * @param  array $actual Actual URLs.
+	 * @return string Converted string.
+	 */
+	private static function convert_actual_to_string( $actual ) {
+		$string = '(';
+		foreach ( $actual as $actual_url ) {
+			$string .= "(ID = $actual_url->ID, Type = $actual_url->type, URL = $actual_url->url, Pages = $actual_url->pages)";
+		}
+		$string .= ')';
+		return $string;
+	}
+
+	/**
+	 * For debug.
+	 */
+	public function __toString() {
+		return "Type = $this->type, URL = $this->url, Pages = $this->pages";
 	}
 }

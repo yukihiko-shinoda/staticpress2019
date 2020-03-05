@@ -159,4 +159,25 @@ class Static_Press_Repository {
 		);
 		return $wpdb->get_results( $sql );
 	}
+
+	/**
+	 * Gets posts.
+	 * 
+	 * @param array $post_types Post type.
+	 */
+	public function get_posts( $post_types ) {
+		global $wpdb;
+
+		$concatenated_post_types = "'" . implode( "','", $post_types ) . "'";
+
+		return $wpdb->get_results(
+			"
+			select ID, post_type, post_content, post_status, post_modified
+			from {$wpdb->posts}
+			where (post_status = 'publish' or post_type = 'attachment')
+			and post_type in ({$concatenated_post_types})
+			order by post_type, ID
+			"
+		);
+	}
 }

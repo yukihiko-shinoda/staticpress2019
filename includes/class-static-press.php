@@ -615,62 +615,7 @@ class Static_Press {
 			if ( ! isset( $url['url'] ) || ! $url['url'] ) {
 				continue;
 			}
-
-			$url['enable'] = 1;
-			if ( preg_match( '#\.php$#i', $url['url'] ) ) {
-				// Seems to intend PHP file.
-				$url['enable'] = 0;
-			} else if ( preg_match( '#\?[^=]+[=]?#i', $url['url'] ) ) {
-				// Seems to intend get request with parameter.
-				$url['enable'] = 0;
-			} else if ( preg_match( '#/wp-admin/$#i', $url['url'] ) ) {
-				// Seems to intend WordPress admin home page.
-				$url['enable'] = 0;
-			} else if ( isset( $url['type'] ) && 'static_file' == $url['type'] ) {
-				$plugin_dir  = trailingslashit( str_replace( ABSPATH, '/', WP_PLUGIN_DIR ) );
-				$theme_dir   = trailingslashit( str_replace( ABSPATH, '/', WP_CONTENT_DIR ) . '/themes' );
-				$file_source = untrailingslashit( ABSPATH ) . $url['url'];
-				$file_dest   = untrailingslashit( $this->dump_directory ) . $url['url'];
-				$pattern     = '#^(/(readme|readme-[^\.]+|license)\.(txt|html?)|(' . preg_quote( $plugin_dir ) . '|' . preg_quote( $theme_dir ) . ').*/((readme|changelog|license)\.(txt|html?)|(screenshot|screenshot-[0-9]+)\.(png|jpe?g|gif)))$#i';
-				if ( $file_source === $file_dest ) {
-					// Seems to intend to prevent from being duplicate dump process for already dumped files.
-					$url['enable'] = 0;
-				} else if ( preg_match( $pattern, $url['url'] ) ) {
-					// Seems to intend readme, license, changelog, screenshot in plugin directory or theme directory.
-					$url['enable'] = 0;
-				} else if ( ! file_exists( $file_source ) ) {
-					// Seems to intend to prevent from processing non exist files.
-					$url['enable'] = 0;
-				} else if ( ! file_exists( $file_dest ) ) {
-					$url['enable'] = 1;
-				} else if ( filemtime( $file_source ) <= filemtime( $file_dest ) ) {
-					// Seems to intend to skip non update files.
-					$url['enable'] = 0;
-				}
-
-				if ( $url['enable'] == 1 ) {
-					if ( preg_match( '#^' . preg_quote( $plugin_dir ) . '#i', $url['url'] ) ) {
-						$url['enable'] = 0;
-						$active_plugins = get_option( 'active_plugins' );
-						foreach ( $active_plugins as $active_plugin ) {
-							$active_plugin = trailingslashit( $plugin_dir . dirname( $active_plugin ) );
-							if ( $active_plugin == trailingslashit( $plugin_dir . '.' ) ) {
-								continue;
-							}
-							if ( preg_match('#^' . preg_quote( $active_plugin ) . '#i', $url['url'] ) ) {
-								$url['enable'] = 1;
-								break;
-							}
-						}
-					} else if ( preg_match( '#^' . preg_quote( $theme_dir ) . '#i', $url['url'] ) ) {
-						$url['enable'] = 0;
-						$current_theme = trailingslashit( $theme_dir . get_stylesheet() );
-						if ( preg_match( '#^' . preg_quote( $current_theme ) . '#i', $url['url'] ) ) {
-							$url['enable'] = 1;
-						}
-					}
-				}
-			}
+			$url['enable'] = $this->classify( $url );
 
 			$id = $this->repository->get_id( $url['url'] );
 			if ( $id ) {
@@ -682,6 +627,107 @@ class Static_Press {
 			do_action( 'StaticPress::update_url', $url );
 		}
 		return $urls;
+	}
+
+	/**
+	 * Classifies URL whether should dump or not.
+	 * 
+	 * @param array $url URL.
+	 * @return int should not dump: 0, should dump: 1
+	 */
+	private function classify( $url ) {
+		if ( preg_match( '#\.php$#i', $url['url'] ) ) {
+			// Seems to intend PHP file.
+			return 0;
+		}
+		if ( preg_match( '#\?[^=]+[=]?#i', $url['url'] ) ) {
+			// Seems to intend get request with parameter.
+			return 0;
+		}
+		if ( preg_match( '#/wp-admin/$#i', $url['url'] ) ) {
+			// Seems to intend WordPress admin home page.
+			return 0;
+		}
+		if ( ! isset( $url['type'] ) || 'static_file' != $url['type'] ) {
+			return 1;
+		}
+		return $this->classify_static_file( $url['url'] );
+	}
+
+	/**
+	 * Classifies URL of static file.
+	 * 
+	 * @param string $url URL.
+	 * @return int should not dump: 0, should dump: 1
+	 */
+	private function classify_static_file( $url ) {
+		$plugin_dir  = trailingslashit( str_replace( ABSPATH, '/', WP_PLUGIN_DIR ) );
+		$theme_dir   = trailingslashit( str_replace( ABSPATH, '/', WP_CONTENT_DIR ) . '/themes' );
+		$file_source = untrailingslashit( ABSPATH ) . $url;
+		$file_dest   = untrailingslashit( $this->dump_directory ) . $url;
+		$pattern     = '#^(/(readme|readme-[^\.]+|license)\.(txt|html?)|(' . preg_quote( $plugin_dir ) . '|' . preg_quote( $theme_dir ) . ').*/((readme|changelog|license)\.(txt|html?)|(screenshot|screenshot-[0-9]+)\.(png|jpe?g|gif)))$#i';
+		if ( $file_source === $file_dest ) {
+			// Seems to intend to prevent from being duplicate dump process for already dumped files.
+			return 0;
+		}
+		if ( preg_match( $pattern, $url ) ) {
+			// Seems to intend readme, license, changelog, screenshot in plugin directory or theme directory.
+			return 0;
+		}
+		if ( ! file_exists( $file_source ) ) {
+			// Seems to intend to prevent from processing non exist files.
+			return 0;
+		}
+		if ( file_exists( $file_dest ) && filemtime( $file_source ) <= filemtime( $file_dest ) ) {
+			// Seems to intend to skip non update files after last dump.
+			return 0;
+		}
+		if ( preg_match( '#^' . preg_quote( $plugin_dir ) . '#i', $url ) ) {
+			return $this->classify_static_file_plugin( $url, $plugin_dir );
+		}
+		if ( preg_match( '#^' . preg_quote( $theme_dir ) . '#i', $url ) ) {
+			return $this->classify_static_file_theme( $url, $theme_dir );
+		}
+		return 1;
+	}
+
+	/**
+	 * Classifies URL of plugin's static file.
+	 * Original specification seems to intend to dump only active plugin.
+	 * 
+	 * @param string $url        URL.
+	 * @param string $plugin_dir Plugin directory.
+	 * @return int should not dump: 0, should dump: 1
+	 */
+	private function classify_static_file_plugin( $url, $plugin_dir ) {
+		$active_plugins = get_option( 'active_plugins' );
+		foreach ( $active_plugins as $active_plugin ) {
+			$active_plugin = trailingslashit( $plugin_dir . dirname( $active_plugin ) );
+			if ( trailingslashit( $plugin_dir . '.' ) == $active_plugin ) {
+				// TODO What is the intension? Commited at 2013-04-23 11:50:42 5a470855fe94ef754b156cc062ab86eab452446d .
+				continue;
+			}
+			if ( preg_match( '#^' . preg_quote( $active_plugin ) . '#i', $url ) ) {
+				return 1;
+			}
+		}
+		return 0;
+	}
+
+	/**
+	 * Classifies URL of theme's static file.
+	 * Original specification seems to intend to dump only current theme.
+	 * 
+	 * @param string $url       URL.
+	 * @param string $theme_dir Theme directory.
+	 * @return int should not dump: 0, should dump: 1
+	 */
+	private function classify_static_file_theme( $url, $theme_dir ) {
+		$current_theme = trailingslashit( $theme_dir . get_stylesheet() );
+		if ( preg_match( '#^' . preg_quote( $current_theme ) . '#i', $url ) ) {
+			return 1;
+		}
+		return 0;
 	}
 
 	private function delete_url($urls){
@@ -757,11 +803,11 @@ class Static_Press {
 	}
 
 
-	private function front_page_url($url_type = 'front_page'){
-		$urls = array();
+	private function front_page_url() {
+		$urls     = array();
 		$site_url = $this->get_site_url();
-		$urls[] = array(
-			'type' => $url_type,
+		$urls[]   = array(
+			'type' => 'front_page',
 			'url' => apply_filters('StaticPress::get_url', $site_url),
 			'last_modified' => date('Y-m-d h:i:s'),
 			);
@@ -769,39 +815,29 @@ class Static_Press {
 	}
 
 	private function single_url( $url_type = 'single' ) {
-		global $wpdb;
-
-		if ( !isset( $this->post_types ) || empty( $this->post_types ) ) {
-			$this->post_types = "'" . implode( "','", get_post_types(array( 'public' => true ) ) ) . "'";
-		}
-
+		$post_types = get_post_types( array( 'public' => true ) );
+		$posts = $this->repository->get_posts( $post_types );
 		$urls = array();
-		$posts = $wpdb->get_results(
-			"
-			select ID, post_type, post_content, post_status, post_modified
-			from {$wpdb->posts}
-			where (post_status = 'publish' or post_type = 'attachment')
-			and post_type in ({$this->post_types})
-			order by post_type, ID
-			"
-		);
 		foreach ( $posts as $post ) {
 			$post_id = $post->ID;
 			$modified = $post->post_modified;
-			$permalink = get_permalink($post->ID);
-			if (is_wp_error($permalink))
+			$permalink = get_permalink( $post->ID );
+			if ( $permalink === false || is_wp_error( $permalink ) ) {
+				// TODO Is is_wp_error() correct? Commited at 2013-04-22 22:54:05 450c6ce5731b27fc98707d8a881844778ced4763 .
 				continue;
+			}
 			$count = 1;
-			if ( $splite = preg_split("#<!--nextpage-->#", $post->post_content) )
-				$count = count($splite);
+			if ( $splite = preg_split( "#<!--nextpage-->#", $post->post_content ) ) {
+				$count = count( $splite );
+			}
 			$urls[] = array(
-				'type' => $url_type,
-				'url' => apply_filters('StaticPress::get_url', $permalink),
-				'object_id' => intval($post_id),
-				'object_type' =>  $post->post_type,
-				'pages' => $count,
+				'type'          => $url_type,
+				'url'           => apply_filters( 'StaticPress::get_url', $permalink ),
+				'object_id'     => intval( $post_id ),
+				'object_type'   =>  $post->post_type,
+				'pages'         => $count,
 				'last_modified' => $modified,
-				);
+			);
 		}
 		return $urls;
 	}
@@ -840,10 +876,13 @@ select MAX(P.post_modified) as last_modified, count(P.ID) as count
 		$urls = array();
 		$taxonomies = get_taxonomies(array('public'=>true));
 		foreach($taxonomies as $taxonomy) {
+			var_dump($taxonomy);
 			$terms = get_terms($taxonomy);
+			var_dump($terms);
 			if (is_wp_error($terms))
 				continue;
 			foreach ($terms as $term){
+				var_dump($term);
 				$term_id = $term->term_id;
 				$termlink = get_term_link($term->slug, $taxonomy);
 				if (is_wp_error($termlink))
