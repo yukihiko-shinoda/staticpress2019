@@ -7,6 +7,9 @@
 
 namespace static_press\includes;
 
+if ( ! class_exists( 'static_press\includes\Static_Press_File_Scanner' ) ) {
+	require dirname( __FILE__ ) . '/class-static-press-file-scanner.php';
+}
 if ( ! class_exists( 'static_press\includes\Static_Press_Plugin_Information' ) ) {
 	require dirname( __FILE__ ) . '/class-static-press-plugin-information.php';
 }
@@ -16,6 +19,7 @@ if ( ! class_exists( 'static_press\includes\Static_Press_Repository' ) ) {
 if ( ! class_exists( 'static_press\includes\Static_Press_Terminator' ) ) {
 	require dirname( __FILE__ ) . '/class-static-press-terminator.php';
 }
+use static_press\includes\Static_Press_File_Scanner;
 use static_press\includes\Static_Press_Plugin_Information;
 use static_press\includes\Static_Press_Repository;
 use static_press\includes\Static_Press_Terminator;
@@ -76,8 +80,8 @@ class Static_Press {
 		$this->make_subdirectories( $this->dump_directory );
 		$this->remote_get_option  = $remote_get_option;
 		$this->plugin_information = new Static_Press_Plugin_Information();
-		$this->repository = new Static_Press_Repository();
-		$this->terminator = $terminator ? $terminator : new Static_Press_Terminator();
+		$this->repository         = new Static_Press_Repository();
+		$this->terminator         = $terminator ? $terminator : new Static_Press_Terminator();
 
 		$this->repository->create_table();
 
@@ -746,54 +750,58 @@ class Static_Press {
 		return $urls;
 	}
 
-	private function get_urls(){
+	private function get_urls() {
 		global $wpdb;
+		$wpdb->query( "truncate table `{$this->url_table}`" );
 
-		$wpdb->query("truncate table `{$this->url_table}`");
-		$this->post_types = "'".implode("','",get_post_types(array('public' => true)))."'";
-		$urls = array();
-		$urls = array_merge($urls, $this->front_page_url());
-		$urls = array_merge($urls, $this->single_url());
-		$urls = array_merge($urls, $this->terms_url());
-		$urls = array_merge($urls, $this->author_url());
-		$urls = array_merge($urls, $this->static_files_url());
-		$urls = array_merge($urls, $this->seo_url());
-		return $urls;
+		return array_merge(
+			$this->front_page_url(),
+			$this->single_url(),
+			$this->terms_url(),
+			$this->author_url(),
+			$this->static_files_url(),
+			$this->seo_url(),
+		);
 	}
 
-	// Check correct sitemap url by robots.txt
-	private function seo_url($url_type = 'seo_files'){
-		$urls = array();
+	/**
+	 * Checks correct sitemap URL by robots.txt.
+	 */
+	private function seo_url() {
+		$url_type = 'seo_files';
+		$urls     = array();
 		$analyzed = array();
-		$sitemap = '/sitemap.xml';
-		$robots = '/robots.txt';
-		$urls[] = array('type' => $url_type, 'url' => $robots, 'last_modified' => date('Y-m-d h:i:s'));
-		if(($txt = $this->remote_get($robots)) && isset($txt['body'])){
-			$http_code = intval($txt['code']);
-			switch (intval($http_code)){
+		$sitemap  = '/sitemap.xml';
+		$robots   = '/robots.txt';
+		$urls[]   = array('type' => $url_type, 'url' => $robots, 'last_modified' => date('Y-m-d h:i:s'));
+		if ( ( $txt = $this->remote_get( $robots ) ) && isset( $txt['body'] ) ) {
+			$http_code = intval( $txt['code'] );
+			switch ( intval( $http_code ) ) {
 			case 200:
-				if(preg_match('/sitemap:\s.*?(\/[\-_a-z0-9%]+\.xml)/i',$txt['body'],$match)){
+				if ( preg_match( '/sitemap:\s.*?(\/[\-_a-z0-9%]+\.xml)/i', $txt['body'], $match ) ) {
 					$sitemap = $match[1];
 				}
 			}
 		}
-		$this->sitemap_analyzer($analyzed,$urls,$sitemap,$url_type);
+		$this->sitemap_analyzer( $analyzed, $urls, $sitemap, $url_type );
 		return $urls;
 	}
 
-	// Crawling sitemap XML files
-	private function sitemap_analyzer(&$analyzed,&$urls,$url,$url_type){
-		$urls[] = array('type' => $url_type, 'url' => $url, 'last_modified' => date('Y-m-d h:i:s'));
+	/**
+	 * Crawls sitemap XML files.
+	 */
+	private function sitemap_analyzer( &$analyzed, &$urls, $url, $url_type ) {
+		$urls[] = array( 'type' => $url_type, 'url' => $url, 'last_modified' => date( 'Y-m-d h:i:s' ) );
 		$analyzed[] = $url;
-		if(($xml = $this->remote_get($url)) && isset($xml['body'])){
-			$http_code = intval($xml['code']);
-			switch (intval($http_code)){
+		if( ( $xml = $this->remote_get( $url ) ) && isset( $xml['body'] ) ) {
+			$http_code = intval( $xml['code'] );
+			switch ( intval( $http_code ) ) {
 			case 200:
-				if(preg_match_all('/<loc>(.*?)<\/loc>/i',$xml['body'],$matches)){
-					foreach($matches[1] as $link){
-						if(preg_match('/\/([\-_a-z0-9%]+\.xml)$/i',$link,$matchSub)){
-							if(!in_array($matchSub[0],$analyzed)){
-								$this->sitemap_analyzer($analyzed,$urls,$matchSub[0],$url_type);
+				if ( preg_match_all( '/<loc>(.*?)<\/loc>/i', $xml['body'], $matches ) ) {
+					foreach ( $matches[1] as $link ) {
+						if ( preg_match( '/\/([\-_a-z0-9%]+\.xml)$/i', $link,$matchSub ) ) {
+							if ( ! in_array( $matchSub[0], $analyzed ) ) {
+								$this->sitemap_analyzer( $analyzed, $urls, $matchSub[0], $url_type );
 							}
 						}
 					}
@@ -814,7 +822,10 @@ class Static_Press {
 		return $urls;
 	}
 
-	private function single_url( $url_type = 'single' ) {
+	/**
+	 * Gets URLs of posts.
+	 */
+	private function single_url() {
 		$post_types = get_post_types( array( 'public' => true ) );
 		$posts = $this->repository->get_posts( $post_types );
 		$urls = array();
@@ -831,7 +842,7 @@ class Static_Press {
 				$count = count( $splite );
 			}
 			$urls[] = array(
-				'type'          => $url_type,
+				'type'          => 'single',
 				'url'           => apply_filters( 'StaticPress::get_url', $permalink ),
 				'object_id'     => intval( $post_id ),
 				'object_type'   =>  $post->post_type,
@@ -870,120 +881,114 @@ select MAX(P.post_modified) as last_modified, count(P.ID) as count
 		return array($modified, $page_count);
 	}
 
-	private function terms_url($url_type = 'term_archive') {
-		global $wpdb;
-
+	/**
+	 * Gets URLs of terms.
+	 */
+	private function terms_url( $url_type = 'term_archive' ) {
 		$urls = array();
-		$taxonomies = get_taxonomies(array('public'=>true));
-		foreach($taxonomies as $taxonomy) {
-			var_dump($taxonomy);
-			$terms = get_terms($taxonomy);
-			var_dump($terms);
-			if (is_wp_error($terms))
+		$taxonomies = get_taxonomies( array( 'public' => true ) );
+		foreach ( $taxonomies as $taxonomy ) {
+			$terms = get_terms( $taxonomy );
+			if ( is_wp_error( $terms ) ) {
 				continue;
-			foreach ($terms as $term){
-				var_dump($term);
+			}
+			foreach ( $terms as $term ) {
 				$term_id = $term->term_id;
-				$termlink = get_term_link($term->slug, $taxonomy);
-				if (is_wp_error($termlink))
+				$termlink = get_term_link( $term->slug, $taxonomy );
+				if ( is_wp_error( $termlink ) ) {
 					continue;
-				list($modified, $page_count) = $this->get_term_info($term_id);
+				}
+				list( $modified, $page_count ) = $this->get_term_info( $term_id );
 				$urls[] = array(
-					'type' => $url_type,
-					'url' => apply_filters('StaticPress::get_url', $termlink),
-					'object_id' => intval($term_id),
-					'object_type' => $term->taxonomy,
-					'parent' => $term->parent,
-					'pages' => $page_count,
+					'type'          => $url_type,
+					'url'           => apply_filters( 'StaticPress::get_url', $termlink ),
+					'object_id'     => intval( $term_id ),
+					'object_type'   => $term->taxonomy,
+					'parent'        => $term->parent,
+					'pages'         => $page_count,
 					'last_modified' => $modified,
-					);
+				);
 
-				$termchildren = get_term_children($term->term_id, $taxonomy);
-				if (is_wp_error($termchildren))
+				$termchildren = get_term_children( $term->term_id, $taxonomy );
+				if ( is_wp_error( $termchildren ) ) {
 					continue;
+				}
 				foreach ( $termchildren as $child ) {
-					$term = get_term_by('id', $child, $taxonomy);
+					$term = get_term_by( 'id', $child, $taxonomy );
 					$term_id = $term->term_id;
-					if (is_wp_error($term))
+					if ( is_wp_error( $term ) ) {
 						continue;
-					$termlink = get_term_link($term->name, $taxonomy);
-					if (is_wp_error($termlink))
+					}
+					$termlink = get_term_link( $term->name, $taxonomy );
+					if ( is_wp_error( $termlink ) ) {
 						continue;
-					list($modified, $page_count) = $this->get_term_info($term_id);
+					}
+					list( $modified, $page_count ) = $this->get_term_info( $term_id );
 					$urls[] = array(
-						'type' => $url_type,
-						'url' => apply_filters('StaticPress::get_url', $termlink),
-						'object_id' => intval($term_id),
-						'object_type' => $term->taxonomy,
-						'parent' => $term->parent,
-						'pages' => $page_count,
+						'type'          => $url_type,
+						'url'           => apply_filters( 'StaticPress::get_url', $termlink ),
+						'object_id'     => intval( $term_id ),
+						'object_type'   => $term->taxonomy,
+						'parent'        => $term->parent,
+						'pages'         => $page_count,
 						'last_modified' => $modified,
-						);
+					);
 				}
 			}
 		}
 		return $urls;
 	}
 
-	private function author_url($url_type = 'author_archive') {
-		global $wpdb;
-
-		if (!isset($this->post_types) || empty($this->post_types))
-			$this->post_types = "'".implode("','",get_post_types(array('public' => true)))."'";
-
+	/**
+	 * Gets URLs of authors.
+	 */
+	private function author_url() {
+		$post_types = get_post_types( array( 'public' => true) );
+		$authors = $this->repository->get_post_authors( $post_types );
 		$urls = array();
-
-		$authors = $wpdb->get_results("
-SELECT DISTINCT post_author, COUNT(ID) AS count, MAX(post_modified) AS modified
- FROM {$wpdb->posts} 
- where post_status = 'publish'
-   and post_type in ({$this->post_types})
- group by post_author
- order by post_author
-");
-		foreach ($authors as $author) {
+		foreach ( $authors as $author ) {
 			$author_id = $author->post_author;
-			$page_count = intval($author->count / intval(get_option('posts_per_page'))) + 1;
+			$page_count = intval( $author->count / intval( get_option( 'posts_per_page' ) ) ) + 1;
 			$modified = $author->modified;
-			$author = get_userdata($author_id);
-			if (is_wp_error($author))
+			$author = get_userdata( $author_id );
+			if ( is_wp_error( $author ) ) {
 				continue;
-			$authorlink = get_author_posts_url($author->ID, $author->user_nicename);
-			if (is_wp_error($authorlink))
+			}
+			$authorlink = get_author_posts_url( $author->ID, $author->user_nicename );
+			if ( is_wp_error( $authorlink ) ) {
 				continue;
+			}
 			$urls[] = array(
-				'type' => $url_type,
-				'url' => apply_filters('StaticPress::get_url', $authorlink),
-				'object_id' => intval($author_id),
-				'pages' => $page_count,
+				'type'          => 'author_archive',
+				'url'           => apply_filters( 'StaticPress::get_url', $authorlink ),
+				'object_id'     => intval( $author_id ),
+				'pages'         => $page_count,
 				'last_modified' => $modified,
-				);
+			);
 		}
 		return $urls;
 	}
 
-	private function static_files_url($url_type = 'static_file'){
-		$urls = array();
-
-		$static_files_filter = apply_filters('StaticPress::static_files_filter', $this->static_files_ext);
-		foreach ($static_files_filter as &$file_ext) {
-			$file_ext = '*.'.$file_ext;
-		}
+	/**
+	 * Gets URLs of static files.
+	 */
+	private function static_files_url() {
+		$file_scanner = new Static_Press_File_Scanner( apply_filters( 'StaticPress::static_files_filter', $this->static_files_ext ) );
 		$static_files = array_merge(
-			$this->scan_file(trailingslashit(ABSPATH), '{'.implode(',',$static_files_filter).'}', false),
-			$this->scan_file(trailingslashit(ABSPATH).'wp-admin/', '{'.implode(',',$static_files_filter).'}', true),
-			$this->scan_file(trailingslashit(ABSPATH).'wp-includes/', '{'.implode(',',$static_files_filter).'}', true),
-			$this->scan_file(trailingslashit(WP_CONTENT_DIR), '{'.implode(',',$static_files_filter).'}', true)
-			);
-		unset($static_files_filter);
+			$file_scanner->scan( trailingslashit( ABSPATH ), false ),
+			$file_scanner->scan( trailingslashit( ABSPATH ) . 'wp-admin/', true ),
+			$file_scanner->scan( trailingslashit( ABSPATH ) . 'wp-includes/', true ),
+			$file_scanner->scan( trailingslashit( WP_CONTENT_DIR ), true ),
+		);
 
-		foreach ($static_files as $static_file){
-			$static_file_url = str_replace(trailingslashit(ABSPATH), trailingslashit($this->get_site_url()), $static_file);
+		$urls = array();
+		foreach ( $static_files as $static_file ) {
+			$static_file_url = str_replace( trailingslashit( ABSPATH ), trailingslashit( $this->get_site_url() ), $static_file );
 			$urls[] = array(
-				'type' => $url_type,
-				'url' => apply_filters('StaticPress::get_url', $static_file_url),
-				'last_modified' => date('Y-m-d h:i:s', filemtime($static_file)),
-				);
+				'type'          => 'static_file',
+				'url'           => apply_filters( 'StaticPress::get_url', $static_file_url ),
+				'last_modified' => date( 'Y-m-d h:i:s', filemtime( $static_file ) ),
+			);
 		}
 		return $urls;
 	}
@@ -1051,32 +1056,6 @@ SELECT DISTINCT post_author, COUNT(ID) AS count, MAX(post_modified) AS modified
 		}
 
 		return $urls;
-	}
-
-	private function scan_file($dir, $target = false, $recursive = true) {
-		if (!$target) {
-			$static_files_filter = apply_filters('StaticPress::static_files_filter', $this->static_files_ext);
-			foreach ($static_files_filter as &$file_ext) {
-				$file_ext = '*.'.$file_ext;
-			}
-			$target = '{'.implode(',',$static_files_filter).'}';
-			unset($static_files_filter);
-		}
-
-		$list = $tmp = array();
-		if ($recursive) {
-			foreach(glob($dir . '*/', GLOB_ONLYDIR) as $child_dir) {
-				if ($tmp = $this->scan_file($child_dir, $target, $recursive)) {
-					$list = array_merge($list, $tmp);
-				}
-			}
-		}
-
-		foreach(glob($dir . $target, GLOB_BRACE) as $image) {
-			$list[] = $image;
-		}
-
-		return $list;
 	}
 
 	/**

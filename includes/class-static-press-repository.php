@@ -154,7 +154,7 @@ class Static_Press_Repository {
 		global $wpdb;
 
 		$sql = $wpdb->prepare(
-			"select ID, type, url, pages from {$this->url_table} where `last_upload` < %s and enable = 1",
+			"SELECT ID, type, url, pages FROM {$this->url_table} WHERE `last_upload` < %s and enable = 1",
 			$start_time
 		);
 		return $wpdb->get_results( $sql );
@@ -171,13 +171,31 @@ class Static_Press_Repository {
 		$concatenated_post_types = "'" . implode( "','", $post_types ) . "'";
 
 		return $wpdb->get_results(
-			"
-			select ID, post_type, post_content, post_status, post_modified
+			"SELECT ID, post_type, post_content, post_status, post_modified
 			from {$wpdb->posts}
 			where (post_status = 'publish' or post_type = 'attachment')
 			and post_type in ({$concatenated_post_types})
-			order by post_type, ID
-			"
+			order by post_type, ID"
+		);
+	}
+
+	/**
+	 * Gets post authors.
+	 * 
+	 * @param array $post_types Post type.
+	 */
+	public function get_post_authors( $post_types ) {
+		global $wpdb;
+
+		$concatenated_post_types = "'" . implode( "','", $post_types ) . "'";
+
+		return $wpdb->get_results(
+			"SELECT DISTINCT post_author, COUNT(ID) AS count, MAX(post_modified) AS modified
+			FROM {$wpdb->posts} 
+			where post_status = 'publish'
+			and post_type in ({$concatenated_post_types})
+			group by post_author
+			order by post_author"
 		);
 	}
 }

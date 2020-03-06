@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet type="text/xsl" href="/usr/src/wordpress/plugins/google-sitemap-generator/sitemap.xsl"?><!-- sitemap-generator-url="http://www.arnebrachhold.de" sitemap-generator-version="4.1.0" -->
+<!-- generated-on="2020年2月22日 18:22" -->
+<urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">	<url>
+		<loc>https://example.org/how-does-tortoise-git-show-the-differences-between-microsoft-office-files/</loc>
+		<lastmod>2020-02-22T15:37:40+00:00</lastmod>
+		<changefreq>weekly</changefreq>
+		<priority>0.6</priority>
+	</url>
+</urlset><!-- <pre><pre class='xdebug-var-dump' dir='ltr'>
+<small>/usr/src/wordpress/web/app/plugins/google-sitemap-generator/sitemap-core.php:1737:</small>
+<b>array</b> <i>(size=15)</i>
+  0 <font color='#888a85'>=&gt;</font> 
+    <b>array</b> <i>(size=5)</i>
+      0 <font color='#888a85'>=&gt;</font> <small>string</small> <font color='#cc0000'>'SELECT option_name, option_value FROM wp_options WHERE autoload = &#39;yes&#39;'</font> <i>(length=71)</i>
+      1 <font color='#888a85'>=&gt;</font> <small>float</small> <font color='#f57900'>0.003119945526123</font>
+      2 <font color='#888a85'>=&gt;</font> <small>string</small> <font color='#cc0000'>'require(&#39;wp-blog-header.php&#39;), require_once(&#39;wp-load.php&#39;), require_once(&#39;/usr/src/wordpress/web/wp-config.php&#39;), eval, wp_not_installed, is_blog_installed, wp_load_alloptions'</font> <i>(length=161)</i>
+      3 <font color='#888a85'>=&gt;</font> <small>float</small> <font color='#f57900'>1582395722.624</font>
+      4 <font color='#888a85'>=&gt;</font> 
+        <b>array</b> <i>(size=0)</i>
+          <i><font color='#888a85'>empty</font></i>
+  1 <font color='#888a85'>=&gt;</font> 
+    <b>array</b> <i>(size=5)</i>
+      0 <font color='#888a85'>=&gt;</font> <small>string</small> <font color='#cc0000'>'SELECT option_value FROM wp_options WHERE option_name = &#39;bedrock_autoloader&#39; LIMIT 1'</font> <i>(length=84)</i>
+      1 <font color='#888a85'>=&gt;</font> <small>float</small> <font color='#f57900'>0.0005500316619873</font>
+      2 <font color='#888a85'>=&gt;</font> <small>string</small> <font color='#cc0000'>'require(&#39;wp-blog-header.php&#39;), require_once(&#39;wp-load.php&#39;), require_once(&#39;/usr/src/wordpress/web/wp-config.php&#39;), eval, include_once(&#39;/mu-plugins/bedrock-autoloader.php&#39;), Roots\Bedrock\Autoloader-&gt;__construct, Roots\Bedrock\Autoloader-&gt;loadPlugins, Roots\Bedrock\Autoloader-&gt;checkCache, get_site_option, get_network_option, get_option'</font> <i>(length=321)</i>
+      3 <font color='#888a85'>=&gt;</font> <small>float</small> <font color='#f57900'>1582395722.6745</font>
+      4 <font color='#888a85'>=&gt;</font> 
+        <b>array</b> <i>(size=0)</i>
+          <i><font color='#888a85'>empty</font></i>
+  2 <font color='#888a85'>=&gt;</font> 
+    <b>array</b> <i>(size=5)</i>
+      0 <font color='#888a85'>=&gt;</font> <small>string</small> <font color='#cc0000'>'SELECT option_value FROM wp_options WHERE option_name = &#39;StaticPress::basic auth&#39; LIMIT 1'</font> <i>(length=89)</i>
+      1 <font color='#888a85'>=&gt;</font> <small>float</small> <font color='#f57900'>0.00048112869262695</font>
+      2 <font color='#888a85'>=&gt;</font> <small>string</small> <font color='#cc0000'>'require(&#39;wp-blog-header.php&#39;), require_once(&#39;wp-load.php&#39;), require_once(&#39;/usr/src/wordpress/web/wp-config.php&#39;), eval, eval, static_press_admin::remote_get_option, static_press_admin::basic_auth, get_option'</font> <i>(length=193)</i>
+      3 <font color='#888a85'>=&gt;</font> <small>float</small> <font color='#f57900'>1582395722.7367</font>
+      4 <font color='#888a85'>=&gt;</font> 
+        <b>array</b> <i>(size=0)</i>
+          <i><font color='#888a85'>empty</font></i>
+  3 <font color='#888a85'>=&gt;</font> 
+    <b>array</b> <i>(size=5)</i>
+      0 <font color='#888a85'>=&gt;</font> <small>string</small> <font color='#cc0000'>'show tables like &#39;wp_urls&#39;'</font> <i>(length=26)</i>
+      1 <font color='#888a85'>=&gt;</font> <small>float</small> <font color='#f57900'>0.0017600059509277</font>
+      2 <font color='#888a85'>=&gt;</font> <small>string</small> <font color='#cc0000'>'require(&#39;wp-blog-header.php&#39;), require_once(&#39;wp-load.php&#39;), require_once(&#39;/usr/src/wordpress/web/wp-config.php&#39;), eval, eval, staticpress\includes\static_press-&gt;__construct, staticpress\includes\static_press-&gt;init_params, staticpress\includes\static_press-&gt;create_table'</font> <i>(length=255)</i>
+      3 <font color='#888a85'>=&gt;</font> <small>float</small> <font color='#f57900'>1582395722.7383</font>
+      4 <font color='#888a85'>=&gt;</font> 
+        <b>array</b> <i>(size=0)</i>
+          <i><font color='#888a85'>empty</font></i>
+  4 <font color='#888a85'>=&gt;</font> 
+    <b>array</b> <i>(size=5)</i>
+      0 <font color='#888a85'>=&gt;</font> <small>string</small> <font color='#cc0000'>'SELECT option_value FROM wp_options WHERE option_name = &#39;aioseop_notices&#39; LIMIT 1'</font> <i>(length=81)</i>
+      1 <font color='#888a85'>=&gt;</font> <small>float</small> <font color='#f57900'>0.00047898292541504</font>
+      2 <font color='#888a85'>=&gt;</font> <small>string</small> <font color='#cc0000'>'require(&#39;wp-blog-header.php&#39;), require_once(&#39;wp-load.php&#39;), require_once(&#39;/usr/src/wordpress/web/wp-config.php&#39;), eval, do_action(&#39;plugins_loaded&#39;), WP_Hook-&gt;do_action, WP_Hook-&gt;apply_filters, aioseop_init_class, require_once(&#39;/plugins/all-in-one-seo-pack/admin/class-aioseop-notices.php&#39;), AIOSEOP_Notices-&gt;__construct, AIOSEOP_Notices-&gt;obj_load_options, AIOSEOP_Notices-&gt;obj_get_options, get_option'</font> <i>(length=386)</i>
+      3 <font color='#888a85'>=&gt;</font> <small>float</small> <font color='#f57900'>1582395722.7992</font>
+      4 <font color='#888a85'>=&gt;</font> 
+        <b>array</b> <i>(size=0)</i>
+          <i><font color='#888a85'>empty</font></i>
+  5 <font color='#888a85'>=&gt;</font> 
+    <b>array</b> <i>(size=5)</i>
+      0 <font color='#888a85'>=&gt;</font> <small>string</small> <font color='#cc0000'>'SELECT option_value FROM wp_options WHERE option_name = &#39;_site_transient_timeout_aioseop_update_check_time&#39; LIMIT 1'</font> <i>(length=115)</i>
+      1 <font color='#888a85'>=&gt;</font> <small>float</small> <font color='#f57900'>0.00051093101501465</font>
+      2 <font color='#888a85'>=&gt;</font> <small>string</small> <font color='#cc0000'>'require(&#39;wp-blog-header.php&#39;), require_once(&#39;wp-load.php&#39;), require_once(&#39;/usr/src/wordpress/web/wp-config.php&#39;), eval, do_action(&#39;plugins_loaded&#39;), WP_Hook-&gt;do_action, WP_Hook-&gt;apply_filters, AIOSEOP_Updates-&gt;version_updates, AIOSEOP_Updates-&gt;do_feature_updates, get_site_transient, get_site_option, get_network_option, get_option'</font> <i>(length=317)</i>
+      3 <font color='#888a85'>=&gt;</font> <small>float</small> <font color='#f57900'>1582395722.9396</font>
+      4 <font color='#888a85'>=&gt;</font> 
+        <b>array</b> <i>(size=0)</i>
+          <i><font color='#888a85'>empty</font></i>
+  6 <font color='#888a85'>=&gt;</font> 
+    <b>array</b> <i>(size=5)</i>
+      0 <font color='#888a85'>=&gt;</font> <small>string</small> <font color='#cc0000'>'SELECT option_value FROM wp_options WHERE option_name = &#39;_site_transient_aioseop_update_check_time&#39; LIMIT 1'</font> <i>(length=107)</i>
+      1 <font color='#888a85'>=&gt;</font> <small>float</small> <font color='#f57900'>0.0002448558807373</font>
+      2 <font color='#888a85'>=&gt;</font> <small>string</small> <font color='#cc0000'>'require(&#39;wp-blog-header.php&#39;), require_once(&#39;wp-load.php&#39;), require_once(&#39;/usr/src/wordpress/web/wp-config.php&#39;), eval, do_action(&#39;plugins_loaded&#39;), WP_Hook-&gt;do_action, WP_Hook-&gt;apply_filters, AIOSEOP_Updates-&gt;version_updates, AIOSEOP_Updates-&gt;do_feature_updates, get_site_transient, get_site_option, get_network_option, get_option'</font> <i>(length=317)</i>
+      3 <font color='#888a85'>=&gt;</font> <small>float</small> <font color='#f57900'>1582395722.9406</font>
+      4 <font color='#888a85'>=&gt;</font> 
+        <b>array</b> <i>(size=0)</i>
+          <i><font color='#888a85'>empty</font></i>
+  7 <font color='#888a85'>=&gt;</font> 
+    <b>array</b> <i>(size=5)</i>
+      0 <font color='#888a85'>=&gt;</font> <small>string</small> <font color='#cc0000'>'SELECT option_value FROM wp_options WHERE option_name = &#39;can_compress_scripts&#39; LIMIT 1'</font> <i>(length=86)</i>
+      1 <font color='#888a85'>=&gt;</font> <small>float</small> <font color='#f57900'>0.00062990188598633</font>
+      2 <font color='#888a85'>=&gt;</font> <small>string</small> <font color='#cc0000'>'require(&#39;wp-blog-header.php&#39;), require_once(&#39;wp-load.php&#39;), require_once(&#39;/usr/src/wordpress/web/wp-config.php&#39;), eval, do_action(&#39;init&#39;), WP_Hook-&gt;do_action, WP_Hook-&gt;apply_filters, wp_widgets_init, do_action(&#39;widgets_init&#39;), WP_Hook-&gt;do_action, WP_Hook-&gt;apply_filters, WP_Widget_Factory-&gt;_register_widgets, WP_Widget-&gt;_register, WP_Widget_Text-&gt;_register_one, wp_add_inline_script, wp_scripts, WP_Scripts-&gt;__construct, WP_Scripts-&gt;init, do_action_ref_array(&#39;wp_default_scripts&#39;), WP_Hook-&gt;do_action, WP_Hook-&gt;apply_filters, '...</font> <i>(length=633)</i>
+      3 <font color='#888a85'>=&gt;</font> <small>float</small> <font color='#f57900'>1582395723.2905</font>
+      4 <font color='#888a85'>=&gt;</font> 
+        <b>array</b> <i>(size=0)</i>
+          <i><font color='#888a85'>empty</font></i>
+  8 <font color='#888a85'>=&gt;</font> 
+    <b>array</b> <i>(size=5)</i>
+      0 <font color='#888a85'>=&gt;</font> <small>string</small> <font color='#cc0000'>'SELECT SQL_CALC_FOUND_ROWS  wp_posts.ID FROM wp_posts  WHERE 1=1  AND wp_posts.post_type = &#39;post&#39; AND (wp_posts.post_status = &#39;publish&#39;)  ORDER BY wp_posts.post_date DESC LIMIT 0, 10'</font> <i>(length=182)</i>
+      1 <font color='#888a85'>=&gt;</font> <small>float</small> <font color='#f57900'>0.00084805488586426</font>
+      2 <font color='#888a85'>=&gt;</font> <small>string</small> <font color='#cc0000'>'require(&#39;wp-blog-header.php&#39;), wp, WP-&gt;main, WP-&gt;query_posts, WP_Query-&gt;query, WP_Query-&gt;get_posts'</font> <i>(length=98)</i>
+      3 <font color='#888a85'>=&gt;</font> <small>float</small> <font color='#f57900'>1582395723.3122</font>
+      4 <font color='#888a85'>=&gt;</font> 
+        <b>array</b> <i>(size=0)</i>
+          <i><font color='#888a85'>empty</font></i>
+  9 <font color='#888a85'>=&gt;</font> 
+    <b>array</b> <i>(size=5)</i>
+      0 <font color='#888a85'>=&gt;</font> <small>string</small> <font color='#cc0000'>'SELECT FOUND_ROWS()'</font> <i>(length=19)</i>
+      1 <font color='#888a85'>=&gt;</font> <small>float</small> <font color='#f57900'>0.0001678466796875</font>
+      2 <font color='#888a85'>=&gt;</font> <small>string</small> <font color='#cc0000'>'require(&#39;wp-blog-header.php&#39;), wp, WP-&gt;main, WP-&gt;query_posts, WP_Query-&gt;query, WP_Query-&gt;get_posts, WP_Query-&gt;set_found_posts'</font> <i>(length=125)</i>
+      3 <font color='#888a85'>=&gt;</font> <small>float</small> <font color='#f57900'>1582395723.3134</font>
+      4 <font color='#888a85'>=&gt;</font> 
+        <b>array</b> <i>(size=0)</i>
+          <i><font color='#888a85'>empty</font></i>
+  10 <font color='#888a85'>=&gt;</font> 
+    <b>array</b> <i>(size=5)</i>
+      0 <font color='#888a85'>=&gt;</font> <small>string</small> <font color='#cc0000'>'SELECT wp_posts.* FROM wp_posts WHERE ID IN (1998,1967,1964,1833,1903,1857,1766,1705,1675,1635)'</font> <i>(length=95)</i>
+      1 <font color='#888a85'>=&gt;</font> <small>float</small> <font color='#f57900'>0.0019519329071045</font>
+      2 <font color='#888a85'>=&gt;</font> <small>string</small> <font color='#cc0000'>'require(&#39;wp-blog-header.php&#39;), wp, WP-&gt;main, WP-&gt;query_posts, WP_Query-&gt;query, WP_Query-&gt;get_posts, _prime_post_caches'</font> <i>(length=118)</i>
+      3 <font color='#888a85'>=&gt;</font> <small>float</small> <font color='#f57900'>1582395723.3139</font>
+      4 <font color='#888a85'>=&gt;</font> 
+        <b>array</b> <i>(size=0)</i>
+          <i><font color='#888a85'>empty</font></i>
+  11 <font color='#888a85'>=&gt;</font> 
+    <b>array</b> <i>(size=5)</i>
+      0 <font color='#888a85'>=&gt;</font> <small>string</small> <font color='#cc0000'>'SELECT  t.*, tt.*, tr.object_id FROM wp_terms AS t  INNER JOIN wp_term_taxonomy AS tt ON t.term_id = tt.term_id INNER JOIN wp_term_relationships AS tr ON tr.term_taxonomy_id = tt.term_taxonomy_id WHERE tt.taxonomy IN (&#39;category&#39;, &#39;post_tag&#39;, &#39;post_format&#39;) AND tr.object_id IN (1635, 1675, 1705, 1766, 1833, 1857, 1903, 1964, 1967, 1998) ORDER BY t.name ASC '</font> <i>(length=358)</i>
+      1 <font color='#888a85'>=&gt;</font> <small>float</small> <font color='#f57900'>0.0015599727630615</font>
+      2 <font color='#888a85'>=&gt;</font> <small>string</small> <font color='#cc0000'>'require(&#39;wp-blog-header.php&#39;), wp, WP-&gt;main, WP-&gt;query_posts, WP_Query-&gt;query, WP_Query-&gt;get_posts, _prime_post_caches, update_post_caches, update_object_term_cache, wp_get_object_terms, get_terms, WP_Term_Query-&gt;query, WP_Term_Query-&gt;get_terms'</font> <i>(length=244)</i>
+      3 <font color='#888a85'>=&gt;</font> <small>float</small> <font color='#f57900'>1582395723.3172</font>
+      4 <font color='#888a85'>=&gt;</font> 
+        <b>array</b> <i>(size=0)</i>
+          <i><font color='#888a85'>empty</font></i>
+  12 <font color='#888a85'>=&gt;</font> 
+    <b>array</b> <i>(size=5)</i>
+      0 <font color='#888a85'>=&gt;</font> <small>string</small> <font color='#cc0000'>'SELECT post_id, meta_key, meta_value FROM wp_postmeta WHERE post_id IN (1635,1675,1705,1766,1833,1857,1903,1964,1967,1998) ORDER BY meta_id ASC'</font> <i>(length=143)</i>
+      1 <font color='#888a85'>=&gt;</font> <small>float</small> <font color='#f57900'>0.001986026763916</font>
+      2 <font color='#888a85'>=&gt;</font> <small>string</small> <font color='#cc0000'>'require(&#39;wp-blog-header.php&#39;), wp, WP-&gt;main, WP-&gt;query_posts, WP_Query-&gt;query, WP_Query-&gt;get_posts, _prime_post_caches, update_post_caches, update_postmeta_cache, update_meta_cache'</font> <i>(length=180)</i>
+      3 <font color='#888a85'>=&gt;</font> <small>float</small> <font color='#f57900'>1582395723.3311</font>
+      4 <font color='#888a85'>=&gt;</font> 
+        <b>array</b> <i>(size=0)</i>
+          <i><font color='#888a85'>empty</font></i>
+  13 <font color='#888a85'>=&gt;</font> 
+    <b>array</b> <i>(size=5)</i>
+      0 <font color='#888a85'>=&gt;</font> <small>string</small> <font color='#cc0000'>'SELECT option_value FROM wp_options WHERE option_name = &#39;sm_cpages&#39;'</font> <i>(length=67)</i>
+      1 <font color='#888a85'>=&gt;</font> <small>float</small> <font color='#f57900'>0.00047492980957031</font>
+      2 <font color='#888a85'>=&gt;</font> <small>string</small> <font color='#cc0000'>'require(&#39;wp-blog-header.php&#39;), require_once(&#39;wp-includes/template-loader.php&#39;), do_action(&#39;template_redirect&#39;), WP_Hook-&gt;do_action, WP_Hook-&gt;apply_filters, GoogleSitemapGeneratorLoader::DoTemplateRedirect, GoogleSitemapGeneratorLoader::CallShowSitemap, GoogleSitemapGenerator-&gt;ShowSitemap, GoogleSitemapGenerator-&gt;Initate, GoogleSitemapGenerator-&gt;LoadPages'</font> <i>(length=356)</i>
+      3 <font color='#888a85'>=&gt;</font> <small>float</small> <font color='#f57900'>1582395723.3597</font>
+      4 <font color='#888a85'>=&gt;</font> 
+        <b>array</b> <i>(size=0)</i>
+          <i><font color='#888a85'>empty</font></i>
+  14 <font color='#888a85'>=&gt;</font> 
+    <b>array</b> <i>(size=5)</i>
+      0 <font color='#888a85'>=&gt;</font> <small>string</small> <font color='#cc0000'>'&#13;&#10;				SELECT&#13;&#10;					p.ID,&#13;&#10;					p.post_author,&#13;&#10;					p.post_status,&#13;&#10;					p.post_name,&#13;&#10;					p.post_parent,&#13;&#10;					p.post_type,&#13;&#10;					p.post_date,&#13;&#10;					p.post_date_gmt,&#13;&#10;					p.post_modified,&#13;&#10;					p.post_modified_gmt,&#13;&#10;					p.comment_count&#13;&#10;				FROM&#13;&#10;					wp_posts p&#13;&#10;				WHERE&#13;&#10;					p.post_password = &#39;&#39;&#13;&#10;					AND p.post_type = &#39;post&#39;&#13;&#10;					AND p.post_status = &#39;publish&#39;&#13;&#10;					AND YEAR(p.post_date_gmt) = 2020&#13;&#10;					AND MONTH(p.post_date_gmt) = 2&#13;&#10;					&#13;&#10;					&#13;&#10;				ORDER BY&#13;&#10;					p.post_date_gmt DESC&#13;&#10;			'</font> <i>(length=507)</i>
+      1 <font color='#888a85'>=&gt;</font> <small>float</small> <font color='#f57900'>0.0015029907226562</font>
+      2 <font color='#888a85'>=&gt;</font> <small>string</small> <font color='#cc0000'>'require(&#39;wp-blog-header.php&#39;), require_once(&#39;wp-includes/template-loader.php&#39;), do_action(&#39;template_redirect&#39;), WP_Hook-&gt;do_action, WP_Hook-&gt;apply_filters, GoogleSitemapGeneratorLoader::DoTemplateRedirect, GoogleSitemapGeneratorLoader::CallShowSitemap, GoogleSitemapGenerator-&gt;ShowSitemap, do_action(&#39;sm_build_content&#39;), WP_Hook-&gt;do_action, WP_Hook-&gt;apply_filters, GoogleSitemapGeneratorStandardBuilder-&gt;Content, GoogleSitemapGeneratorStandardBuilder-&gt;BuildPosts'</font> <i>(length=462)</i>
+      3 <font color='#888a85'>=&gt;</font> <small>float</small> <font color='#f57900'>1582395723.3651</font>
+      4 <font color='#888a85'>=&gt;</font> 
+        <b>array</b> <i>(size=0)</i>
+          <i><font color='#888a85'>empty</font></i>
+</pre></pre><h4>Total Query Time</h4><pre>15 queries in 0.02 seconds.</pre> --> <!-- Request ID: c645d2d3bc13d82a60e6315b8c9868d4; Queries for sitemap: 2; Total queries: 15; Seconds: 0.03; Memory for sitemap: 0MB; Total memory: 2MB -->

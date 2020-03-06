@@ -38,4 +38,16 @@ class Repository_For_Test {
 		global $wpdb;
 		return $wpdb->prefix . 'urls';
 	}
+
+	/**
+	 * Gets all URL.
+	 * 
+	 * @return array
+	 */
+	public static function get_all_url() {
+		global $wpdb;
+
+		return $wpdb->get_results( 'SELECT * FROM ' . self::url_table() );
+	}
+
 }
