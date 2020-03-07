@@ -760,7 +760,7 @@ class Static_Press {
 			$this->terms_url(),
 			$this->author_url(),
 			$this->static_files_url(),
-			$this->seo_url(),
+			$this->seo_url()
 		);
 	}
 
@@ -978,7 +978,7 @@ select MAX(P.post_modified) as last_modified, count(P.ID) as count
 			$file_scanner->scan( trailingslashit( ABSPATH ), false ),
 			$file_scanner->scan( trailingslashit( ABSPATH ) . 'wp-admin/', true ),
 			$file_scanner->scan( trailingslashit( ABSPATH ) . 'wp-includes/', true ),
-			$file_scanner->scan( trailingslashit( WP_CONTENT_DIR ), true ),
+			$file_scanner->scan( trailingslashit( WP_CONTENT_DIR ), true )
 		);
 
 		$urls = array();
