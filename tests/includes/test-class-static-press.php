@@ -42,6 +42,7 @@ function wp_remote_get( $url, $args = array() ) {
 
 namespace static_press\tests\includes;
 
+require_once dirname( __FILE__ ) . '/../testlibraries/class-array-url-handler.php';
 require_once dirname( __FILE__ ) . '/../testlibraries/class-expect-url.php';
 require_once dirname( __FILE__ ) . '/../testlibraries/class-expect-urls-static-files.php';
 require_once dirname( __FILE__ ) . '/../testlibraries/class-repository-for-test.php';
@@ -52,6 +53,7 @@ use ReflectionException;
 use Mockery;
 use static_press\includes\Static_Press;
 use static_press\includes\Static_Press_Repository;
+use static_press\tests\testlibraries\Array_Url_Handler;
 use static_press\tests\testlibraries\Expect_Url;
 use static_press\tests\testlibraries\Expect_Urls_Static_Files;
 use static_press\tests\testlibraries\Model_Url;
@@ -77,7 +79,7 @@ class Static_Press_Test extends \WP_UnitTestCase {
 	 * @see https://wordpress.stackexchange.com/a/207363
 	 */
 	public function tearDown() {
-		self::delete_files( self::OUTPUT_DIRECTORY . '/' );
+		self::delete_files( self::OUTPUT_DIRECTORY );
 		self::$wordpress_mock = null;
 		Mockery::close();
 		parent::tearDown();
@@ -923,7 +925,7 @@ class Static_Press_Test extends \WP_UnitTestCase {
 			$this->get_expect_urls_seo()
 		);
 		$actual      = $this->create_accessable_method( 'get_urls', array() );
-		$this->assert_urls( $expect_urls, $actual );
+		Array_Url_Handler::assert_contains_urls( $this, $expect_urls, $actual );
 		Expect_Url::assert_url( $this, array(), Repository_For_Test::get_all_url() );
 	}
 
@@ -1165,7 +1167,7 @@ class Static_Press_Test extends \WP_UnitTestCase {
 			)
 		);
 		$actual = $this->create_accessable_method( 'static_files_url', array() );
-		$this->assert_urls( $expect, $actual );
+		Array_Url_Handler::assert_contains_urls( $this, $expect, $actual );
 	}
 
 	/**
