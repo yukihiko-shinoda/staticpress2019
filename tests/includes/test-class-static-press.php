@@ -704,6 +704,12 @@ class Static_Press_Test extends \WP_UnitTestCase {
 	 * @throws ReflectionException When fail to create ReflectionClass instance.
 	 */
 	public function test_update_url() {
+		global $wp_version;
+		if ( version_compare( $wp_version, '5.3.0', '<' ) ) {
+			$theme_to_activate = 'twentyfifteen';
+		} else {
+			$theme_to_activate = 'twentytwenty';
+		}
 		$urls = array(
 			array(
 				'url' => '/',
@@ -737,35 +743,36 @@ class Static_Press_Test extends \WP_UnitTestCase {
 				'type' => 'static_file',
 			),
 			array(
-				'url'  => '/wp-content/themes/twentytwenty/style.css',
+				'url'  => "/wp-content/themes/{$theme_to_activate}/style.css",
 				'type' => 'static_file',
 			),
 		);
-		$url  = new Model_Url(
-			1,
-			'other_page',
-			'/test/',
-			0,
-			'',
-			0,
-			1,
-			0,
-			'',
-			'0000-00-00 00:00:00',
-			0,
-			'0000-00-00 00:00:00',
-			'0000-00-00 00:00:00',
-			'0000-00-00 00:00:00'
+		Repository_For_Test::insert_url(
+			new Model_Url(
+				1,
+				'other_page',
+				'/test/',
+				0,
+				'',
+				0,
+				1,
+				0,
+				'',
+				'0000-00-00 00:00:00',
+				0,
+				'0000-00-00 00:00:00',
+				'0000-00-00 00:00:00',
+				'0000-00-00 00:00:00'
+			)
 		);
-		Repository_For_Test::insert_url( $url );
 		$expect_urls_in_database = array(
 			new Expect_Url( Expect_Url::TYPE_OTHER_PAGE, '/test/', '1' ),
 			new Expect_Url( Expect_Url::TYPE_OTHER_PAGE, '/', '1' ),
 			new Expect_Url( Expect_Url::TYPE_STATIC_FILE, '/wp-content/plugins/akismet/_inc/akismet.css', '1' ),
-			new Expect_Url( Expect_Url::TYPE_STATIC_FILE, '/wp-content/themes/twentytwenty/style.css', '1' ),
+			new Expect_Url( Expect_Url::TYPE_STATIC_FILE, "/wp-content/themes/{$theme_to_activate}/style.css", '1' ),
 		);
 		activate_plugin( 'akismet/akismet.php' );
-		switch_theme( 'twentytwenty' );
+		switch_theme( $theme_to_activate );
 		$static_press = new Static_Press( 'staticpress', '/', self::OUTPUT_DIRECTORY );
 		$reflection   = new \ReflectionClass( get_class( $static_press ) );
 		$method       = $reflection->getMethod( 'update_url' );
@@ -1027,24 +1034,47 @@ class Static_Press_Test extends \WP_UnitTestCase {
 	 * Function single_url() should return number of pages by split post content by nextpage tag.
 	 */
 	public function test_single_url() {
-		$expect = array(
-			array(
-				'type'          => 'single',
-				'url'           => '/?attachment_id=4/',
-				'object_id'     => 4,
-				'object_type'   => 'attachment',
-				'pages'         => 1,
-				'last_modified' => DATE_FOR_TEST,
-			),
-			array(
-				'type'          => 'single',
-				'url'           => '/?attachment_id=5/',
-				'object_id'     => 5,
-				'object_type'   => 'attachment',
-				'pages'         => 3,
-				'last_modified' => DATE_FOR_TEST,
-			),
-		);
+		global $wp_version;
+		// There is no clear basis that 5.0.0 is the border.
+		if ( version_compare( $wp_version, '5.0.0', '<' ) ) {
+			$expect = array(
+				array(
+					'type'          => 'single',
+					'url'           => '/?attachment_id=3/',
+					'object_id'     => 3,
+					'object_type'   => 'attachment',
+					'pages'         => 1,
+					'last_modified' => DATE_FOR_TEST,
+				),
+				array(
+					'type'          => 'single',
+					'url'           => '/?attachment_id=4/',
+					'object_id'     => 4,
+					'object_type'   => 'attachment',
+					'pages'         => 3,
+					'last_modified' => DATE_FOR_TEST,
+				),
+			);
+		} else {
+			$expect = array(
+				array(
+					'type'          => 'single',
+					'url'           => '/?attachment_id=4/',
+					'object_id'     => 4,
+					'object_type'   => 'attachment',
+					'pages'         => 1,
+					'last_modified' => DATE_FOR_TEST,
+				),
+				array(
+					'type'          => 'single',
+					'url'           => '/?attachment_id=5/',
+					'object_id'     => 5,
+					'object_type'   => 'attachment',
+					'pages'         => 3,
+					'last_modified' => DATE_FOR_TEST,
+				),
+			);
+		}
 		wp_insert_post(
 			array(
 				'post_title'   => 'Post Title 1',
