@@ -5,7 +5,7 @@ Tags: static
 Requires at least: 4.3
 Tested up to: 5.3
 Requires PHP: 5.6
-Stable tag: 0.4.11
+Stable tag: 0.4.12
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -47,7 +47,11 @@ none
 
 == Changelog ==
 
-**0.4.11 - February 20, 2020**
+**0.4.12 - March 8, 2020**
+
+Fix bug that name of sub menu invalid.
+
+**0.4.11 - March 8, 2020**
 
 Fix bug that database table for StaticPress is not dropped when deactivate StaticPress.
 
@@ -125,6 +129,9 @@ source code refactoring
 Initial release.
 
 == Upgrade Notice ==
+
+= 0.4.12 =
+This version fixes bug that name of sub menu invalid.
 
 = 0.4.11 =
 This version fixes bug database table for StaticPress is not dropped when deactivate StaticPress.
