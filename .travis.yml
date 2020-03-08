@@ -27,27 +27,38 @@ matrix:
   include:
     # Because current PHP recommended version is 7.3+.
     # @see https://wordpress.org/support/article/requirements/
-    - php: 7.3
+    - php: 7.4
       env: WP_VERSION=latest
-    - php: 7.2
+    - php: 7.3
       env: WP_VERSION=latest
     # Because now PHP 7.2 is in the Active Support period and should be focused in development.
     # @see https://www.php.net/supported-versions.php
-    - php: 7.2
+    - php: 7.3
       env: WP_VERSION=trunk
+    - php: 7.3
+      env: WP_TRAVISCI=phpcs
     # Because 3.7 is the version which start support for auto background update. However, test can't work.
     # 3.7 - 3.8: When init database before running PHPUnit, wp-includes/wp-db.php db_connect() calls mysql_connect().
     # 3.9 - 4.2: wp-includes/class-phpass.php PasswordHash has a deprecated constructor.
     # @see https://make.wordpress.org/core/handbook/about/release-cycle/releasing-minor-versions/#security
-    - php: 7.2
+    # Because WordPress 4.3 doesn't support PHP 7.2.
+    # When call activate_plugin(),
+    # count(): Parameter must be an array or an object that implements Countable
+    # /wp-includes/kses.php:900
+    - php: 7.1
       env: WP_VERSION=4.3
+      # Because WordPress 4.3 doesn't support MySQL 5.7.
+      # WordPress database error Unknown system variable 'storage_engine' for query SET storage_engine = INNODB
+      # in wordpress-test-lib/includes/install.php
+      # @see https://docs.travis-ci.com/user/database-setup/#mysql
+      dist: trusty
     - php: 7.2
-      env: WP_TRAVISCI=phpcs
+      env: WP_VERSION=latest
     - php: 7.1
       env: WP_VERSION=latest
     - php: 7.0
       env: WP_VERSION=latest
-      # because Ubuntu 18.04 on Travis doesn't support PHP 7.0.
+      # Because Ubuntu 18.04 on Travis doesn't support PHP 7.0.
       dist: xenial
     # Because of minimum support version.
     # @see https://wordpress.org/news/2019/04/minimum-php-version-update/
@@ -58,7 +69,7 @@ matrix:
   allow_failures:
     # Because there are too match errors and warnings,
     # however now it needs to leave codes to prioritize merging commits from other forked repositories.
-    - php: 7.2
+    - php: 7.3
       env: WP_TRAVISCI=phpcs
 
 before_script:

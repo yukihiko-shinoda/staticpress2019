@@ -2,7 +2,7 @@
 /**
  * Class Plugin_Test
  *
- * @package staticpress\tests
+ * @package static_press\tests
  */
 
 /**

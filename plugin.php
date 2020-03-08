@@ -38,20 +38,22 @@
  *     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-if ( ! class_exists( 'static_press_admin' ) ) {
-	require dirname( __FILE__ ) . '/includes/class-static_press_admin.php';
+if ( ! class_exists( 'Static_Press_Admin' ) ) {
+	require dirname( __FILE__ ) . '/includes/class-static-press-admin.php';
 }
-if ( ! class_exists( 'staticpress\includes\static_press' ) ) {
-	require dirname( __FILE__ ) . '/includes/class-static_press.php';
+if ( ! class_exists( 'static_press\includes\Static_Press' ) ) {
+	require dirname( __FILE__ ) . '/includes/class-static-press.php';
 }
-use staticpress\includes\static_press;
+use static_press\includes\Static_Press;
 
-load_plugin_textdomain( static_press_admin::TEXT_DOMAIN, false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
-$staticpress = new static_press(
+load_plugin_textdomain( Static_Press_Admin::TEXT_DOMAIN, false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
+// Reason: StaticPress-S3 refers this global variable not $static_press but $staticpress.
+// phpcs:ignore
+$staticpress = new Static_Press(
 	plugin_basename( __FILE__ ),
-	static_press_admin::static_url(),
-	static_press_admin::static_dir(),
-	static_press_admin::remote_get_option()
+	Static_Press_Admin::static_url(),
+	Static_Press_Admin::static_dir(),
+	Static_Press_Admin::remote_get_option()
 );
 add_filter( 'StaticPress::get_url', array( $staticpress, 'replace_url' ) );
 add_filter( 'StaticPress::static_url', array( $staticpress, 'static_url' ) );
@@ -65,5 +67,5 @@ register_activation_hook( __FILE__, array( $staticpress, 'activate' ) );
 register_deactivation_hook( __FILE__, array( $staticpress, 'deactivate' ) );
 
 if ( is_admin() ) {
-	new static_press_admin( plugin_basename( __FILE__ ) );
+	new Static_Press_Admin( plugin_basename( __FILE__ ) );
 }

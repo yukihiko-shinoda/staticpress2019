@@ -1,11 +1,11 @@
 <?php
 /**
- * Class StaticPressAdminTest
+ * Class Static_Press_Admin_Test
  *
- * @package staticpress\tests\includes
+ * @package static_press\tests\includes
  */
 
-namespace staticpress\tests\includes;
+namespace static_press\tests\includes;
 
 /**
  * StaticPress test case.
@@ -28,7 +28,7 @@ class Static_Press_Admin_Test extends \WP_UnitTestCase {
 	 * Function admin_menu() should not throw any exception.
 	 */
 	public function test_admin_menu() {
-		$static_press_admin = new \static_press_admin( plugin_basename( __FILE__ ) );
+		$static_press_admin = new \Static_Press_Admin( plugin_basename( __FILE__ ) );
 		$static_press_admin->admin_menu();
 	}
 }
