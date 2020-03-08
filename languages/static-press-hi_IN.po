@@ -1,0 +1,75 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: static-press\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2015-07-01 10:50+0530\n"
+"PO-Revision-Date: 2015-07-02 04:24+0530\n"
+"Last-Translator: Arobindo Rath <arobindo@outlook.com>\n"
+"Language-Team: \n"
+"Language: hi_IN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-SourceCharset: utf-8\n"
+"X-Poedit-KeywordsList: __;_e\n"
+"X-Poedit-Basepath: .\n"
+"X-Poedit-SearchPath-0: ..\n"
+"X-Generator: Poedit 1.8.2\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: ../includes/class-admin-menu.php:56 ../includes/class-admin-menu.php:130
+msgid "StaticPress2019"
+msgstr "StaticPress2019"
+
+#: ../includes/class-admin-menu.php:65
+msgid "StaticPress2019 Options"
+msgstr "StaticPress2019 विकल्प"
+
+#: ../includes/class-admin-menu.php:92
+msgid "Done!"
+msgstr "हो गया!"
+
+#: ../includes/class-admin-menu.php:110
+msgid "Static URL"
+msgstr "स्थैतिक यूआरएल"
+
+#: ../includes/class-admin-menu.php:111
+msgid "Save DIR (Document root)"
+msgstr "बचाने के लिए DIR (दस्तावेज़ रूट)"
+
+#: ../includes/class-admin-menu.php:112
+msgid "(OPTION) BASIC Auth User"
+msgstr "(विकल्प) बुनियादी Auth उपयोगकर्ता"
+
+#: ../includes/class-admin-menu.php:113
+msgid "(OPTION) BASIC Auth Password"
+msgstr "(विकल्प) बुनियादी Auth पासवर्ड"
+
+#: ../includes/class-admin-menu.php:135
+msgid "Rebuild"
+msgstr "पुनर्निर्माण"
+
+#: ../includes/class-admin-menu.php:156
+msgid "Initialyze..."
+msgstr "प्रारंभ ..."
+
+#: ../includes/class-admin-menu.php:166
+msgid "URLS"
+msgstr "यूआरएल"
+
+#: ../includes/class-admin-menu.php:173
+msgid "Fetch Start..."
+msgstr "प्रारंभ लायें..."
+
+#: ../includes/class-admin-menu.php:179 ../includes/class-admin-menu.php:216
+#: ../includes/class-admin-menu.php:240
+msgid "Error!"
+msgstr "त्रुटि!"
+
+#: ../includes/class-admin-menu.php:233
+msgid "End"
+msgstr "समाप्त"
+
+#: ../includes/class-admin-menu.php:258
+msgid "Settings"
+msgstr "सेटिंग्स"
