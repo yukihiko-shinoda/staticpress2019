@@ -21,12 +21,12 @@ msgstr ""
 "X-Poedit-SearchPath-0: ..\n"
 
 #: ../includes/class-admin-menu.php:56 ../includes/class-admin-menu.php:130
-msgid "StaticPress"
-msgstr "StaticPress"
+msgid "StaticPress2019"
+msgstr "StaticPress2019"
 
 #: ../includes/class-admin-menu.php:65
-msgid "StaticPress Options"
-msgstr "StaticPress Seçenekler"
+msgid "StaticPress2019 Options"
+msgstr "StaticPress2019 Seçenekler"
 
 #: ../includes/class-admin-menu.php:92
 msgid "Done!"

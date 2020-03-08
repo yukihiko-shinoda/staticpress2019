@@ -115,10 +115,11 @@ class Static_Press_Admin {
 		);
 		add_action( 'admin_print_scripts-' . $hook, array( $this, 'add_admin_scripts' ) );
 
+		$translated_plugin_name_option = __($this->plugin_name.' Options', self::TEXT_DOMAIN);
 		$hook = add_submenu_page(
 			self::OPTION_PAGE,
-			$translated_plugin_name,
-			$translated_plugin_name,
+			$translated_plugin_name_option,
+			$translated_plugin_name_option,
 			self::ACCESS_LEVEL,
 			self::OPTION_PAGE . '-options',
 			array( $this, 'options_page' )
