@@ -13,7 +13,7 @@ use static_press\includes\Static_Press_Repository;
 use static_press\tests\testlibraries\Expect_Url;
 
 /**
- * StaticPress test case.
+ * Reposistory test case.
  */
 class Static_Press_Repository_Test extends \WP_UnitTestCase {
 	/**

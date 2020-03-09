@@ -7,8 +7,6 @@
 
 namespace static_press\includes;
 
-use static_press\tests\includes\Static_Press_Test;
-
 const DATE_FOR_TEST = '2019-12-23 12:34:56';
 const TIME_FOR_TEST = '12:34:56';
 /**
@@ -29,24 +27,13 @@ function time() {
 	return strtotime( TIME_FOR_TEST );
 }
 
-/**
- * Override wp_remote_get() in current namespace for testing
- *
- * @param string $url  URL to retrieve.
- * @param array  $args Optional. Request arguments. Default empty array.
- * @return WP_Error|array The response or WP_Error on failure.
- */
-function wp_remote_get( $url, $args = array() ) {
-	return Static_Press_Test::$wordpress_mock->wp_remote_get( $url, $args );
-}
-
 namespace static_press\tests\includes;
 
 require_once dirname( __FILE__ ) . '/../testlibraries/class-array-url-handler.php';
 require_once dirname( __FILE__ ) . '/../testlibraries/class-expect-url.php';
-require_once dirname( __FILE__ ) . '/../testlibraries/class-expect-urls-static-files.php';
-require_once dirname( __FILE__ ) . '/../testlibraries/class-repository-for-test.php';
 require_once dirname( __FILE__ ) . '/../testlibraries/class-model-url.php';
+require_once dirname( __FILE__ ) . '/../testlibraries/class-repository-for-test.php';
+require_once dirname( __FILE__ ) . '/../testlibraries/class-test-utility.php';
 // Reason: This project no longer support PHP 5.5 nor lower.
 use const static_press\includes\DATE_FOR_TEST; // phpcs:ignore
 use ReflectionException;
@@ -55,9 +42,9 @@ use static_press\includes\Static_Press;
 use static_press\includes\Static_Press_Repository;
 use static_press\tests\testlibraries\Array_Url_Handler;
 use static_press\tests\testlibraries\Expect_Url;
-use static_press\tests\testlibraries\Expect_Urls_Static_Files;
 use static_press\tests\testlibraries\Model_Url;
 use static_press\tests\testlibraries\Repository_For_Test;
+use static_press\tests\testlibraries\Test_Utility;
 
 /**
  * StaticPress test case.
@@ -67,20 +54,12 @@ use static_press\tests\testlibraries\Repository_For_Test;
 class Static_Press_Test extends \WP_UnitTestCase {
 	const OUTPUT_DIRECTORY = '/tmp/static/';
 	/**
-	 * For WordPress
-	 * 
-	 * @var \Mockery\MockInterface
-	 */
-	public static $wordpress_mock;
-
-	/**
 	 * Sets administrator as current user.
 	 *
 	 * @see https://wordpress.stackexchange.com/a/207363
 	 */
 	public function tearDown() {
 		self::delete_files( self::OUTPUT_DIRECTORY );
-		self::$wordpress_mock = null;
 		Mockery::close();
 		parent::tearDown();
 	}
@@ -102,13 +81,6 @@ class Static_Press_Test extends \WP_UnitTestCase {
 		} elseif ( is_file( $target ) ) {
 			unlink( $target );
 		}
-	}
-
-	/**
-	 * Function url_table() should return prefix for WordPress tables + 'urls'.
-	 */
-	public function test_url_table() {
-		$this->assertEquals( 'wptests_urls', static_press::url_table() );
 	}
 
 	/**
@@ -181,7 +153,7 @@ class Static_Press_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Function activate() should ensure that database table which listup URL exists.
+	 * Function activate() should ensure that database table which list URL exists.
 	 */
 	public function test_constructor_create_table() {
 		global $wpdb;
@@ -198,7 +170,7 @@ class Static_Press_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Function activate() should ensure that database table which listup URL exists.
+	 * Function activate() should ensure that database table which list URL exists.
 	 */
 	public function test_activate() {
 		global $wpdb;
@@ -216,7 +188,7 @@ class Static_Press_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Function activate() should ensure that database table which listup URL has column 'enable'.
+	 * Function activate() should ensure that database table which list URL has column 'enable'.
 	 */
 	public function test_activate_2() {
 		global $wpdb;
@@ -305,7 +277,7 @@ class Static_Press_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Function activate() should ensure that database table which listup URL exists.
+	 * Function activate() should ensure that database table which list URL exists.
 	 */
 	public function test_deactivate() {
 		global $wpdb;
@@ -337,20 +309,50 @@ class Static_Press_Test extends \WP_UnitTestCase {
 	 * @runInSeparateProcess
 	 */
 	public function test_json_output() {
-		$argument        = array(
+		$argument     = array(
 			'result'     => true,
 			'urls_count' => array( 'test' ),
 		);
-		$expect          = '{"result":true,"urls_count":["test"]}';
-		$terminator_mock = Mockery::mock( 'alias:Terminator_Mock' );
-		$terminator_mock->shouldReceive( 'terminate' )->andThrow( new \Exception( 'Dead!' ) );
-		$static_press = new Static_Press( 'staticpress', '/', '', array(), $terminator_mock );
+		$expect       = '{"result":true,"urls_count":["test"]}';
+		$static_press = new Static_Press( 'staticpress', '/', '', array(), $this->create_terminator_mock() );
 		$reflection   = new \ReflectionClass( get_class( $static_press ) );
 		$method       = $reflection->getMethod( 'json_output' );
 		$method->setAccessible( true );
 		ob_start();
 		try {
 			$method->invokeArgs( $static_press, array( $argument ) );
+			// Reason: No need to execute any task.
+		} catch ( \Exception $exception ) { // phpcs:ignore
+			$output = ob_get_clean();
+			$this->assertEquals( $expect, $output );
+			return;
+		}
+		$this->fail();
+	}
+
+	/**
+	 * Function ajax_init() should die.
+	 * 
+	 * @runInSeparateProcess
+	 */
+	public function test_ajax_init() {
+		Test_Utility::set_up_seo_url();
+		$user_name     = 'User Name';
+		$user_password = 'passW@rd';
+		wp_create_user( $user_name, $user_password );
+		$result = wp_signon(
+			array(
+				'user_login'    => $user_name,
+				'user_password' => $user_password,
+			)
+		);
+		wp_set_current_user( $result->ID );
+
+		$expect       = '{"result":true,"urls_count":[{"type":"front_page","count":"1"},{"type":"seo_files","count":"5"}]}';
+		$static_press = new Static_Press( 'staticpress', '/', '', array(), $this->create_terminator_mock(), Test_Utility::set_up_seo_url() );
+		ob_start();
+		try {
+			$static_press->ajax_init();
 			// Reason: No need to execute any task.
 		} catch ( \Exception $exception ) { // phpcs:ignore
 			$output = ob_get_clean();
@@ -413,11 +415,10 @@ class Static_Press_Test extends \WP_UnitTestCase {
 	 * @throws ReflectionException When fail to create ReflectionClass instance.
 	 */
 	public function test_create_static_file( $url, $file_type, $expect, $expect_file ) {
-		self::$wordpress_mock = Mockery::mock( 'alias:WordPress_Mock' );
-		self::$wordpress_mock->shouldReceive( 'wp_remote_get' )->andReturn( $this->create_response( '/', 'index-example.html' ) );
-		$static_press = new Static_Press( 'staticpress', '/', self::OUTPUT_DIRECTORY );
-		$reflection   = new \ReflectionClass( get_class( $static_press ) );
-		$method       = $reflection->getMethod( 'create_static_file' );
+		$remote_getter_mock = $this->create_remote_getter_mock();
+		$static_press       = new Static_Press( 'staticpress', '/', self::OUTPUT_DIRECTORY, array(), null, $remote_getter_mock );
+		$reflection         = new \ReflectionClass( get_class( $static_press ) );
+		$method             = $reflection->getMethod( 'create_static_file' );
 		$method->setAccessible( true );
 
 		$result = $method->invokeArgs( $static_press, array( $url, $file_type ) );
@@ -443,6 +444,23 @@ class Static_Press_Test extends \WP_UnitTestCase {
 		);
 	}
 
+	/**
+	 * Sets up for testing seo_url().
+	 */
+	private function create_remote_getter_mock() {
+		$remote_getter_mock = Mockery::mock( 'alias:Remote_Getter_Mock' );
+		$remote_getter_mock->shouldReceive( 'remote_get' )->andReturn( Test_Utility::create_response( '/', 'index-example.html' ) );
+		return $remote_getter_mock;
+	}
+
+	/**
+	 * Sets up for testing seo_url().
+	 */
+	private function create_terminator_mock() {
+		$terminator_mock = Mockery::mock( 'alias:Terminator_Mock' );
+		$terminator_mock->shouldReceive( 'terminate' )->andThrow( new \Exception( 'Dead!' ) );
+		return $terminator_mock;
+	}
 	/**
 	 * Test steps for other_url().
 	 *
@@ -777,10 +795,144 @@ class Static_Press_Test extends \WP_UnitTestCase {
 		$reflection   = new \ReflectionClass( get_class( $static_press ) );
 		$method       = $reflection->getMethod( 'update_url' );
 		$method->setAccessible( true );
-
-		$result = $method->invokeArgs( $static_press, array( $urls ) );
-		$this->assertEquals( $result, $urls );
+		$method->invokeArgs( $static_press, array( $urls ) );
 		$method = $reflection->getMethod( 'fetch_start_time' );
+		$method->setAccessible( true );
+		$start_time = $method->invokeArgs( $static_press, array() );
+		$repository = new Static_Press_Repository();
+		$results    = $repository->get_all_url( $start_time );
+		Expect_Url::assert_url( $this, $expect_urls_in_database, $results );
+	}
+
+	/**
+	 * Function get_urls() should trancate database table for list URL.
+	 * Function get_urls() should return urls of front page, static files, and SEO.
+	 */
+	public function test_get_urls_trancate() {
+		Test_Utility::set_up_seo_url();
+		Repository_For_Test::insert_url(
+			new Model_Url(
+				1,
+				'other_page',
+				'/test/',
+				0,
+				'',
+				0,
+				1,
+				0,
+				'',
+				'0000-00-00 00:00:00',
+				0,
+				'0000-00-00 00:00:00',
+				'0000-00-00 00:00:00',
+				'0000-00-00 00:00:00'
+			)
+		);
+		$expect_database = array(
+			new Expect_Url( Expect_Url::TYPE_OTHER_PAGE, '/test/', '1' ),
+		);
+		Expect_Url::assert_url( $this, $expect_database, Repository_For_Test::get_all_url() );
+		$expect_urls = array_merge(
+			Test_Utility::get_expect_urls_front_page( DATE_FOR_TEST ),
+			Test_Utility::get_expect_urls_static_files( DATE_FOR_TEST ),
+			Test_Utility::get_expect_urls_seo( DATE_FOR_TEST )
+		);
+		$actual      = $this->create_accessable_method( 'get_urls', array() );
+		Array_Url_Handler::assert_contains_urls( $this, $expect_urls, $actual );
+		Expect_Url::assert_url( $this, array(), Repository_For_Test::get_all_url() );
+	}
+
+	/**
+	 * Function delete_url() should delete URLs specified by key "url" of arrays.
+	 */
+	public function test_delete_url() {
+		Repository_For_Test::insert_url(
+			new Model_Url(
+				1,
+				'other_page',
+				'/test1/',
+				0,
+				'',
+				0,
+				1,
+				1,
+				'',
+				'0000-00-00 00:00:00',
+				0,
+				'0000-00-00 00:00:00',
+				'0000-00-00 00:00:00',
+				'0000-00-00 00:00:00'
+			)
+		);
+		Repository_For_Test::insert_url(
+			new Model_Url(
+				2,
+				'other_page',
+				'/test2/',
+				0,
+				'',
+				0,
+				1,
+				1,
+				'',
+				'0000-00-00 00:00:00',
+				0,
+				'0000-00-00 00:00:00',
+				'0000-00-00 00:00:00',
+				'0000-00-00 00:00:00'
+			)
+		);
+		Repository_For_Test::insert_url(
+			new Model_Url(
+				3,
+				'other_page',
+				'/test3/',
+				0,
+				'',
+				0,
+				1,
+				1,
+				'',
+				'0000-00-00 00:00:00',
+				0,
+				'0000-00-00 00:00:00',
+				'0000-00-00 00:00:00',
+				'0000-00-00 00:00:00'
+			)
+		);
+		Repository_For_Test::insert_url(
+			new Model_Url(
+				4,
+				'other_page',
+				'/test4/',
+				0,
+				'',
+				0,
+				1,
+				1,
+				'',
+				'0000-00-00 00:00:00',
+				0,
+				'0000-00-00 00:00:00',
+				'0000-00-00 00:00:00',
+				'0000-00-00 00:00:00'
+			)
+		);
+		$parameter               = array(
+			array(),
+			array( 'url' => '/test1/' ),
+			array( 'url' => '/test3/' ),
+		);
+		$expect_urls_in_database = array(
+			new Expect_Url( Expect_Url::TYPE_OTHER_PAGE, '/test2/', '1' ),
+			new Expect_Url( Expect_Url::TYPE_OTHER_PAGE, '/test4/', '1' ),
+		);
+
+		$actual = $this->create_accessable_method( 'delete_url', array( $parameter ) );
+		$this->assertEquals( $parameter, $actual );
+		$static_press = new Static_Press( 'staticpress', '/', self::OUTPUT_DIRECTORY );
+		$reflection   = new \ReflectionClass( get_class( $static_press ) );
+		$method       = $reflection->getMethod( 'fetch_start_time' );
 		$method->setAccessible( true );
 		$start_time = $method->invokeArgs( $static_press, array() );
 		$repository = new Static_Press_Repository();
@@ -804,8 +956,7 @@ class Static_Press_Test extends \WP_UnitTestCase {
 		$method                  = $reflection->getMethod( 'update_url' );
 		$method->setAccessible( true );
 
-		$result = $method->invokeArgs( $static_press, array( $urls ) );
-		$this->assertEquals( $result, $urls );
+		$method->invokeArgs( $static_press, array( $urls ) );
 		$method = $reflection->getMethod( 'fetch_start_time' );
 		$method->setAccessible( true );
 		$start_time = $method->invokeArgs( $static_press, array() );
@@ -833,8 +984,7 @@ class Static_Press_Test extends \WP_UnitTestCase {
 		$method                  = $reflection->getMethod( 'update_url' );
 		$method->setAccessible( true );
 
-		$result = $method->invokeArgs( $static_press, array( $urls ) );
-		$this->assertEquals( $result, $urls );
+		$method->invokeArgs( $static_press, array( $urls ) );
 		$method = $reflection->getMethod( 'fetch_start_time' );
 		$method->setAccessible( true );
 		$start_time = $method->invokeArgs( $static_press, array() );
@@ -860,8 +1010,7 @@ class Static_Press_Test extends \WP_UnitTestCase {
 		$method                  = $reflection->getMethod( 'update_url' );
 		$method->setAccessible( true );
 
-		$result = $method->invokeArgs( $static_press, array( $urls ) );
-		$this->assertEquals( $result, $urls );
+		$method->invokeArgs( $static_press, array( $urls ) );
 		$method = $reflection->getMethod( 'fetch_start_time' );
 		$method->setAccessible( true );
 		$start_time = $method->invokeArgs( $static_press, array() );
@@ -889,382 +1038,13 @@ class Static_Press_Test extends \WP_UnitTestCase {
 		$method                  = $reflection->getMethod( 'update_url' );
 		$method->setAccessible( true );
 
-		$result = $method->invokeArgs( $static_press, array( $urls ) );
-		$this->assertEquals( $result, $urls );
+		$method->invokeArgs( $static_press, array( $urls ) );
 		$method = $reflection->getMethod( 'fetch_start_time' );
 		$method->setAccessible( true );
 		$start_time = $method->invokeArgs( $static_press, array() );
 		$repository = new Static_Press_Repository();
 		$results    = $repository->get_all_url( $start_time );
 		Expect_Url::assert_url( $this, $expect_urls_in_database, $results );
-	}
-
-	/**
-	 * Function get_urls() should trancate database table for listup URL.
-	 * Function get_urls() should return urls of front page, static files, and SEO.
-	 */
-	public function test_get_urls_trancate() {
-		$this->set_up_seo_url();
-		$url = new Model_Url(
-			1,
-			'other_page',
-			'/test/',
-			0,
-			'',
-			0,
-			1,
-			0,
-			'',
-			'0000-00-00 00:00:00',
-			0,
-			'0000-00-00 00:00:00',
-			'0000-00-00 00:00:00',
-			'0000-00-00 00:00:00'
-		);
-		Repository_For_Test::insert_url( $url );
-		$expect_database = array(
-			new Expect_Url( Expect_Url::TYPE_OTHER_PAGE, '/test/', '1' ),
-		);
-		Expect_Url::assert_url( $this, $expect_database, Repository_For_Test::get_all_url() );
-		$expect_urls = array_merge(
-			$this->get_expect_urls_front_page(),
-			$this->get_expect_urls_static_files(),
-			$this->get_expect_urls_seo()
-		);
-		$actual      = $this->create_accessable_method( 'get_urls', array() );
-		Array_Url_Handler::assert_contains_urls( $this, $expect_urls, $actual );
-		Expect_Url::assert_url( $this, array(), Repository_For_Test::get_all_url() );
-	}
-
-	/**
-	 * Function seo_url() should trancate database table for listup URL.
-	 */
-	public function test_seo_url() {
-		$this->set_up_seo_url();
-		$expect_urls = $this->get_expect_urls_seo();
-		$actual      = $this->create_accessable_method( 'seo_url', array() );
-		$this->assert_urls( $expect_urls, $actual );
-	}
-
-	/**
-	 * Sets up for testing seo_url().
-	 */
-	private function set_up_seo_url() {
-		self::$wordpress_mock = Mockery::mock( 'alias:WordPress_Mock' );
-		self::$wordpress_mock->shouldReceive( 'wp_remote_get' )
-		->with( 'http://example.org/robots.txt', array() )
-		->andReturn( $this->create_response( '/robots.txt', 'robots.txt' ) );
-		self::$wordpress_mock->shouldReceive( 'wp_remote_get' )
-		->with( 'http://example.org/sitemap.xml', array() )
-		->andReturn( $this->create_response( '/sitemap.xml', 'sitemap.xml' ) );
-		self::$wordpress_mock->shouldReceive( 'wp_remote_get' )
-		->with( 'http://example.org/sitemap-misc.xml', array() )
-		->andReturn( $this->create_response( '/sitemap-misc.xml', 'sitemap-misc.xml' ) );
-		self::$wordpress_mock->shouldReceive( 'wp_remote_get' )
-		->with( 'http://example.org/sitemap-tax-category.xml', array() )
-		->andReturn( $this->create_response( '/sitemap-tax-category.xml', 'sitemap-tax-category.xml' ) );
-		self::$wordpress_mock->shouldReceive( 'wp_remote_get' )
-		->with( 'http://example.org/sitemap-pt-post-2020-02.xml', array() )
-		->andReturn( $this->create_response( '/sitemap-pt-post-2020-02.xml', 'sitemap-pt-post-2020-02.xml' ) );
-	}
-
-	/**
-	 * Gets expect URLs of seo_url().
-	 */
-	private function get_expect_urls_seo() {
-		return array(
-			array(
-				'type'          => 'seo_files',
-				'url'           => '/robots.txt',
-				'last_modified' => DATE_FOR_TEST,
-			),
-			array(
-				'type'          => 'seo_files',
-				'url'           => '/sitemap.xml',
-				'last_modified' => DATE_FOR_TEST,
-			),
-			array(
-				'type'          => 'seo_files',
-				'url'           => '/sitemap-misc.xml',
-				'last_modified' => DATE_FOR_TEST,
-			),
-			array(
-				'type'          => 'seo_files',
-				'url'           => '/sitemap-tax-category.xml',
-				'last_modified' => DATE_FOR_TEST,
-			),
-			array(
-				'type'          => 'seo_files',
-				'url'           => '/sitemap-pt-post-2020-02.xml',
-				'last_modified' => DATE_FOR_TEST,
-			),
-		);
-	}
-
-	/**
-	 * Function front_page_url() should return appropriate URLs.
-	 */
-	public function test_front_page_url() {
-		$expect        = $this->get_expect_urls_front_page();
-		$actual        = $this->create_accessable_method( 'front_page_url', array() );
-		$length_expect = count( $expect );
-		$this->assertEquals( $length_expect, count( $actual ) );
-		for ( $index = 0; $index < $length_expect; $index ++ ) {
-			$expect_url = $expect[ $index ];
-			$actual_url = $actual[ $index ];
-			$this->assertEquals( $expect_url, $actual_url );
-		}
-	}
-
-	/**
-	 * Gets expect URLs of front_page_url().
-	 */
-	private function get_expect_urls_front_page() {
-		return array(
-			array(
-				'type'          => 'front_page',
-				'url'           => '/',
-				'last_modified' => DATE_FOR_TEST,
-			),
-		);
-	}
-
-	/**
-	 * Function single_url() should return URLs of posts.
-	 * Function single_url() should return number of pages by split post content by nextpage tag.
-	 */
-	public function test_single_url() {
-		global $wp_version;
-		// There is no clear basis that 5.0.0 is the border.
-		if ( version_compare( $wp_version, '5.0.0', '<' ) ) {
-			$expect = array(
-				array(
-					'type'          => 'single',
-					'url'           => '/?attachment_id=3/',
-					'object_id'     => 3,
-					'object_type'   => 'attachment',
-					'pages'         => 1,
-					'last_modified' => DATE_FOR_TEST,
-				),
-				array(
-					'type'          => 'single',
-					'url'           => '/?attachment_id=4/',
-					'object_id'     => 4,
-					'object_type'   => 'attachment',
-					'pages'         => 3,
-					'last_modified' => DATE_FOR_TEST,
-				),
-			);
-		} else {
-			$expect = array(
-				array(
-					'type'          => 'single',
-					'url'           => '/?attachment_id=4/',
-					'object_id'     => 4,
-					'object_type'   => 'attachment',
-					'pages'         => 1,
-					'last_modified' => DATE_FOR_TEST,
-				),
-				array(
-					'type'          => 'single',
-					'url'           => '/?attachment_id=5/',
-					'object_id'     => 5,
-					'object_type'   => 'attachment',
-					'pages'         => 3,
-					'last_modified' => DATE_FOR_TEST,
-				),
-			);
-		}
-		wp_insert_post(
-			array(
-				'post_title'   => 'Post Title 1',
-				'post_content' => 'Post content 1.',
-				'post_status'  => 'publish',
-				'post_type'    => 'attachment',
-			)
-		);
-		wp_insert_post(
-			array(
-				'post_title'   => 'Post Title 2',
-				'post_content' => 'test<!--nextpage-->test<!--nextpage-->test',
-				'post_status'  => 'publish',
-				'post_type'    => 'attachment',
-			)
-		);
-		$actual = $this->create_accessable_method( 'single_url', array() );
-		$this->assert_urls( $expect, $actual );
-	}
-
-	/**
-	 * Function terms_url() should return URLs of terms.
-	 */
-	public function test_terms_url() {
-		$term_parent = wp_insert_category(
-			array(
-				'cat_name' => 'category parent',
-			)
-		);
-		$term_child  = wp_insert_category(
-			array(
-				'cat_name'             => 'category child',
-				'category_description' => '',
-				'category_nicename'    => '',
-				'category_parent'      => $term_parent,
-			)
-		);
-		wp_insert_post(
-			array(
-				'post_title'    => 'Test Title',
-				'post_content'  => 'Test content.',
-				'post_status'   => 'publish',
-				'post_type'     => 'post',
-				'post_category' => array(
-					$term_child,
-				),
-			)
-		);
-		$expect = array(
-			array(
-				'type'          => 'term_archive',
-				'url'           => '/?cat=3/',
-				'object_id'     => 3,
-				'object_type'   => 'category',
-				'pages'         => 1,
-				'parent'        => 2,
-				'last_modified' => DATE_FOR_TEST,
-			),
-			array(
-				'type'          => 'term_archive',
-				'url'           => '/?cat=2/',
-				'object_id'     => 2,
-				'object_type'   => 'category',
-				'pages'         => 1,
-				'parent'        => 0,
-				'last_modified' => DATE_FOR_TEST,
-			),
-			array(
-				'type'          => 'term_archive',
-				'url'           => '/?cat=3/',
-				'object_id'     => 3,
-				'object_type'   => 'category',
-				'pages'         => 1,
-				'parent'        => 2,
-				'last_modified' => DATE_FOR_TEST,
-			),
-		);
-		$actual = $this->create_accessable_method( 'terms_url', array() );
-		$this->assert_urls( $expect, $actual );
-	}
-
-	/**
-	 * Function author_url() should return URLs of authors.
-	 */
-	public function test_author_url() {
-		$expect = array(
-			array(
-				'type'          => 'author_archive',
-				'url'           => '/?author=1/',
-				'object_id'     => 1,
-				'pages'         => 1,
-				'last_modified' => DATE_FOR_TEST,
-			),
-		);
-		wp_insert_post(
-			array(
-				'post_title'   => 'Post Title 1',
-				'post_content' => 'Post content 1.',
-				'post_status'  => 'publish',
-				'post_type'    => 'post',
-				'post_author'  => 1,
-			)
-		);
-		$actual = $this->create_accessable_method( 'author_url', array() );
-		$this->assert_urls( $expect, $actual );
-	}
-
-	/**
-	 * Function static_files_url() should return URLs of authors.
-	 */
-	public function test_static_files_url() {
-		$expect = $this->get_expect_urls_static_files();
-		wp_insert_post(
-			array(
-				'post_title'   => 'Post Title 1',
-				'post_content' => 'Post content 1.',
-				'post_status'  => 'publish',
-				'post_type'    => 'post',
-				'post_author'  => 1,
-			)
-		);
-		$actual = $this->create_accessable_method( 'static_files_url', array() );
-		Array_Url_Handler::assert_contains_urls( $this, $expect, $actual );
-	}
-
-	/**
-	 * Gets expect URLs.
-	 */
-	private function get_expect_urls_static_files() {
-		$expect = array();
-		foreach ( Expect_Urls_Static_Files::EXPECT_URLS as $expect_url ) {
-			$expect[] = array(
-				'type'          => 'static_file',
-				'url'           => $expect_url,
-				'last_modified' => DATE_FOR_TEST,
-			);
-		}
-		return $expect;
-	}
-	/**
-	 * Asserts URLs.
-	 * 
-	 * @param array $expect Expect URLs.
-	 * @param array $actual Actual URLs.
-	 */
-	private function assert_urls( $expect, $actual ) {
-		$length_expect = count( $expect );
-		$length_actual = count( $actual );
-		$this->assertEquals(
-			$length_expect,
-			$length_actual,
-			"Failed asserting that {$length_actual} matches expected {$length_expect}. URL list:\n" . $this->urls_to_string( $actual )
-		);
-		for ( $index = 0; $index < $length_expect; $index ++ ) {
-			$expect_url = $expect[ $index ];
-			$actual_url = $actual[ $index ];
-			$this->assertEquals(
-				array_key_exists( 'last_modified', $expect_url ),
-				array_key_exists( 'last_modified', $actual_url ),
-				'Existance of last_modified is not same. Index = ' . $index
-			);
-			if ( array_key_exists( 'last_modified', $actual_url ) ) {
-				if ( is_null( $actual_url['last_modified'] ) ) {
-					$this->assertNull( $actual_url['last_modified'] );
-				} else {
-					$this->assertRegExp(
-						'/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/i',
-						$actual_url['last_modified'],
-						'$actual_url[\last_modified\'] is not mutch regex \'/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/i\'. Index = ' . $index
-					);
-				}
-			}
-			unset( $expect_url['last_modified'] );
-			unset( $actual_url['last_modified'] );
-			$this->assertEquals( $expect_url, $actual_url );
-		}
-	}
-
-	/**
-	 * Converts urls to string.
-	 * 
-	 * @param array $urls URLs.
-	 * @return string Converted URLs.
-	 */
-	private function urls_to_string( $urls ) {
-		$string = '';
-		foreach ( $urls as $url ) {
-			$string .= "{$url['url']}\n";
-		}
-		return $string;
 	}
 
 	/**
@@ -1279,7 +1059,86 @@ class Static_Press_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Function test_fetch_start_time() should return fetch_start_time in transient_key
+	 * Function fetch_last_id() should return 0 when parameter is not set.
+	 */
+	public function test_fetch_last_id_without_parameter_with_transient() {
+		set_transient( 'static static', array( 'fetch_last_id' => 2 ), 3600 );
+		$result = $this->create_accessable_method( 'fetch_last_id', array() );
+		$this->assertEquals( $result, 2 );
+	}
+
+	/**
+	 * Function fetch_last_id() should return 0 when parameter is not set.
+	 */
+	public function test_fetch_last_id_without_parameter_without_transient() {
+		$result = $this->create_accessable_method( 'fetch_last_id', array() );
+		$this->assertEquals( $result, 0 );
+	}
+
+	/**
+	 * Test steps for constructor.
+	 * 
+	 * @dataProvider provider_fetch_last_id_with_paramter_with_transient
+	 * 
+	 * @param string $next_id ID to set next.
+	 * @param string $expect  Expect return value.
+	 */
+	public function test_fetch_last_id_with_paramter_with_transient( $next_id, $expect ) {
+		set_transient( 'static static', array( 'fetch_last_id' => 2 ), 3600 );
+		$result = $this->create_accessable_method( 'fetch_last_id', array( $next_id ) );
+		$this->assertEquals( $result, $expect );
+	}
+
+	/**
+	 * Function fetch_finalyze() should delete transient.
+	 */
+	public function test_fetch_finalyze() {
+		set_transient( 'static static', array( 'fetch_last_id' => 2 ), 3600 );
+		$this->create_accessable_method( 'fetch_finalyze', array() );
+		$this->assertFalse( get_transient( 'static static', array( 'fetch_last_id' => 2 ), 3600 ) );
+	}
+
+	/**
+	 * Function fetch_last_id() should return Cached ID when $next_id is 0
+	 * Function fetch_last_id() should return Cached ID when $next_id is false,
+	 * Function fetch_last_id() should return  $next_id when $next_id is not 0 nor false.
+	 */
+	public function provider_fetch_last_id_with_paramter_with_transient() {
+		return array(
+			array( 0, 2 ),
+			array( false, 2 ),
+			array( 1, 1 ),
+		);
+	}
+
+	/**
+	 * Test steps for constructor.
+	 * 
+	 * @dataProvider provider_fetch_last_id_with_paramter_without_transient
+	 * 
+	 * @param string $next_id ID to set next.
+	 * @param string $expect  Expect return value.
+	 */
+	public function test_fetch_last_id_with_paramter_without_transient( $next_id, $expect ) {
+		$result = $this->create_accessable_method( 'fetch_last_id', array( $next_id ) );
+		$this->assertEquals( $result, $expect );
+	}
+
+	/**
+	 * Function fetch_last_id() should return Cached ID when $next_id is 0
+	 * Function fetch_last_id() should return Cached ID when $next_id is false,
+	 * Function fetch_last_id() should return  $next_id when $next_id is not 0 nor false.
+	 */
+	public function provider_fetch_last_id_with_paramter_without_transient() {
+		return array(
+			array( 0, 0 ),
+			array( false, 0 ),
+			array( 1, 1 ),
+		);
+	}
+
+	/**
+	 * Function fetch_start_time() should return fetch_start_time in transient_key
 	 * when fetch_start_time in transient_key is set.
 	 *
 	 * @throws ReflectionException When fail to create ReflectionClass instance.
@@ -1293,24 +1152,60 @@ class Static_Press_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Function get_transient_key() should return appropriate string when current user id is not set.
+	 * Function fetch_url() should return false when URLs do not exist in database table.
 	 *
 	 * @throws ReflectionException When fail to create ReflectionClass instance.
 	 */
-	public function test_get_transient_key() {
-		$result = $this->create_accessable_method( 'get_transient_key', array() );
-		$this->assertEquals( 'static static', $result );
+	public function test_fetch_url_url_not_exists() {
+		$this->assertFalse( $this->create_accessable_method( 'fetch_url', array() ) );
 	}
 
 	/**
-	 * Function get_transient_key() should return appropriate string when current user id is set.
+	 * Function fetch_url() should return URL of first record in database table when URLs exist in database table.
 	 *
 	 * @throws ReflectionException When fail to create ReflectionClass instance.
 	 */
-	public function test_get_transient_key_current_user() {
-		wp_set_current_user( 1 );
-		$result = $this->create_accessable_method( 'get_transient_key', array() );
-		$this->assertEquals( 'static static - 1', $result );
+	public function test_fetch_url_url_exists() {
+		Repository_For_Test::insert_url(
+			new Model_Url(
+				1,
+				'other_page',
+				'/test1/',
+				0,
+				'',
+				0,
+				1,
+				1,
+				'',
+				'0000-00-00 00:00:00',
+				0,
+				'0000-00-00 00:00:00',
+				'0000-00-00 00:00:00',
+				'0000-00-00 00:00:00'
+			)
+		);
+		Repository_For_Test::insert_url(
+			new Model_Url(
+				2,
+				'other_page',
+				'/test2/',
+				0,
+				'',
+				0,
+				1,
+				1,
+				'',
+				'0000-00-00 00:00:00',
+				0,
+				'0000-00-00 00:00:00',
+				'0000-00-00 00:00:00',
+				'0000-00-00 00:00:00'
+			)
+		);
+		$expect = array(
+			new Expect_Url( Expect_Url::TYPE_OTHER_PAGE, '/test1/', '1' ),
+		);
+		Expect_Url::assert_url( $this, $expect, array( $this->create_accessable_method( 'fetch_url', array() ) ) );
 	}
 
 	/**
@@ -1320,59 +1215,10 @@ class Static_Press_Test extends \WP_UnitTestCase {
 	 * @param array  $array_parameter Array of parameter.
 	 */
 	private function create_accessable_method( $method_name, $array_parameter ) {
-		$static_press = new Static_Press( 'staticpress' );
+		$static_press = new Static_Press( 'staticpress', '/', '', array(), $this->create_terminator_mock(), $this->create_remote_getter_mock() );
 		$reflection   = new \ReflectionClass( get_class( $static_press ) );
 		$method       = $reflection->getMethod( $method_name );
 		$method->setAccessible( true );
 		return $method->invokeArgs( $static_press, $array_parameter );
-	}
-	/**
-	 * Creates response.
-	 * 
-	 * @param string $url       URL.
-	 * @param string $file_name File name.
-	 * @return array Responce.
-	 */
-	private function create_response( $url, $file_name ) {
-		$body        = file_get_contents( dirname( __FILE__ ) . '/../testresources/' . $file_name );
-		$status_code = 200;
-		$header_data = array(
-			'content-encoding' => 'gzip',
-			'age'              => '354468',
-			'cache-control'    => 'max-age=604800',
-			'content-type'     => 'text/html; charset=UTF-8',
-			'date'             => 'Tue, 18 Feb 2020 04:21:05 GMT',
-			'etag'             => '3147526947+ident+gzip',
-			'expires'          => 'Tue, 25 Feb 2020 04:21:05 GMT',
-			'last-modified'    => 'Thu, 17 Oct 2019 07:18:26 GMT',
-			'server'           => 'ECS (sjc/4E74)',
-			'vary'             => 'Accept-Encoding',
-			'x-cache'          => 'HIT',
-			'content-length'   => '648',
-		);
-		$responce    = array(
-			'body'     => $body,
-			'response' => array(
-				'code'    => $status_code,
-				'message' => 'OK',
-			),
-			'cookies'  => array(),
-			'filename' => null,
-		);
-		global $wp_version;
-		if ( version_compare( $wp_version, '4.6.0', '<' ) ) {
-			$responce['headers'] = $header_data;
-			return $responce;
-		}
-		$requests_response                   = new \Requests_Response();
-		$requests_response->headers          = new \Requests_Response_Headers( $header_data );
-		$requests_response->body             = $body;
-		$requests_response->status_code      = $status_code;
-		$requests_response->protocol_version = 1.1;
-		$requests_response->success          = true;
-		$requests_response->url              = 'http://example.org' . $url;
-		$responce['http_response']           = new \WP_HTTP_Requests_Response( $requests_response, null );
-		$responce['headers']                 = new \Requests_Utility_CaseInsensitiveDictionary( $header_data );
-		return $responce;
 	}
 }

@@ -7,11 +7,20 @@
 
 namespace static_press\includes;
 
-if ( ! class_exists( 'static_press\includes\Static_Press_File_Scanner' ) ) {
-	require dirname( __FILE__ ) . '/class-static-press-file-scanner.php';
-}
 if ( ! class_exists( 'static_press\includes\Static_Press_Plugin_Information' ) ) {
 	require dirname( __FILE__ ) . '/class-static-press-plugin-information.php';
+}
+if ( ! class_exists( 'static_press\includes\Static_Press_Remote_Getter' ) ) {
+	require dirname( __FILE__ ) . '/class-static-press-remote-getter.php';
+}
+if ( ! class_exists( 'static_press\includes\Static_Press_Transient_Manager' ) ) {
+	require dirname( __FILE__ ) . '/class-static-press-transient-manager.php';
+}
+if ( ! class_exists( 'static_press\includes\Static_Press_Url_Collector' ) ) {
+	require dirname( __FILE__ ) . '/class-static-press-url-collector.php';
+}
+if ( ! class_exists( 'static_press\includes\Static_Press_Url_Updater' ) ) {
+	require dirname( __FILE__ ) . '/class-static-press-url-updater.php';
 }
 if ( ! class_exists( 'static_press\includes\Static_Press_Repository' ) ) {
 	require dirname( __FILE__ ) . '/class-static-press-repository.php';
@@ -19,8 +28,11 @@ if ( ! class_exists( 'static_press\includes\Static_Press_Repository' ) ) {
 if ( ! class_exists( 'static_press\includes\Static_Press_Terminator' ) ) {
 	require dirname( __FILE__ ) . '/class-static-press-terminator.php';
 }
-use static_press\includes\Static_Press_File_Scanner;
 use static_press\includes\Static_Press_Plugin_Information;
+use static_press\includes\Static_Press_Remote_Getter;
+use static_press\includes\Static_Press_Transient_Manager;
+use static_press\includes\Static_Press_Url_Collector;
+use static_press\includes\Static_Press_Url_Updater;
 use static_press\includes\Static_Press_Repository;
 use static_press\includes\Static_Press_Terminator;
 
@@ -30,7 +42,6 @@ use static_press\includes\Static_Press_Terminator;
 class Static_Press {
 	const FETCH_LIMIT        =   5;
 	const FETCH_LIMIT_STATIC = 100;
-	const EXPIRES            = 3600; // 60min * 60sec = 1hour
 
 	static $instance;
 
@@ -47,13 +58,19 @@ class Static_Press {
 	 * @var Static_Press_Terminator
 	 */
 	private $terminator;
-
+	/**
+	 * Terminator instance.
+	 * 
+	 * @var Static_Press_Url_Collector
+	 */
+	private $url_collector;
 	private $static_url;
-	private $url_table;
+	/**
+	 * Directory to dump static files.
+	 * 
+	 * @var string
+	 */
 	private $dump_directory;
-	private $remote_get_option;
-
-	private $transient_key = 'static static';
 
 	private $static_files_ext = array(
 		'html','htm','txt','css','js','gif','png','jpg','jpeg',
@@ -65,37 +82,29 @@ class Static_Press {
 	/**
 	 * Constructor.
 	 * 
-	 * @param string                  $plugin_basename   Plugin base name.
-	 * @param string                  $static_url        Static URL.
-	 * @param string                  $dump_directory    Directory to dump static files.
-	 * @param array                   $remote_get_option Remote get options.
-	 * @param Static_Press_terminator $terminator        Terminator.
+	 * @param string                     $plugin_basename   Plugin base name.
+	 * @param string                     $static_url        Static URL.
+	 * @param string                     $dump_directory    Directory to dump static files.
+	 * @param array                      $remote_get_option Remote get options.
+	 * @param Static_Press_terminator    $terminator        Terminator.
+	 * @param Static_Press_Remote_Getter $remote_getter     Remote getter.
 	 */
-	public function __construct( $plugin_basename, $static_url = '/', $dump_directory = '', $remote_get_option = array(), $terminator = null ) {
+	public function __construct( $plugin_basename, $static_url = '/', $dump_directory = '', $remote_get_option = array(), $terminator = null, $remote_getter = null ) {
 		self::$instance        = $this;
 		$this->plugin_basename = $plugin_basename;
-		$this->url_table       = self::url_table();
 		$this->static_url      = $this->init_static_url( $static_url );
 		$this->dump_directory  = $this->init_dump_directory( $dump_directory );
 		$this->make_subdirectories( $this->dump_directory );
-		$this->remote_get_option  = $remote_get_option;
-		$this->plugin_information = new Static_Press_Plugin_Information();
 		$this->repository         = new Static_Press_Repository();
+		$this->plugin_information = new Static_Press_Plugin_Information();
 		$this->terminator         = $terminator ? $terminator : new Static_Press_Terminator();
+		$this->url_collector      = new Static_Press_Url_Collector( $this->static_files_ext, $remote_getter ? $remote_getter : new Static_Press_Remote_Getter( $remote_get_option ) );
 
 		$this->repository->create_table();
 
 		add_action( 'wp_ajax_static_press_init', array( $this, 'ajax_init' ) );
 		add_action( 'wp_ajax_static_press_fetch', array( $this, 'ajax_fetch' ) );
 		add_action( 'wp_ajax_static_press_finalyze', array( $this, 'ajax_finalyze' ) );
-	}
-
-	/**
-	 * Returns database table name for URL list.
-	 */
-	public static function url_table() {
-		global $wpdb;
-		return $wpdb->prefix . 'urls';
 	}
 
 	/**
@@ -159,27 +168,28 @@ class Static_Press {
 		$this->terminator->terminate();
 	}
 
-	public function ajax_init(){
-		global $wpdb;
+	/**
+	 * List all URL into database table and render JSON responce.
+	 */
+	public function ajax_init() {
+		if ( ! defined( 'WP_DEBUG_DISPLAY' ) ) {
+			define( 'WP_DEBUG_DISPLAY', false );
+		}
+		if ( ! is_user_logged_in() ) {
+			wp_die( 'Forbidden' );
+		}
 
-		if (!defined('WP_DEBUG_DISPLAY'))
-			define('WP_DEBUG_DISPLAY', false);
+		$this->insert_all_url();
+		$all_urls = $this->repository->count_url_per_type( $this->fetch_start_time() );
+		$result   =
+			! is_wp_error( $all_urls )
+			? array(
+				'result'     => true,
+				'urls_count' => $all_urls,
+			)
+			: array( 'result' => false );
 
-		if (!is_user_logged_in())
-			wp_die('Forbidden');
-
-		$urls = $this->insert_all_url();
-		$sql = $wpdb->prepare(
-			"select type, count(*) as count from {$this->url_table} where `last_upload` < %s and enable = 1 group by type",
-			$this->fetch_start_time()
-			);
-		$all_urls = $wpdb->get_results($sql);
-		$result =
-			!is_wp_error($all_urls)
-			? array('result' => true, 'urls_count' => $all_urls)
-			: array('result' => false);
-
-		$this->json_output(apply_filters('StaticPress::ajax_init', $result));
+		$this->json_output( apply_filters( 'StaticPress::ajax_init', $result ) );
 	}
 
 	public function ajax_fetch(){
@@ -297,27 +307,7 @@ class Static_Press {
 	 * @return string Site URL.
 	 */
 	private function get_site_url() {
-		global $current_blog;
-		return trailingslashit(
-			isset( $current_blog )
-			? get_home_url( $current_blog->blog_id )
-			: get_home_url()
-		);
-	}
-
-	/**
-	 * Gets transient key.
-	 * 
-	 * @return string
-	 */
-	private function get_transient_key() {
-		$current_user = function_exists( 'wp_get_current_user' ) ? wp_get_current_user() : '';
-		if ( isset( $current_user->ID ) && $current_user->ID ) {
-			return "{$this->transient_key} - {$current_user->ID}";
-		}
-		else {
-			return $this->transient_key;
-		}
+		return Static_Press_Url_Collector::get_site_url();
 	}
 
 	/**
@@ -326,52 +316,56 @@ class Static_Press {
 	 * @return string
 	 */
 	private function fetch_start_time() {
-		$transient_key = $this->get_transient_key();
-		$param = get_transient( $transient_key );
-		if ( ! is_array( $param ) ) {
-			$param = array();
-		}
+		$transient_manager = new Static_Press_Transient_Manager();
+		$param             = $transient_manager->get_transient();
 		if ( isset( $param['fetch_start_time'] ) ) {
 			return $param['fetch_start_time'];
 		} else {
 			$start_time = date( 'Y-m-d h:i:s', time() );
 			$param['fetch_start_time'] = $start_time;
-			set_transient( $transient_key, $param, self::EXPIRES );
+			$transient_manager->set_transient( $param );
 			return $start_time;
 		}
 	}
 
-	private function fetch_last_id($next_id = false) {
-		$transient_key = $this->get_transient_key();
-		$param = (array)get_transient($transient_key);
-		if (!is_array($param))
-			$param = array();
-		$last_id = isset($param['fetch_last_id']) ? intval($param['fetch_last_id']) : 0;
-		if ($next_id) {
-			$last_id = $next_id;
+	/**
+	 * Fetches last ID.
+	 * 
+	 * @param  int|bool $next_id ID to set next.
+	 * @return int Cached ID when $next_id is 0 or false, $next_id when $next_id is not 0 nor false.
+	 */
+	private function fetch_last_id( $next_id = false ) {
+		$transient_manager = new Static_Press_Transient_Manager();
+		$param             = $transient_manager->get_transient();
+		$last_id           = isset( $param['fetch_last_id'] ) ? intval( $param['fetch_last_id'] ) : 0;
+		if ( $next_id ) {
+			$last_id                = $next_id;
 			$param['fetch_last_id'] = $next_id;
-			set_transient($transient_key, $param, self::EXPIRES);
+			$transient_manager->set_transient( $param );
 		}
 		return $last_id;
 	}
 
+	/**
+	 * Deletes transient.
+	 */
 	private function fetch_finalyze() {
-		$transient_key = $this->get_transient_key();
-		if (get_transient($transient_key))
-			delete_transient($transient_key);
+		$transient_manager = new Static_Press_Transient_Manager();
+		$transient_manager->delete_transient();
 	}
 
+	/**
+	 * Fetches URL.
+	 * 
+	 * @return array|bool List of fetched URL when exist in database table, false when not exist in database table.
+	 */
 	private function fetch_url() {
-		global $wpdb;
-
-		$sql = $wpdb->prepare(
-			"select ID, type, url, pages from {$this->url_table} where `last_upload` < %s and ID > %d and enable = 1 order by ID limit 1",
+		$result = $this->repository->get_next_url(
 			$this->fetch_start_time(),
 			$this->fetch_last_id()
-			);
-		$result = $wpdb->get_row($sql);
-		if (!is_null($result) && !is_wp_error($result) && $result->ID) {
-			$next_id = $this->fetch_last_id($result->ID);
+		);
+		if ( ! is_null( $result ) && ! is_wp_error( $result ) && $result->ID ) {
+			$this->fetch_last_id( $result->ID );
 			return $result;
 		} else {
 			$this->fetch_finalyze();
@@ -498,16 +492,8 @@ class Static_Press {
 		return $file_dest;
 	}
 
-	private function remote_get($url){
-		if (!preg_match('#^https://#i', $url))
-			$url = untrailingslashit($this->get_site_url()) . (preg_match('#^/#i', $url) ? $url : "/{$url}");
-		$response = wp_remote_get($url, $this->remote_get_option);
-		if (is_wp_error($response))
-			return false;
-		return array(
-			'code' => $response['response']['code'],
-			'body' => $this->remove_link_tag($response['body'], intval($response['response']['code'])),
-			);
+	private function remote_get( $url ) {
+		return $this->url_collector->remote_get( $url );
 	}
 
 	public function remove_link_tag($content, $http_code = 200) {
@@ -547,12 +533,11 @@ class Static_Press {
 	 * @return string
 	 */
 	public function	rewrite_generator_tag( $content, $http_code = 200 ) {
-		$content = preg_replace(
+		return preg_replace(
 			'#(<meta [^>]*name=[\'"]generator[\'"] [^>]*content=[\'"])([^\'"]*)([\'"][^>]*/?>)#ism',
-			'$1$2 with ' . ( ( string ) $this->plugin_information ) . '$3',
+			'$1$2 with ' . ( (string) $this->plugin_information ) . '$3',
 			$content
 		);
-		return $content;
 	}
 
 	public function replace_relative_URI($content, $http_code = 200) {
@@ -603,417 +588,65 @@ class Static_Press {
 		return $content;
 	}
 
-	private function insert_all_url(){
+	/**
+	 * Inserts all URLs.
+	 */
+	private function insert_all_url() {
 		$urls = $this->get_urls();
-		return $this->update_url($urls);
+		$this->update_url( $urls );
 	}
 
 	/**
 	 * Updates URL.
 	 * 
 	 * @param  array $urls URLs.
-	 * @return array
 	 */
 	private function update_url( $urls ) {
+		$url_updater = new Static_Press_Url_Updater( $this->repository, $this->dump_directory );
+		$url_updater->update( $urls );
+	}
+
+	/**
+	 * Deletes URL.
+	 * 
+	 * @param array $urls URLs.
+	 */
+	private function delete_url( $urls ) {
 		foreach ( (array) $urls as $url ) {
 			if ( ! isset( $url['url'] ) || ! $url['url'] ) {
 				continue;
 			}
-			$url['enable'] = $this->classify( $url );
-
-			$id = $this->repository->get_id( $url['url'] );
-			if ( $id ) {
-				$this->repository->update_url( $id, $url );
-			} else {
-				$this->repository->insert_url( $url );
-			}
-
-			do_action( 'StaticPress::update_url', $url );
+			$this->repository->delete_url( $url['url'] );
+			do_action( 'StaticPress::delete_url', $url );
 		}
 		return $urls;
 	}
 
 	/**
-	 * Classifies URL whether should dump or not.
+	 * Gets URLs.
 	 * 
-	 * @param array $url URL.
-	 * @return int should not dump: 0, should dump: 1
+	 * @return array URLs.
 	 */
-	private function classify( $url ) {
-		if ( preg_match( '#\.php$#i', $url['url'] ) ) {
-			// Seems to intend PHP file.
-			return 0;
-		}
-		if ( preg_match( '#\?[^=]+[=]?#i', $url['url'] ) ) {
-			// Seems to intend get request with parameter.
-			return 0;
-		}
-		if ( preg_match( '#/wp-admin/$#i', $url['url'] ) ) {
-			// Seems to intend WordPress admin home page.
-			return 0;
-		}
-		if ( ! isset( $url['type'] ) || 'static_file' != $url['type'] ) {
-			return 1;
-		}
-		return $this->classify_static_file( $url['url'] );
-	}
-
-	/**
-	 * Classifies URL of static file.
-	 * 
-	 * @param string $url URL.
-	 * @return int should not dump: 0, should dump: 1
-	 */
-	private function classify_static_file( $url ) {
-		$plugin_dir  = trailingslashit( str_replace( ABSPATH, '/', WP_PLUGIN_DIR ) );
-		$theme_dir   = trailingslashit( str_replace( ABSPATH, '/', WP_CONTENT_DIR ) . '/themes' );
-		$file_source = untrailingslashit( ABSPATH ) . $url;
-		$file_dest   = untrailingslashit( $this->dump_directory ) . $url;
-		$pattern     = '#^(/(readme|readme-[^\.]+|license)\.(txt|html?)|(' . preg_quote( $plugin_dir ) . '|' . preg_quote( $theme_dir ) . ').*/((readme|changelog|license)\.(txt|html?)|(screenshot|screenshot-[0-9]+)\.(png|jpe?g|gif)))$#i';
-		if ( $file_source === $file_dest ) {
-			// Seems to intend to prevent from being duplicate dump process for already dumped files.
-			return 0;
-		}
-		if ( preg_match( $pattern, $url ) ) {
-			// Seems to intend readme, license, changelog, screenshot in plugin directory or theme directory.
-			return 0;
-		}
-		if ( ! file_exists( $file_source ) ) {
-			// Seems to intend to prevent from processing non exist files.
-			return 0;
-		}
-		if ( file_exists( $file_dest ) && filemtime( $file_source ) <= filemtime( $file_dest ) ) {
-			// Seems to intend to skip non update files after last dump.
-			return 0;
-		}
-		if ( preg_match( '#^' . preg_quote( $plugin_dir ) . '#i', $url ) ) {
-			return $this->classify_static_file_plugin( $url, $plugin_dir );
-		}
-		if ( preg_match( '#^' . preg_quote( $theme_dir ) . '#i', $url ) ) {
-			return $this->classify_static_file_theme( $url, $theme_dir );
-		}
-		return 1;
-	}
-
-	/**
-	 * Classifies URL of plugin's static file.
-	 * Original specification seems to intend to dump only active plugin.
-	 * 
-	 * @param string $url        URL.
-	 * @param string $plugin_dir Plugin directory.
-	 * @return int should not dump: 0, should dump: 1
-	 */
-	private function classify_static_file_plugin( $url, $plugin_dir ) {
-		$active_plugins = get_option( 'active_plugins' );
-		foreach ( $active_plugins as $active_plugin ) {
-			$active_plugin = trailingslashit( $plugin_dir . dirname( $active_plugin ) );
-			if ( trailingslashit( $plugin_dir . '.' ) == $active_plugin ) {
-				// TODO What is the intension? Commited at 2013-04-23 11:50:42 5a470855fe94ef754b156cc062ab86eab452446d .
-				continue;
-			}
-			if ( preg_match( '#^' . preg_quote( $active_plugin ) . '#i', $url ) ) {
-				return 1;
-			}
-		}
-		return 0;
-	}
-
-	/**
-	 * Classifies URL of theme's static file.
-	 * Original specification seems to intend to dump only current theme.
-	 * 
-	 * @param string $url       URL.
-	 * @param string $theme_dir Theme directory.
-	 * @return int should not dump: 0, should dump: 1
-	 */
-	private function classify_static_file_theme( $url, $theme_dir ) {
-		$current_theme = trailingslashit( $theme_dir . get_stylesheet() );
-		if ( preg_match( '#^' . preg_quote( $current_theme ) . '#i', $url ) ) {
-			return 1;
-		}
-		return 0;
-	}
-
-	private function delete_url($urls){
-		global $wpdb;
-
-		foreach ((array)$urls as $url){
-			if (!isset($url['url']) || !$url['url'])
-				continue;
-			$sql = $wpdb->prepare(
-				"delete from `{$this->url_table}` where `url` = %s",
-				$url['url']);
-			if ($sql)
-				$wpdb->query($sql);
-			do_action('StaticPress::delete_url', $url);
-		}
-		return $urls;
-	}
-
 	private function get_urls() {
-		global $wpdb;
-		$wpdb->query( "truncate table `{$this->url_table}`" );
-
-		return array_merge(
-			$this->front_page_url(),
-			$this->single_url(),
-			$this->terms_url(),
-			$this->author_url(),
-			$this->static_files_url(),
-			$this->seo_url()
-		);
-	}
-
-	/**
-	 * Checks correct sitemap URL by robots.txt.
-	 */
-	private function seo_url() {
-		$url_type = 'seo_files';
-		$urls     = array();
-		$analyzed = array();
-		$sitemap  = '/sitemap.xml';
-		$robots   = '/robots.txt';
-		$urls[]   = array('type' => $url_type, 'url' => $robots, 'last_modified' => date('Y-m-d h:i:s'));
-		if ( ( $txt = $this->remote_get( $robots ) ) && isset( $txt['body'] ) ) {
-			$http_code = intval( $txt['code'] );
-			switch ( intval( $http_code ) ) {
-			case 200:
-				if ( preg_match( '/sitemap:\s.*?(\/[\-_a-z0-9%]+\.xml)/i', $txt['body'], $match ) ) {
-					$sitemap = $match[1];
-				}
-			}
-		}
-		$this->sitemap_analyzer( $analyzed, $urls, $sitemap, $url_type );
-		return $urls;
-	}
-
-	/**
-	 * Crawls sitemap XML files.
-	 */
-	private function sitemap_analyzer( &$analyzed, &$urls, $url, $url_type ) {
-		$urls[] = array( 'type' => $url_type, 'url' => $url, 'last_modified' => date( 'Y-m-d h:i:s' ) );
-		$analyzed[] = $url;
-		if( ( $xml = $this->remote_get( $url ) ) && isset( $xml['body'] ) ) {
-			$http_code = intval( $xml['code'] );
-			switch ( intval( $http_code ) ) {
-			case 200:
-				if ( preg_match_all( '/<loc>(.*?)<\/loc>/i', $xml['body'], $matches ) ) {
-					foreach ( $matches[1] as $link ) {
-						if ( preg_match( '/\/([\-_a-z0-9%]+\.xml)$/i', $link,$matchSub ) ) {
-							if ( ! in_array( $matchSub[0], $analyzed ) ) {
-								$this->sitemap_analyzer( $analyzed, $urls, $matchSub[0], $url_type );
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-
-
-	private function front_page_url() {
-		$urls     = array();
-		$site_url = $this->get_site_url();
-		$urls[]   = array(
-			'type' => 'front_page',
-			'url' => apply_filters('StaticPress::get_url', $site_url),
-			'last_modified' => date('Y-m-d h:i:s'),
-			);
-		return $urls;
-	}
-
-	/**
-	 * Gets URLs of posts.
-	 */
-	private function single_url() {
-		$post_types = get_post_types( array( 'public' => true ) );
-		$posts = $this->repository->get_posts( $post_types );
-		$urls = array();
-		foreach ( $posts as $post ) {
-			$post_id = $post->ID;
-			$modified = $post->post_modified;
-			$permalink = get_permalink( $post->ID );
-			if ( $permalink === false || is_wp_error( $permalink ) ) {
-				// TODO Is is_wp_error() correct? Commited at 2013-04-22 22:54:05 450c6ce5731b27fc98707d8a881844778ced4763 .
-				continue;
-			}
-			$count = 1;
-			if ( $splite = preg_split( "#<!--nextpage-->#", $post->post_content ) ) {
-				$count = count( $splite );
-			}
-			$urls[] = array(
-				'type'          => 'single',
-				'url'           => apply_filters( 'StaticPress::get_url', $permalink ),
-				'object_id'     => intval( $post_id ),
-				'object_type'   =>  $post->post_type,
-				'pages'         => $count,
-				'last_modified' => $modified,
-			);
-		}
-		return $urls;
-	}
-
-	private function get_term_info($term_id) {
-		global $wpdb;
-
-		if (!isset($this->post_types) || empty($this->post_types))
-			$this->post_types = "'".implode("','",get_post_types(array('public' => true)))."'";
-
-		$result = $wpdb->get_row($wpdb->prepare("
-select MAX(P.post_modified) as last_modified, count(P.ID) as count
- from {$wpdb->posts} as P
- inner join {$wpdb->term_relationships} as tr on tr.object_id = P.ID
- inner join {$wpdb->term_taxonomy} as tt on tt.term_taxonomy_id = tr.term_taxonomy_id
- where P.post_status = %s and P.post_type in ({$this->post_types})
-  and tt.term_id = %d
-",
-			'publish',
-			intval($term_id)
-			));
-		if (!is_wp_error($result)) {
-			$modified = $result->last_modified;
-			$count = $result->count;
-		} else {
-			$modified = date('Y-m-d h:i:s');
-			$count = 1;
-		}
-		$page_count = intval($count / intval(get_option('posts_per_page'))) + 1;
-		return array($modified, $page_count);
-	}
-
-	/**
-	 * Gets URLs of terms.
-	 */
-	private function terms_url( $url_type = 'term_archive' ) {
-		$urls = array();
-		$taxonomies = get_taxonomies( array( 'public' => true ) );
-		foreach ( $taxonomies as $taxonomy ) {
-			$terms = get_terms( $taxonomy );
-			if ( is_wp_error( $terms ) ) {
-				continue;
-			}
-			foreach ( $terms as $term ) {
-				$term_id = $term->term_id;
-				$termlink = get_term_link( $term->slug, $taxonomy );
-				if ( is_wp_error( $termlink ) ) {
-					continue;
-				}
-				list( $modified, $page_count ) = $this->get_term_info( $term_id );
-				$urls[] = array(
-					'type'          => $url_type,
-					'url'           => apply_filters( 'StaticPress::get_url', $termlink ),
-					'object_id'     => intval( $term_id ),
-					'object_type'   => $term->taxonomy,
-					'parent'        => $term->parent,
-					'pages'         => $page_count,
-					'last_modified' => $modified,
-				);
-
-				$termchildren = get_term_children( $term->term_id, $taxonomy );
-				if ( is_wp_error( $termchildren ) ) {
-					continue;
-				}
-				foreach ( $termchildren as $child ) {
-					$term = get_term_by( 'id', $child, $taxonomy );
-					$term_id = $term->term_id;
-					if ( is_wp_error( $term ) ) {
-						continue;
-					}
-					$termlink = get_term_link( $term->name, $taxonomy );
-					if ( is_wp_error( $termlink ) ) {
-						continue;
-					}
-					list( $modified, $page_count ) = $this->get_term_info( $term_id );
-					$urls[] = array(
-						'type'          => $url_type,
-						'url'           => apply_filters( 'StaticPress::get_url', $termlink ),
-						'object_id'     => intval( $term_id ),
-						'object_type'   => $term->taxonomy,
-						'parent'        => $term->parent,
-						'pages'         => $page_count,
-						'last_modified' => $modified,
-					);
-				}
-			}
-		}
-		return $urls;
-	}
-
-	/**
-	 * Gets URLs of authors.
-	 */
-	private function author_url() {
-		$post_types = get_post_types( array( 'public' => true) );
-		$authors = $this->repository->get_post_authors( $post_types );
-		$urls = array();
-		foreach ( $authors as $author ) {
-			$author_id = $author->post_author;
-			$page_count = intval( $author->count / intval( get_option( 'posts_per_page' ) ) ) + 1;
-			$modified = $author->modified;
-			$author = get_userdata( $author_id );
-			if ( is_wp_error( $author ) ) {
-				continue;
-			}
-			$authorlink = get_author_posts_url( $author->ID, $author->user_nicename );
-			if ( is_wp_error( $authorlink ) ) {
-				continue;
-			}
-			$urls[] = array(
-				'type'          => 'author_archive',
-				'url'           => apply_filters( 'StaticPress::get_url', $authorlink ),
-				'object_id'     => intval( $author_id ),
-				'pages'         => $page_count,
-				'last_modified' => $modified,
-			);
-		}
-		return $urls;
-	}
-
-	/**
-	 * Gets URLs of static files.
-	 */
-	private function static_files_url() {
-		$file_scanner = new Static_Press_File_Scanner( apply_filters( 'StaticPress::static_files_filter', $this->static_files_ext ) );
-		$static_files = array_merge(
-			$file_scanner->scan( trailingslashit( ABSPATH ), false ),
-			$file_scanner->scan( trailingslashit( ABSPATH ) . 'wp-admin/', true ),
-			$file_scanner->scan( trailingslashit( ABSPATH ) . 'wp-includes/', true ),
-			$file_scanner->scan( trailingslashit( WP_CONTENT_DIR ), true )
-		);
-
-		$urls = array();
-		foreach ( $static_files as $static_file ) {
-			$static_file_url = str_replace( trailingslashit( ABSPATH ), trailingslashit( $this->get_site_url() ), $static_file );
-			$urls[] = array(
-				'type'          => 'static_file',
-				'url'           => apply_filters( 'StaticPress::get_url', $static_file_url ),
-				'last_modified' => date( 'Y-m-d h:i:s', filemtime( $static_file ) ),
-			);
-		}
-		return $urls;
+		$this->repository->trancate_table();
+		return $this->url_collector->collect();
 	}
 
 	/**
 	 * Check whether URL exists or not.
 	 * 
-	 * @param  string $link URL.
+	 * @param  string $url URL.
 	 * @return bool
 	 */
-	private function url_exists( $link ) {
-		global $wpdb;
-
-		$link  = apply_filters( 'StaticPress::get_url', $link );
-		$count = intval( wp_cache_get( 'StaticPress::' . $link, 'static_press' ) );
+	private function url_exists( $url ) {
+		$url  = apply_filters( 'StaticPress::get_url', $url );
+		$count = intval( wp_cache_get( 'StaticPress::' . $url, 'static_press' ) );
 		if ( $count > 0 ) {
 			return true;
 		}
 
-		$sql   = $wpdb->prepare(
-			"select count(*) from {$this->url_table} where `url` = %s limit 1",
-			$link
-		);
-		$count = intval( $wpdb->get_var( $sql ) );
-		wp_cache_set( 'StaticPress::' . $link, $count, 'static_press' );
+		$count = $this->repository->count_url($url);
+		wp_cache_set( 'StaticPress::' . $url, $count, 'static_press' );
 		
 		return $count > 0;
 	}
