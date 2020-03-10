@@ -7,9 +7,13 @@
 
 namespace static_press\includes;
 
+if ( ! class_exists( 'static_press\includes\Static_Press_Content_Filter' ) ) {
+	require dirname( __FILE__ ) . '/class-static-press-content-filter.php';
+}
 if ( ! class_exists( 'static_press\includes\Static_Press_File_Scanner' ) ) {
 	require dirname( __FILE__ ) . '/class-static-press-file-scanner.php';
 }
+use static_press\includes\Static_Press_Content_Filter;
 use static_press\includes\Static_Press_File_Scanner;
 
 /**
@@ -48,12 +52,11 @@ class Static_Press_Url_Collector {
 		global $current_blog;
 		return trailingslashit(
 			isset( $current_blog )
-			? get_home_url( $current_blog->blog_id )
+			? get_home_url( get_current_blog_id() )
 			: get_home_url()
 		);
 	}
 
-	
 	public function collect() {
 		return array_merge(
 			self::front_page_url(),
@@ -292,29 +295,22 @@ class Static_Press_Url_Collector {
 		}
 	}
 
+	/**
+	 * Gets remote content via HTTP / HTTPS access.
+	 * 
+	 * @param string $url URL.
+	 */
 	public function remote_get( $url ) {
-		if ( ! preg_match( '#^https://#i', $url ) )
-			$url = untrailingslashit(self::get_site_url()) . (preg_match('#^/#i', $url) ? $url : "/{$url}");
+		if ( ! preg_match( '#^https://#i', $url ) ) {
+			$url = untrailingslashit( self::get_site_url() ) . ( preg_match( '#^/#i', $url ) ? $url : "/{$url}" );
+		}
 		$response = $this->remote_getter->remote_get( $url );
-		if ( is_wp_error( $response ) )
+		if ( is_wp_error( $response ) ) {
 			return false;
+		}
 		return array(
 			'code' => $response['response']['code'],
-			'body' => self::remove_link_tag( $response['body'], intval( $response['response']['code'] ) ),
+			'body' => Static_Press_Content_Filter::remove_link_tag( $response['body'], intval( $response['response']['code'] ) ),
 		);
-	}
-
-	public static function remove_link_tag( $content, $http_code = 200 ) {
-		$content = preg_replace(
-			'#^[ \t]*<link [^>]*rel=[\'"](pingback|EditURI|shortlink|wlwmanifest)[\'"][^>]+/?>\n#ism',
-			'',
-			$content
-		);
-		$content = preg_replace(
-			'#^[ \t]*<link [^>]*rel=[\'"]alternate[\'"] [^>]*type=[\'"]application/rss\+xml[\'"][^>]+/?>\n#ism',
-			'',
-			$content
-		);
-		return $content;
 	}
 }

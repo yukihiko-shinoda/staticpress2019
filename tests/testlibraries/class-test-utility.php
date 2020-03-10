@@ -88,7 +88,7 @@ class Test_Utility {
 	 * @return array Responce.
 	 */
 	public static function create_response( $url, $file_name ) {
-		$body        = file_get_contents( dirname( __FILE__ ) . '/../testresources/' . $file_name );
+		$body        = self::get_test_resource_content( $file_name );
 		$status_code = 200;
 		$header_data = array(
 			'content-encoding' => 'gzip',
@@ -128,6 +128,16 @@ class Test_Utility {
 		$responce['http_response']           = new \WP_HTTP_Requests_Response( $requests_response, null );
 		$responce['headers']                 = new \Requests_Utility_CaseInsensitiveDictionary( $header_data );
 		return $responce;
+	}
+
+	/**
+	 * Gets test resource content.
+	 * 
+	 * @param string $file_name Related path based on testresources directory not start with '/'.
+	 * @return string Content.
+	 */
+	public static function get_test_resource_content( $file_name ) {
+		return file_get_contents( dirname( __FILE__ ) . '/../testresources/' . $file_name );
 	}
 
 	/**

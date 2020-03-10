@@ -27,6 +27,38 @@ class Static_Press_Url_Collector_Test extends \WP_UnitTestCase {
 	public static $wordpress_mock;
 
 	/**
+	 * Function get_site_url() should return site URL.
+	 */
+	public function test_get_site_url() {
+		$url    = 'http://example.org/';
+		$result = Static_Press_Url_Collector::get_site_url();
+		$this->assertEquals( $url, $result );
+	}
+
+	/**
+	 * Function get_site_url() should return site URL.
+	 */
+	public function test_get_site_url_multi_site() {
+		if ( ! defined( 'MULTISITE' ) || MULTISITE === false ) {
+			return;
+		}
+		remove_filter( 'query', array( $this, '_create_temporary_tables' ) );
+		remove_filter( 'query', array( $this, '_drop_temporary_tables' ) );
+		$domain  = 'something.example.com';
+		$path    = '/';
+		$title   = 'Look at my awesome site';
+		$blog_id = wpmu_create_blog( $domain, $path, $title, 1 );
+		switch_to_blog( $blog_id );
+		$url = "https://$domain/sub/";
+		update_option( 'home', $url );
+		$result = Static_Press_Url_Collector::get_site_url();
+		$this->assertEquals( $url, $result );
+		restore_current_blog();
+		add_filter( 'query', array( $this, '_create_temporary_tables' ) );
+		add_filter( 'query', array( $this, '_drop_temporary_tables' ) );
+	}
+
+	/**
 	 * Function front_page_url() should return appropriate URLs.
 	 */
 	public function test_front_page_url() {

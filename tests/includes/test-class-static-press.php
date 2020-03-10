@@ -94,7 +94,7 @@ class Static_Press_Test extends \WP_UnitTestCase {
 	public function test_init_param_static_url( $static_url, $expect ) {
 		$static_press       = new Static_Press( 'staticpress', $static_url );
 		$reflector          = new \ReflectionClass( $static_press );
-		$reflector_property = $reflector->getProperty( 'static_url' );
+		$reflector_property = $reflector->getProperty( 'static_site_url' );
 		$reflector_property->setAccessible( true );
 
 		$this->assertEquals( $expect, $reflector_property->getValue( $static_press ) );
@@ -445,7 +445,131 @@ class Static_Press_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Sets up for testing seo_url().
+	 * Function remove_link_tag() should remove link tag of pingback.
+	 * Function remove_link_tag() should remove link tag of EditURI.
+	 * Function remove_link_tag() should remove link tag of shortlink.
+	 * Function remove_link_tag() should remove link tag of wlwmanifest.
+	 * Function remove_link_tag() should not remove link tag of shortcut icon.
+	 * Function remove_link_tag() should remove link tag of alternate type of application/rss+xml.
+	 * Function remove_link_tag() should not remove link tag of alternate type of application/atom+xml.
+	 */
+	public function test_remove_link_tag() {
+		$parameter    = Test_Utility::get_test_resource_content( 'remove-link-tag-before.html' );
+		$expect       = Test_Utility::get_test_resource_content( 'remove-link-tag-after.html' );
+		$static_press = new Static_Press( 'staticpress' );
+		$actual       = $static_press->remove_link_tag( $parameter );
+		$this->assertEquals( $expect, $actual );
+	}
+
+	/**
+	 * Test steps for add_last_modified().
+	 * 
+	 * @dataProvider provider_add_last_modified
+	 * 
+	 * @param string $file_name_before File name of before state.
+	 * @param string $http_code        HTTP status code.
+	 * @param string $file_name_after  File name of after state.
+	 */
+	public function test_add_last_modified( $file_name_before, $http_code, $file_name_after ) {
+		$content      = Test_Utility::get_test_resource_content( $file_name_before );
+		$expect       = Test_Utility::get_test_resource_content( $file_name_after );
+		$static_press = new Static_Press(
+			'staticpress',
+			'/',
+			'',
+			array(),
+			$this->create_terminator_mock(),
+			$this->create_remote_getter_mock(),
+			$this->create_date_time_factory_mock()
+		);
+		$actual       = $static_press->add_last_modified( $content, $http_code );
+		$this->assertEquals( $expect, $actual );
+	}
+
+	/**
+	 * Function add_last_modified() should add whether URL exists or not.
+	 *
+	 * @return array[]
+	 */
+	public function provider_add_last_modified() {
+		return array(
+			array(
+				'add-last-modified-html-without-attribute-before.html',
+				200,
+				'add-last-modified-html-without-attribute-after.html',
+			),
+			array(
+				'add-last-modified-html-with-attribute-before.html',
+				200,
+				'add-last-modified-html-with-attribute-after.html',
+			),
+			array(
+				'add-last-modified-xhtml-without-attribute-before.html',
+				200,
+				'add-last-modified-xhtml-without-attribute-after.html',
+			),
+			array(
+				'add-last-modified-xhtml-with-attribute-before.html',
+				200,
+				'add-last-modified-xhtml-with-attribute-after.html',
+			),
+			array(
+				'add-last-modified-html-without-attribute-before.html',
+				404,
+				'add-last-modified-html-without-attribute-before.html',
+			),
+			array(
+				'add-last-modified-html-with-attribute-before.html',
+				404,
+				'add-last-modified-html-with-attribute-before.html',
+			),
+			array(
+				'add-last-modified-xhtml-without-attribute-before.html',
+				404,
+				'add-last-modified-xhtml-without-attribute-before.html',
+			),
+			array(
+				'add-last-modified-xhtml-with-attribute-before.html',
+				404,
+				'add-last-modified-xhtml-with-attribute-before.html',
+			),
+		);
+	}
+
+	/**
+	 * Function rewrite_generator_tag() should return generator meta tag which added plugin name and version.
+	 */
+	public function test_rewrite_generator_tag() {
+		$content        = '<meta name="generator" content="WordPress 5.3" />';
+		$file_data      = get_file_data(
+			dirname( dirname( dirname( __FILE__ ) ) ) . '/plugin.php',
+			array(
+				'pluginname' => 'Plugin Name',
+				'version'    => 'Version',
+			)
+		);
+		$plugin_name    = $file_data['pluginname'];
+		$plugin_version = $file_data['version'];
+		$expect         = '<meta name="generator" content="WordPress 5.3 with ' . $plugin_name . ' ver.' . $plugin_version . '" />';
+
+		$static_press = new Static_Press( 'staticpress' );
+		$result       = $static_press->rewrite_generator_tag( $content );
+		$this->assertEquals( $expect, $result );
+	}
+
+	/**
+	 * Function replace_relative_URI() should return generator meta tag which added plugin name and version.
+	 */
+	public function test_replace_relative_URI() {
+		$content      = Test_Utility::get_test_resource_content( 'replace_relative_uri-before.html' );
+		$expect       = Test_Utility::get_test_resource_content( 'replace_relative_uri-after.html' );
+		$static_press = new Static_Press( 'staticpress', 'https://static-site.com' );
+		$result       = $static_press->replace_relative_URI( $content );
+		$this->assertEquals( $expect, $result );
+	}
+
+	/**
+	 * Creates mock for Remote Getter to prevent to call wp_remote_get since web server is not running in PHPUnit environment.
 	 */
 	private function create_remote_getter_mock() {
 		$remote_getter_mock = Mockery::mock( 'alias:Remote_Getter_Mock' );
@@ -454,13 +578,25 @@ class Static_Press_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Sets up for testing seo_url().
+	 * Creates mock for Terminator to prevent to call die().
 	 */
 	private function create_terminator_mock() {
 		$terminator_mock = Mockery::mock( 'alias:Terminator_Mock' );
 		$terminator_mock->shouldReceive( 'terminate' )->andThrow( new \Exception( 'Dead!' ) );
 		return $terminator_mock;
 	}
+
+	/**
+	 * Creates mock for Date time factory to fix date time.
+	 */
+	private function create_date_time_factory_mock() {
+		$date_time_factory_mock = Mockery::mock( 'alias:Date_Time_Factory_Mock' );
+		$date_time_factory_mock->shouldReceive( 'create_gmdate' )
+		->with( 'D, d M Y H:i:s' )
+		->andReturn( 'Mon, 23 Des 2019 12:34:56' );
+		return $date_time_factory_mock;
+	}
+
 	/**
 	 * Test steps for other_url().
 	 *
@@ -641,27 +777,6 @@ class Static_Press_Test extends \WP_UnitTestCase {
 				),
 			),
 		);
-	}
-
-	/**
-	 * Function rewrite_generator_tag should return generator meta tag which added plugin name and version.
-	 */
-	public function test_rewrite_generator_tag() {
-		$content        = '<meta name="generator" content="WordPress 5.3" />';
-		$file_data      = get_file_data(
-			dirname( dirname( dirname( __FILE__ ) ) ) . '/plugin.php',
-			array(
-				'pluginname' => 'Plugin Name',
-				'version'    => 'Version',
-			)
-		);
-		$plugin_name    = $file_data['pluginname'];
-		$plugin_version = $file_data['version'];
-		$expect         = '<meta name="generator" content="WordPress 5.3 with ' . $plugin_name . ' ver.' . $plugin_version . '" />';
-
-		$static_press = new Static_Press( 'staticpress' );
-		$result       = $static_press->rewrite_generator_tag( $content );
-		$this->assertEquals( $expect, $result );
 	}
 
 	/**

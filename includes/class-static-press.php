@@ -7,8 +7,11 @@
 
 namespace static_press\includes;
 
-if ( ! class_exists( 'static_press\includes\Static_Press_Plugin_Information' ) ) {
-	require dirname( __FILE__ ) . '/class-static-press-plugin-information.php';
+if ( ! class_exists( 'static_press\includes\Static_Press_Content_Filter' ) ) {
+	require dirname( __FILE__ ) . '/class-static-press-content-filter.php';
+}
+if ( ! class_exists( 'static_press\includes\Static_Press_Date_Time_Factory' ) ) {
+	require dirname( __FILE__ ) . '/class-static-press-date-time-factory.php';
 }
 if ( ! class_exists( 'static_press\includes\Static_Press_Remote_Getter' ) ) {
 	require dirname( __FILE__ ) . '/class-static-press-remote-getter.php';
@@ -28,7 +31,8 @@ if ( ! class_exists( 'static_press\includes\Static_Press_Repository' ) ) {
 if ( ! class_exists( 'static_press\includes\Static_Press_Terminator' ) ) {
 	require dirname( __FILE__ ) . '/class-static-press-terminator.php';
 }
-use static_press\includes\Static_Press_Plugin_Information;
+use static_press\includes\Static_Press_Content_Filter;
+use static_press\includes\Static_Press_Date_Time_Factory;
 use static_press\includes\Static_Press_Remote_Getter;
 use static_press\includes\Static_Press_Transient_Manager;
 use static_press\includes\Static_Press_Url_Collector;
@@ -45,7 +49,6 @@ class Static_Press {
 
 	static $instance;
 
-	private $plugin_information;
 	/**
 	 * Database access instance.
 	 * 
@@ -59,12 +62,24 @@ class Static_Press {
 	 */
 	private $terminator;
 	/**
-	 * Terminator instance.
+	 * URL collector instance.
 	 * 
 	 * @var Static_Press_Url_Collector
 	 */
 	private $url_collector;
-	private $static_url;
+	/**
+	 * Date time factory instance.
+	 * 
+	 * @var Static_Press_Date_Time_Factory
+	 */
+	private $date_time_factory;
+	/**
+	 * Directory to dump static files.
+	 * 
+	 * @var Static_Press_Content_Filter
+	 */
+	private $content_filter;
+	private $static_site_url;
 	/**
 	 * Directory to dump static files.
 	 * 
@@ -82,23 +97,33 @@ class Static_Press {
 	/**
 	 * Constructor.
 	 * 
-	 * @param string                     $plugin_basename   Plugin base name.
-	 * @param string                     $static_url        Static URL.
-	 * @param string                     $dump_directory    Directory to dump static files.
-	 * @param array                      $remote_get_option Remote get options.
-	 * @param Static_Press_terminator    $terminator        Terminator.
-	 * @param Static_Press_Remote_Getter $remote_getter     Remote getter.
+	 * @param string                         $plugin_basename   Plugin base name.
+	 * @param string                         $static_url        Static site URL.
+	 * @param string                         $dump_directory    Directory to dump static files.
+	 * @param array                          $remote_get_option Remote get options.
+	 * @param Static_Press_terminator        $terminator        Terminator.
+	 * @param Static_Press_Remote_Getter     $remote_getter     Remote getter.
+	 * @param Static_Press_Date_Time_Factory $date_time_factory Date time factory.
 	 */
-	public function __construct( $plugin_basename, $static_url = '/', $dump_directory = '', $remote_get_option = array(), $terminator = null, $remote_getter = null ) {
+	public function __construct(
+		$plugin_basename,
+		$static_url = '/',
+		$dump_directory = '',
+		$remote_get_option = array(),
+		$terminator = null,
+		$remote_getter = null,
+		$date_time_factory = null
+	) {
 		self::$instance        = $this;
 		$this->plugin_basename = $plugin_basename;
-		$this->static_url      = $this->init_static_url( $static_url );
+		$this->static_site_url = $this->init_static_url( $static_url );
 		$this->dump_directory  = $this->init_dump_directory( $dump_directory );
 		$this->make_subdirectories( $this->dump_directory );
-		$this->repository         = new Static_Press_Repository();
-		$this->plugin_information = new Static_Press_Plugin_Information();
-		$this->terminator         = $terminator ? $terminator : new Static_Press_Terminator();
-		$this->url_collector      = new Static_Press_Url_Collector( $this->static_files_ext, $remote_getter ? $remote_getter : new Static_Press_Remote_Getter( $remote_get_option ) );
+		$this->repository        = new Static_Press_Repository();
+		$this->terminator        = $terminator ? $terminator : new Static_Press_Terminator();
+		$this->url_collector     = new Static_Press_Url_Collector( $this->static_files_ext, $remote_getter ? $remote_getter : new Static_Press_Remote_Getter( $remote_get_option ) );
+		$this->date_time_factory = $date_time_factory ? $date_time_factory : new Static_Press_Date_Time_Factory();
+		$this->content_filter    = new Static_Press_Content_Filter( $this->date_time_factory );
 
 		$this->repository->create_table();
 
@@ -108,7 +133,8 @@ class Static_Press {
 	}
 
 	/**
-	 * Initializes static URL.
+	 * Initializes static site URL.
+	 * When argument doesn't start with http(s), this function fallback to dynamic site URL (the site StaticPress itself running).
 	 * Static URL surely become absolute URL start with (http or https)://.
 	 * 
 	 * @param  string $static_url The URL of web site to deploy dumped static files.
@@ -138,7 +164,7 @@ class Static_Press {
 	 */
 	private function init_dump_directory( $dump_directory ) {
 		$dump_directory = ! empty( $dump_directory ) ? $dump_directory : ABSPATH;
-		return untrailingslashit( $dump_directory ) . preg_replace( '#^https?://[^/]+/#i', '/', trailingslashit( $this->static_url ) );
+		return untrailingslashit( $dump_directory ) . preg_replace( '#^https?://[^/]+/#i', '/', trailingslashit( $this->static_site_url ) );
 	}
 
 	/**
@@ -459,7 +485,7 @@ class Static_Press {
 				}
 				break;
 		}
-		do_action( 'StaticPress::file_put', $file_dest, untrailingslashit( $this->static_url ) . $this->static_url( $url ) );
+		do_action( 'StaticPress::file_put', $file_dest, untrailingslashit( $this->static_site_url ) . $this->static_url( $url ) );
 
 		if ( file_exists( $file_dest ) ) {
 			$this->update_url(
@@ -492,37 +518,35 @@ class Static_Press {
 		return $file_dest;
 	}
 
+	/**
+	 * Gets remote content via HTTP / HTTPS access.
+	 * 
+	 * @param string $url URL.
+	 */
 	private function remote_get( $url ) {
 		return $this->url_collector->remote_get( $url );
 	}
 
-	public function remove_link_tag($content, $http_code = 200) {
-		$content = preg_replace(
-			'#^[ \t]*<link [^>]*rel=[\'"](pingback|EditURI|shortlink|wlwmanifest)[\'"][^>]+/?>\n#ism',
-			'',
-			$content);
-		$content = preg_replace(
-			'#^[ \t]*<link [^>]*rel=[\'"]alternate[\'"] [^>]*type=[\'"]application/rss\+xml[\'"][^>]+/?>\n#ism',
-			'',
-			$content);
-		return $content;
+	/**
+	 * Removes some kinds of link tag.
+	 * 
+	 * @param string $content   Content.
+	 * @param int    $http_code HTTP responce code.
+	 * @return string Tag removed content.
+	 */
+	public function remove_link_tag( $content, $http_code = 200 ) {
+		return Static_Press_Content_Filter::remove_link_tag( $content, $http_code );
 	}
 
-	public function	add_last_modified($content, $http_code = 200) {
-		if (intval($http_code) === 200) {
-			$type = preg_match('#<!DOCTYPE html>#i', $content) ? 'html' : 'xhtml';
-			switch ( $type ) {
-			case 'html':
-				$last_modified = sprintf('<meta http-equiv="Last-Modified" content="%s GMT">', gmdate("D, d M Y H:i:s"));
-				break;
-			case 'xhtml':
-			default:
-				$last_modified = sprintf('<meta http-equiv="Last-Modified" content="%s GMT" />', gmdate("D, d M Y H:i:s"));
-				break;
-			}
-			$content = preg_replace('#(<head>|<head [^>]+>)#ism', '$1'."\n".$last_modified, $content);
-		}
-		return $content;
+	/**
+	 * Adds meta tag for last modified.
+	 * 
+	 * @param string $content   Content.
+	 * @param int    $http_code HTTP responce code.
+	 * @return string Tag removed content.
+	 */
+	public function add_last_modified( $content, $http_code = 200 ) {
+		return $this->content_filter->add_last_modified( $content, $http_code );
 	}
 
 	/**
@@ -532,60 +556,72 @@ class Static_Press {
 	 * @param  int    $http_code HTTP status code.
 	 * @return string
 	 */
-	public function	rewrite_generator_tag( $content, $http_code = 200 ) {
-		return preg_replace(
-			'#(<meta [^>]*name=[\'"]generator[\'"] [^>]*content=[\'"])([^\'"]*)([\'"][^>]*/?>)#ism',
-			'$1$2 with ' . ( (string) $this->plugin_information ) . '$3',
-			$content
-		);
+	public function rewrite_generator_tag( $content, $http_code = 200 ) {
+		return $this->content_filter->rewrite_generator_tag( $content, $http_code );
 	}
 
-	public function replace_relative_URI($content, $http_code = 200) {
-		$site_url = trailingslashit($this->get_site_url());
-		$parsed = parse_url($site_url);
-		$home_url = $parsed['scheme'] . '://' . $parsed['host'];
-		if (isset($parsed['port']))
-			$home_url .= ':'.$parsed['port'];
+	/**
+	 * Replaces relative URI.
+	 * 
+	 * @param  string $content   Content.
+	 * @param  int    $http_code HTTP status code.
+	 * @return string
+	 */
+	public function replace_relative_URI( $content, $http_code = 200 ) {
+		$site_url = trailingslashit( $this->get_site_url() );
+		$home_url = $this->get_home_url( $site_url );
 
-		$pattern  = array(
+		// Replaces relative URI to absolute URI of dynamic site.
+		$pattern = array(
 			'# (href|src|action)="(/[^"]*)"#ism',
 			"# (href|src|action)='(/[^']*)'#ism",
 		);
-		$content = preg_replace($pattern, ' $1="'.$home_url.'$2"', $content);
+		$content = preg_replace( $pattern, ' $1="' . $home_url . '$2"', $content );
 
-		$content = str_replace($site_url, trailingslashit($this->static_url), $content);
+		// Replaces absolute URL of dynamic site home to absolute URL of static site home.
+		$content = str_replace( $site_url, trailingslashit( $this->static_site_url ), $content );
 
-		$parsed = parse_url($this->static_url);
-		$static_url = $parsed['scheme'] . '://' . $parsed['host'];
-		if (isset($parsed['port']))
-			$static_url .= ':'.$parsed['port'];
-		$pattern  = array(
-			'# (href|src|action)="'.preg_quote($static_url).'([^"]*)"#ism',
-			"# (href|src|action)='".preg_quote($static_url)."([^']*)'#ism",
+		// Replaces absolute URL of static site to relative URL.
+		$static_url = $this->get_home_url( $this->static_site_url );
+		$pattern    = array(
+			'# (href|src|action)="' . preg_quote( $static_url ) . '([^"]*)"#ism',
+			"# (href|src|action)='" . preg_quote( $static_url ) . "([^']*)'#ism",
 		);
-		$content  = preg_replace($pattern, ' $1="$2"', $content);
+		$content    = preg_replace( $pattern, ' $1="$2"', $content );
 
 		if ( $home_url !== $static_url ) {
-			$pattern  = array(
-				'# (href|src|action)="'.preg_quote($home_url).'([^"]*)"#ism',
-				"# (href|src|action)='".preg_quote($home_url)."([^']*)'#ism",
+			// Replaces absolute URL of dynamic site to relative URL.
+			$pattern = array(
+				'# (href|src|action)="' . preg_quote( $home_url ) . '([^"]*)"#ism',
+				"# (href|src|action)='" . preg_quote( $home_url ) . "([^']*)'#ism",
 			);
-			$content  = preg_replace($pattern, ' $1="$2"', $content);
+			$content = preg_replace( $pattern, ' $1="$2"', $content );
 		}
 
+		// Replaces relative URL to absolute URL of static site.
 		$pattern = array(
 			'meta [^>]*property=[\'"]og:[^\'"]*[\'"] [^>]*content=',
 			'link [^>]*rel=[\'"]canonical[\'"] [^>]*href=',
 			'link [^>]*rel=[\'"]shortlink[\'"] [^>]*href=',
 			'data-href=',
 			'data-url=',
-			);
-		$pattern  = '#<('.implode('|', $pattern).')[\'"](/[^\'"]*)[\'"]([^>]*)>#uism';
-		$content = preg_replace($pattern, '<$1"'.$static_url.'$2"$3>', $content);
+		);
+		$pattern = '#<(' . implode( '|', $pattern ) . ')[\'"](/[^\'"]*)[\'"]([^>]*)>#uism';
+		$content = preg_replace( $pattern, '<$1"' . $static_url . '$2"$3>', $content );
 
-		$content = str_replace(addcslashes($site_url, '/'), addcslashes(trailingslashit($this->static_url), '/'), $content);
+		// Replaces absolute URL of static site home to absolute URL of static site.
+		$content = str_replace( addcslashes( $site_url, '/' ), addcslashes( trailingslashit( $this->static_site_url ), '/' ), $content );
 
 		return $content;
+	}
+
+	private function get_home_url( $site_url ) {
+		$parsed   = parse_url( $site_url );
+		$home_url = $parsed['scheme'] . '://' . $parsed['host'];
+		if ( isset( $parsed['port'] ) ) {
+			$home_url .= ':' . $parsed['port'];
+		}
+		return $home_url;
 	}
 
 	/**
