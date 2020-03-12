@@ -103,9 +103,9 @@ class Static_Press_Repository {
 	/**
 	 * Trancates table.
 	 */
-	public function trancate_table() {
+	public function truncate_table() {
 		global $wpdb;
-		$wpdb->query( "truncate table `{$this->url_table}`" );
+		$wpdb->query( "TRUNCATE TABLE `{$this->url_table}`" );
 	}
 
 	/**

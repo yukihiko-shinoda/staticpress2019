@@ -29,7 +29,6 @@ function time() {
 
 namespace static_press\tests\includes;
 
-require_once dirname( __FILE__ ) . '/../testlibraries/class-array-url-handler.php';
 require_once dirname( __FILE__ ) . '/../testlibraries/class-expect-url.php';
 require_once dirname( __FILE__ ) . '/../testlibraries/class-model-url.php';
 require_once dirname( __FILE__ ) . '/../testlibraries/class-repository-for-test.php';
@@ -40,7 +39,6 @@ use ReflectionException;
 use Mockery;
 use static_press\includes\Static_Press;
 use static_press\includes\Static_Press_Repository;
-use static_press\tests\testlibraries\Array_Url_Handler;
 use static_press\tests\testlibraries\Expect_Url;
 use static_press\tests\testlibraries\Model_Url;
 use static_press\tests\testlibraries\Repository_For_Test;
@@ -92,7 +90,7 @@ class Static_Press_Test extends \WP_UnitTestCase {
 	 * @param string $expect     Expect return value.
 	 */
 	public function test_init_param_static_url( $static_url, $expect ) {
-		$static_press       = new Static_Press( 'staticpress', $static_url );
+		$static_press       = new Static_Press( $static_url );
 		$reflector          = new \ReflectionClass( $static_press );
 		$reflector_property = $reflector->getProperty( 'static_site_url' );
 		$reflector_property->setAccessible( true );
@@ -126,7 +124,7 @@ class Static_Press_Test extends \WP_UnitTestCase {
 	 * @param string $expect         Expect return value.
 	 */
 	public function test_init_param_dump_directory( $static_url, $dump_directory, $expect ) {
-		$static_press       = new Static_Press( 'staticpress', $static_url, $dump_directory );
+		$static_press       = new Static_Press( $static_url, $dump_directory );
 		$reflector          = new \ReflectionClass( $static_press );
 		$reflector_property = $reflector->getProperty( 'dump_directory' );
 		$reflector_property->setAccessible( true );
@@ -163,7 +161,7 @@ class Static_Press_Test extends \WP_UnitTestCase {
 			$wpdb->query( "DROP TABLE `{$this->url_table()}`" );
 		}
 		$this->assertNotEquals( $this->url_table(), $wpdb->get_var( "show tables like '{$this->url_table()}'" ) );
-		$static_press = new Static_Press( 'staticpress' );
+		$static_press = new Static_Press();
 		$this->assertEquals( $this->url_table(), $wpdb->get_var( "show tables like '{$this->url_table()}'" ) );
 		add_filter( 'query', array( $this, '_create_temporary_tables' ) );
 		add_filter( 'query', array( $this, '_drop_temporary_tables' ) );
@@ -176,7 +174,7 @@ class Static_Press_Test extends \WP_UnitTestCase {
 		global $wpdb;
 		remove_filter( 'query', array( $this, '_create_temporary_tables' ) );
 		remove_filter( 'query', array( $this, '_drop_temporary_tables' ) );
-		$static_press = new Static_Press( 'staticpress' );
+		$static_press = new Static_Press();
 		if ( $wpdb->get_var( "show tables like '{$this->url_table()}'" ) == $this->url_table() ) {
 			$wpdb->query( "DROP TABLE `{$this->url_table()}`" );
 		}
@@ -200,7 +198,7 @@ class Static_Press_Test extends \WP_UnitTestCase {
 		$this->create_legacy_table();
 		$columns = $wpdb->get_results( "show columns from {$this->url_table()} like 'enable'" );
 		$this->assertEquals( 0, count( $columns ) );
-		$static_press = new Static_Press( 'staticpress' );
+		$static_press = new Static_Press();
 		$static_press->activate();
 		$columns = $wpdb->get_results( "show columns from {$this->url_table()} like 'enable'" );
 		$this->assertEquals( 1, count( $columns ) );
@@ -283,7 +281,7 @@ class Static_Press_Test extends \WP_UnitTestCase {
 		global $wpdb;
 		remove_filter( 'query', array( $this, '_create_temporary_tables' ) );
 		remove_filter( 'query', array( $this, '_drop_temporary_tables' ) );
-		$static_press = new Static_Press( 'staticpress' );
+		$static_press = new Static_Press();
 		if ( $wpdb->get_var( "show tables like '{$this->url_table()}'" ) != $this->url_table() ) {
 			$this->create_latest_table();
 		}
@@ -304,26 +302,21 @@ class Static_Press_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Function json_output() should die.
+	 * Function ajax_init() should die.
 	 * 
 	 * @runInSeparateProcess
 	 */
-	public function test_json_output() {
-		$argument     = array(
-			'result'     => true,
-			'urls_count' => array( 'test' ),
-		);
-		$expect       = '{"result":true,"urls_count":["test"]}';
-		$static_press = new Static_Press( 'staticpress', '/', '', array(), $this->create_terminator_mock() );
-		$reflection   = new \ReflectionClass( get_class( $static_press ) );
-		$method       = $reflection->getMethod( 'json_output' );
-		$method->setAccessible( true );
+	public function test_ajax_init() {
+		$this->sign_on_to_word_press();
+
+		$expect       = '{"result":true,"urls_count":[{"type":"front_page","count":"1"},{"type":"seo_files","count":"5"}]}';
+		$static_press = new Static_Press( '/', '', array(), null, Test_Utility::set_up_seo_url() );
 		ob_start();
 		try {
-			$method->invokeArgs( $static_press, array( $argument ) );
-			// Reason: No need to execute any task.
-		} catch ( \Exception $exception ) { // phpcs:ignore
+			$static_press->ajax_init( Test_Utility::create_terminator_mock() );
+		} catch ( \Exception $exception ) {
 			$output = ob_get_clean();
+			$this->assertEquals( 'Dead!', $exception->getMessage() );
 			$this->assertEquals( $expect, $output );
 			return;
 		}
@@ -331,12 +324,225 @@ class Static_Press_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Function ajax_init() should die.
+	 * Function ajax_fetch() should die.
 	 * 
 	 * @runInSeparateProcess
 	 */
-	public function test_ajax_init() {
-		Test_Utility::set_up_seo_url();
+	public function test_ajax_fetch_without_record() {
+		$this->sign_on_to_word_press();
+
+		$expect       = '{"result":false,"final":true}';
+		$static_press = new Static_Press();
+		ob_start();
+		try {
+			$static_press->ajax_fetch( Test_Utility::create_terminator_mock() );
+		} catch ( \Exception $exception ) {
+			$output = ob_get_clean();
+			$this->assertEquals( 'Dead!', $exception->getMessage() );
+			$this->assertEquals( $expect, $output );
+			return;
+		}
+		$this->fail();
+	}
+
+	/**
+	 * Test steps for ajax_fetch_with_record().
+	 * Function ajax_fetch() should die.
+	 * 
+	 * @dataProvider provider_ajax_fetch_with_record
+	 * 
+	 * @param string $array_record   Array record.
+	 * @param string $expect         Expect return value.
+	 * @runInSeparateProcess
+	 */
+	public function test_ajax_fetch_with_record( $array_record, $expect ) {
+		$this->sign_on_to_word_press();
+		Repository_For_Test::truncate_table();
+		foreach ( $array_record as $record ) {
+			Repository_For_Test::insert_url( $record );
+		}
+
+		$static_press = new Static_Press( '/', '', array(), null, Test_Utility::create_remote_getter_mock() );
+		ob_start();
+		try {
+			$static_press->ajax_fetch( Test_Utility::create_terminator_mock() );
+		} catch ( \Exception $exception ) {
+			$output = ob_get_clean();
+			$this->assertEquals( 'Dead!', $exception->getMessage() );
+			$this->assertEquals( $expect, json_decode( $output, true ) );
+			return;
+		}
+		$this->fail();
+	}
+
+	/**
+	 * Function ajax_fetch() should .
+	 */
+	public function provider_ajax_fetch_with_record() {
+		return array(
+			array(
+				array(
+					new Model_Url(
+						1,
+						'other_page',
+						'/test1/',
+						0,
+						'',
+						0,
+						2,
+						1,
+						'',
+						'0000-00-00 00:00:00',
+						0,
+						'0000-00-00 00:00:00',
+						'0000-00-00 00:00:00',
+						'0000-00-00 00:00:00'
+					),
+					new Model_Url(
+						2,
+						'other_page',
+						'/test2/',
+						0,
+						'',
+						0,
+						2,
+						1,
+						'',
+						'0000-00-00 00:00:00',
+						0,
+						'0000-00-00 00:00:00',
+						'0000-00-00 00:00:00',
+						'0000-00-00 00:00:00'
+					),
+				),
+				array(
+					'result' => true,
+					'files'  => array(
+						'1'   => array(
+							'ID'     => '1',
+							'page'   => 1,
+							'type'   => 'other_page',
+							'url'    => '/test1/',
+							'static' => '/usr/src/wordpress/test1/index.html',
+						),
+						'1-2' => array(
+							'ID'     => '1',
+							'page'   => 2,
+							'type'   => 'other_page',
+							'url'    => '/test1/page/2',
+							'static' => '/usr/src/wordpress/test1/page/2/index.html',
+						),
+						'2'   => array(
+							'ID'     => '2',
+							'page'   => 1,
+							'type'   => 'other_page',
+							'url'    => '/test2/',
+							'static' => '/usr/src/wordpress/test2/index.html',
+						),
+						'3'   => array(
+							'ID'     => '3',
+							'page'   => 1,
+							'type'   => 'other_page',
+							'url'    => '/test1/page/',
+							'static' => '/usr/src/wordpress/test1/page/index.html',
+						),
+					),
+					'final'  => true,
+				),
+			),
+			array(
+				array(
+					new Model_Url(
+						1,
+						'single',
+						'/?attachment_id=3/',
+						3,
+						'attachment',
+						0,
+						2,
+						1,
+						'',
+						'0000-00-00 00:00:00',
+						0,
+						'0000-00-00 00:00:00',
+						'0000-00-00 00:00:00',
+						'0000-00-00 00:00:00'
+					),
+					new Model_Url(
+						2,
+						'single',
+						'/?attachment_id=4/',
+						4,
+						'attachment',
+						0,
+						2,
+						1,
+						'',
+						'0000-00-00 00:00:00',
+						0,
+						'0000-00-00 00:00:00',
+						'0000-00-00 00:00:00',
+						'0000-00-00 00:00:00'
+					),
+				),
+				array(
+					'result' => true,
+					'files'  => array(
+						'1'   => array(
+							'ID'     => '1',
+							'page'   => 1,
+							'type'   => 'single',
+							'url'    => '/?attachment_id=3/',
+							'static' => '/usr/src/wordpress/?attachment_id=3/index.html',
+						),
+						'1-2' => array(
+							'ID'     => '1',
+							'page'   => 2,
+							'type'   => 'single',
+							'url'    => '/?attachment_id=3/2',
+							'static' => '/usr/src/wordpress/?attachment_id=3/2/index.html',
+						),
+						'2'   => array(
+							'ID'     => '2',
+							'page'   => 1,
+							'type'   => 'single',
+							'url'    => '/?attachment_id=4/',
+							'static' => '/usr/src/wordpress/?attachment_id=4/index.html',
+						),
+					),
+					'final'  => true,
+				),
+			),
+		);
+	}
+
+	/**
+	 * Function ajax_finalyze() should die.
+	 * 
+	 * @runInSeparateProcess
+	 */
+	public function test_ajax_finalyze() {
+		$user_id = $this->sign_on_to_word_press();
+		set_transient( "static static - {$user_id}", array( 'fetch_last_id' => 2 ), 3600 );
+		$expect       = '{"result":true}';
+		$static_press = new Static_Press();
+		ob_start();
+		try {
+			$static_press->ajax_finalyze( Test_Utility::create_terminator_mock() );
+		} catch ( \Exception $exception ) {
+			$output = ob_get_clean();
+			$this->assertEquals( 'Dead!', $exception->getMessage() );
+			$this->assertEquals( $expect, $output );
+			$this->assertFalse( get_transient( 'static static' ) );
+			return;
+		}
+		$this->fail();
+	}
+
+	/**
+	 * Signs on to WordPress.
+	 */
+	private function sign_on_to_word_press() {
 		$user_name     = 'User Name';
 		$user_password = 'passW@rd';
 		wp_create_user( $user_name, $user_password );
@@ -347,28 +553,7 @@ class Static_Press_Test extends \WP_UnitTestCase {
 			)
 		);
 		wp_set_current_user( $result->ID );
-
-		$expect       = '{"result":true,"urls_count":[{"type":"front_page","count":"1"},{"type":"seo_files","count":"5"}]}';
-		$static_press = new Static_Press( 'staticpress', '/', '', array(), $this->create_terminator_mock(), Test_Utility::set_up_seo_url() );
-		ob_start();
-		try {
-			$static_press->ajax_init();
-			// Reason: No need to execute any task.
-		} catch ( \Exception $exception ) { // phpcs:ignore
-			$output = ob_get_clean();
-			$this->assertEquals( $expect, $output );
-			return;
-		}
-		$this->fail();
-	}
-
-	/**
-	 * Function get_site_url() should return site URL.
-	 * TODO test for multi site.
-	 */
-	public function test_get_site_url() {
-		$result = $this->create_accessable_method( 'get_site_url', array() );
-		$this->assertEquals( 'http://example.org/', $result );
+		return $result->ID;
 	}
 
 	/**
@@ -380,7 +565,7 @@ class Static_Press_Test extends \WP_UnitTestCase {
 	 * @param string $expect Expect return value.
 	 */
 	public function test_replace_url( $url, $expect ) {
-		$static_press = new Static_Press( 'staticpress' );
+		$static_press = new Static_Press();
 		$this->assertEquals( $expect, $static_press->replace_url( $url ) );
 	}
 
@@ -403,44 +588,30 @@ class Static_Press_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Test steps for create_static_file().
+	 * Test steps for static_url().
 	 *
-	 * @dataProvider provider_create_static_file
+	 * @dataProvider provider_static_url
 	 *
-	 * @param string $url         Argument.
-	 * @param string $file_type   Argument.
-	 * @param string $expect      Expect return value.
-	 * @param string $expect_file Expect file.
-	 *
-	 * @throws ReflectionException When fail to create ReflectionClass instance.
+	 * @param string $permalink argument.
+	 * @param string $expect    Expect return value.
 	 */
-	public function test_create_static_file( $url, $file_type, $expect, $expect_file ) {
-		$remote_getter_mock = $this->create_remote_getter_mock();
-		$static_press       = new Static_Press( 'staticpress', '/', self::OUTPUT_DIRECTORY, array(), null, $remote_getter_mock );
-		$reflection         = new \ReflectionClass( get_class( $static_press ) );
-		$method             = $reflection->getMethod( 'create_static_file' );
-		$method->setAccessible( true );
-
-		$result = $method->invokeArgs( $static_press, array( $url, $file_type ) );
-		$this->assertEquals( $expect, $result );
-		if ( false !== $expect ) {
-			$path_to_expect_file = self::OUTPUT_DIRECTORY . $expect_file;
-			$files               = glob( self::OUTPUT_DIRECTORY . '/*', GLOB_MARK );
-			$message             = 'File ' . $path_to_expect_file . "doesn't exist.\nExisting file list:\n" . implode( "\n", $files );
-			$this->assertFileExists( $path_to_expect_file, $message );
-		}
+	public function test_static_url( $permalink, $expect ) {
+		$static_press = new Static_Press();
+		$this->assertEquals( $expect, $static_press->static_url( $permalink ) );
 	}
 
 	/**
-	 * Function create_static_file() should create home page.
-	 * Function create_static_file() should create seo files.
-	 * 
-	 * @return array[]
+	 * Function static_url() should return index.html based on permalink when permalink doesn't end with extension.
+	 * Function static_url() should return argument when permalink ends with extension.
 	 */
-	public function provider_create_static_file() {
+	public function provider_static_url() {
 		return array(
-			array( '/', 'front_page', '/tmp/static/index.html', '/index.html' ),
-			array( '/sitemap.xml', 'seo_files', '/tmp/static/sitemap.xml', '/sitemap.xml' ),
+			array( '/', '/index.html' ),
+			array( '/test', '/test/index.html' ),
+			array( '/test/', '/test/index.html' ),
+			array( '/test/test', '/test/test/index.html' ),
+			array( '/test/test.png', '/test/test.png' ),
+			array( '/sitemap.xml', '/sitemap.xml' ),
 		);
 	}
 
@@ -456,7 +627,7 @@ class Static_Press_Test extends \WP_UnitTestCase {
 	public function test_remove_link_tag() {
 		$parameter    = Test_Utility::get_test_resource_content( 'remove-link-tag-before.html' );
 		$expect       = Test_Utility::get_test_resource_content( 'remove-link-tag-after.html' );
-		$static_press = new Static_Press( 'staticpress' );
+		$static_press = new Static_Press();
 		$actual       = $static_press->remove_link_tag( $parameter );
 		$this->assertEquals( $expect, $actual );
 	}
@@ -474,12 +645,9 @@ class Static_Press_Test extends \WP_UnitTestCase {
 		$content      = Test_Utility::get_test_resource_content( $file_name_before );
 		$expect       = Test_Utility::get_test_resource_content( $file_name_after );
 		$static_press = new Static_Press(
-			'staticpress',
 			'/',
 			'',
 			array(),
-			$this->create_terminator_mock(),
-			$this->create_remote_getter_mock(),
 			$this->create_date_time_factory_mock()
 		);
 		$actual       = $static_press->add_last_modified( $content, $http_code );
@@ -552,38 +720,21 @@ class Static_Press_Test extends \WP_UnitTestCase {
 		$plugin_version = $file_data['version'];
 		$expect         = '<meta name="generator" content="WordPress 5.3 with ' . $plugin_name . ' ver.' . $plugin_version . '" />';
 
-		$static_press = new Static_Press( 'staticpress' );
+		$static_press = new Static_Press();
 		$result       = $static_press->rewrite_generator_tag( $content );
 		$this->assertEquals( $expect, $result );
 	}
 
 	/**
-	 * Function replace_relative_URI() should return generator meta tag which added plugin name and version.
+	 * Function replace_relative_uri() should return generator meta tag which added plugin name and version.
 	 */
-	public function test_replace_relative_URI() {
+	public function test_replace_relative_uri() {
+		update_option( 'home', 'https://dynamic-site.com/sub/' );
 		$content      = Test_Utility::get_test_resource_content( 'replace_relative_uri-before.html' );
 		$expect       = Test_Utility::get_test_resource_content( 'replace_relative_uri-after.html' );
-		$static_press = new Static_Press( 'staticpress', 'https://static-site.com' );
-		$result       = $static_press->replace_relative_URI( $content );
+		$static_press = new Static_Press( 'https://static-site.com/sub/' );
+		$result       = $static_press->replace_relative_uri( $content );
 		$this->assertEquals( $expect, $result );
-	}
-
-	/**
-	 * Creates mock for Remote Getter to prevent to call wp_remote_get since web server is not running in PHPUnit environment.
-	 */
-	private function create_remote_getter_mock() {
-		$remote_getter_mock = Mockery::mock( 'alias:Remote_Getter_Mock' );
-		$remote_getter_mock->shouldReceive( 'remote_get' )->andReturn( Test_Utility::create_response( '/', 'index-example.html' ) );
-		return $remote_getter_mock;
-	}
-
-	/**
-	 * Creates mock for Terminator to prevent to call die().
-	 */
-	private function create_terminator_mock() {
-		$terminator_mock = Mockery::mock( 'alias:Terminator_Mock' );
-		$terminator_mock->shouldReceive( 'terminate' )->andThrow( new \Exception( 'Dead!' ) );
-		return $terminator_mock;
 	}
 
 	/**
@@ -598,739 +749,13 @@ class Static_Press_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Test steps for other_url().
-	 *
-	 * @dataProvider provider_other_url
-	 *
-	 * @param string       $content                 Argument.
-	 * @param string       $url                     Argument.
-	 * @param array        $expect                  Expect return value.
-	 * @param Expect_Url[] $expect_urls_in_database Expect URLs in table.
-	 *
-	 * @throws ReflectionException     When fail to create ReflectionClass instance.
-	 */
-	public function test_other_url( $content, $url, $expect, $expect_urls_in_database ) {
-		$urls         = array(
-			array(
-				'url' => '/',
-			),
-			array(
-				'url' => '/test/',
-			),
-		);
-		$static_press = new Static_Press( 'staticpress' );
-		$reflection   = new \ReflectionClass( get_class( $static_press ) );
-		$method       = $reflection->getMethod( 'update_url' );
-		$method->setAccessible( true );
-		$method->invokeArgs( $static_press, array( $urls ) );
-		$method = $reflection->getMethod( 'other_url' );
-		$method->setAccessible( true );
-
-		$result = $method->invokeArgs( $static_press, array( $content, $url ) );
-		$this->assertEquals( $expect, $result );
-		$method = $reflection->getMethod( 'fetch_start_time' );
-		$method->setAccessible( true );
-		$start_time = $method->invokeArgs( $static_press, array() );
-		$repository = new Static_Press_Repository();
-		$results    = $repository->get_all_url( $start_time );
-		Expect_Url::assert_url( $this, $expect_urls_in_database, $results );
-	}
-
-	/**
-	 * Function other_url() should return empty array when all of self or parent URL exists.
-	 * Function other_url() shouldn't insert URL to table when all of self or parent URL exists.
-	 * Function other_url() shouldn't add any URL when content doesn't include link to other page.
-	 * Function other_url() should return array of map of all existing URL data
-	 * when any of self or parent URL doesn't exist.
-	 * Function other_url() should insert URL to table when any of self or parent URL exists.
-	 * Function other_url() should add URLs of other page included in content
-	 * when content includes link to other page.
-	 *
-	 * @return array[]
-	 */
-	public function provider_other_url() {
-		return array(
-			array(
-				'',
-				'/',
-				array(),
-				array(
-					new Expect_Url( Expect_Url::TYPE_OTHER_PAGE, '/', '1' ),
-					new Expect_Url( Expect_Url::TYPE_OTHER_PAGE, '/test/', '1' ),
-				),
-			),
-			array(
-				'',
-				'/test/',
-				array(),
-				array(
-					new Expect_Url( Expect_Url::TYPE_OTHER_PAGE, '/', '1' ),
-					new Expect_Url( Expect_Url::TYPE_OTHER_PAGE, '/test/', '1' ),
-				),
-			),
-			array(
-				'',
-				'/test/index.html',
-				array(),
-				array(
-					new Expect_Url( Expect_Url::TYPE_OTHER_PAGE, '/', '1' ),
-					new Expect_Url( Expect_Url::TYPE_OTHER_PAGE, '/test/', '1' ),
-				),
-			),
-			array(
-				'',
-				'/test/test/index.html',
-				array(
-					array(
-						'url'           => '/test/test/',
-						'last_modified' => DATE_FOR_TEST,
-					),
-				),
-				array(
-					new Expect_Url( Expect_Url::TYPE_OTHER_PAGE, '/', '1' ),
-					new Expect_Url( Expect_Url::TYPE_OTHER_PAGE, '/test/', '1' ),
-					new Expect_Url( Expect_Url::TYPE_OTHER_PAGE, '/test/test/', '1' ),
-				),
-			),
-			array(
-				'href="http://example.org/test"',
-				'/',
-				array(),
-				array(
-					new Expect_Url( Expect_Url::TYPE_OTHER_PAGE, '/', '1' ),
-					new Expect_Url( Expect_Url::TYPE_OTHER_PAGE, '/test/', '1' ),
-				),
-			),
-			array(
-				'href="http://example.org/test/test"',
-				'/',
-				array(
-					array(
-						'url'           => '/test/test/',
-						'last_modified' => DATE_FOR_TEST,
-					),
-				),
-				array(
-					new Expect_Url( Expect_Url::TYPE_OTHER_PAGE, '/', '1' ),
-					new Expect_Url( Expect_Url::TYPE_OTHER_PAGE, '/test/', '1' ),
-					new Expect_Url( Expect_Url::TYPE_OTHER_PAGE, '/test/test/', '1' ),
-				),
-			),
-			array(
-				'href="http://example.org/test/test/"',
-				'/',
-				array(
-					array(
-						'url'           => '/test/test/',
-						'last_modified' => DATE_FOR_TEST,
-					),
-				),
-				array(
-					new Expect_Url( Expect_Url::TYPE_OTHER_PAGE, '/', '1' ),
-					new Expect_Url( Expect_Url::TYPE_OTHER_PAGE, '/test/', '1' ),
-					new Expect_Url( Expect_Url::TYPE_OTHER_PAGE, '/test/test/', '1' ),
-				),
-			),
-			array(
-				'href="http://example.org/test/test/index.html"' . "\n" . 'href="http://example.org/test/test2/index.html"',
-				'/',
-				array(
-					array(
-						'url'           => '/test/test/index.html',
-						'last_modified' => DATE_FOR_TEST,
-					),
-					array(
-						'url'           => '/test/test2/index.html',
-						'last_modified' => DATE_FOR_TEST,
-					),
-				),
-				array(
-					new Expect_Url( Expect_Url::TYPE_OTHER_PAGE, '/', '1' ),
-					new Expect_Url( Expect_Url::TYPE_OTHER_PAGE, '/test/', '1' ),
-					new Expect_Url( Expect_Url::TYPE_OTHER_PAGE, '/test/test/index.html', '1' ),
-					new Expect_Url( Expect_Url::TYPE_OTHER_PAGE, '/test/test2/index.html', '1' ),
-				),
-			),
-			array(
-				'href="http://example.org/test/test/index.html"' . "\n" . 'href="http://example.org/test/test2/index.html"',
-				'/test/test/index.html',
-				array(
-					array(
-						'url'           => '/test/test/',
-						'last_modified' => DATE_FOR_TEST,
-					),
-					array(
-						'url'           => '/test/test/index.html',
-						'last_modified' => DATE_FOR_TEST,
-					),
-					array(
-						'url'           => '/test/test2/index.html',
-						'last_modified' => DATE_FOR_TEST,
-					),
-				),
-				array(
-					new Expect_Url( Expect_Url::TYPE_OTHER_PAGE, '/', '1' ),
-					new Expect_Url( Expect_Url::TYPE_OTHER_PAGE, '/test/', '1' ),
-					new Expect_Url( Expect_Url::TYPE_OTHER_PAGE, '/test/test/', '1' ),
-					new Expect_Url( Expect_Url::TYPE_OTHER_PAGE, '/test/test/index.html', '1' ),
-					new Expect_Url( Expect_Url::TYPE_OTHER_PAGE, '/test/test2/index.html', '1' ),
-				),
-			),
-		);
-	}
-
-	/**
-	 * Test steps for url_exists().
-	 *
-	 * @dataProvider provider_url_exists
-	 *
-	 * @param string $link   Argument.
-	 * @param bool   $expect Expect return value.
-	 *
-	 * @throws ReflectionException When fail to create ReflectionClass instance.
-	 */
-	public function test_url_exists( $link, $expect ) {
-		$urls = array(
-			array(
-				'url' => '/',
-			),
-		);
-
-		$static_press = new Static_Press( 'staticpress' );
-		$reflection   = new \ReflectionClass( get_class( $static_press ) );
-		$method       = $reflection->getMethod( 'update_url' );
-		$method->setAccessible( true );
-		$method->invokeArgs( $static_press, array( $urls ) );
-		$method = $reflection->getMethod( 'url_exists' );
-		$method->setAccessible( true );
-
-		$result = $method->invokeArgs( $static_press, array( $link ) );
-		$this->assertEquals( $expect, $result );
-	}
-
-	/**
-	 * Function test_rul_exists() should return whether URL exists or not.
-	 *
-	 * @return array[]
-	 */
-	public function provider_url_exists() {
-		return array(
-			array( '', true ),
-			array( '/', true ),
-			array( '/test', false ),
-			array( '/test.php', false ),
-		);
-	}
-
-	/**
-	 * Function update_url() should update enable when URL exists in database table.
-	 * Function update_url() should insert URL when URL doesn't exist in database table.
-	 * Function update_url() should save as disable when URL is PHP file.
-	 * Function update_url() should save as disable when URL is get request with parameter.
-	 * Function update_url() should save as disable when URL is WordPress admin home page.
-	 * Function update_url() should save as disable when URL is readme.
-	 * Function update_url() should save as disable when URL is not exist.
-	 * Function update_url() should save as enable when URL is activated plugin's static file.
-	 * Function update_url() should save as disable when URL is not current theme's static file.
-	 * Function update_url() should save as enable when URL is current theme's static file.
-	 * 
-	 * @throws ReflectionException When fail to create ReflectionClass instance.
-	 */
-	public function test_update_url() {
-		global $wp_version;
-		if ( version_compare( $wp_version, '5.3.0', '<' ) ) {
-			$theme_to_activate = 'twentyfifteen';
-		} else {
-			$theme_to_activate = 'twentytwenty';
-		}
-		$urls = array(
-			array(
-				'url' => '/',
-			),
-			array(
-				'url' => '/test/',
-			),
-			array(
-				'url' => '/test.php',
-			),
-			array(
-				'url' => '/test?parameter=value',
-			),
-			array(
-				'url' => '/wp-admin/',
-			),
-			array(
-				'url'  => '/readme.txt',
-				'type' => 'static_file',
-			),
-			array(
-				'url'  => '/test.png',
-				'type' => 'static_file',
-			),
-			array(
-				'url'  => '/wp-content/plugins/akismet/_inc/akismet.css',
-				'type' => 'static_file',
-			),
-			array(
-				'url'  => '/wp-content/themes/twentynineteen/style.css',
-				'type' => 'static_file',
-			),
-			array(
-				'url'  => "/wp-content/themes/{$theme_to_activate}/style.css",
-				'type' => 'static_file',
-			),
-		);
-		Repository_For_Test::insert_url(
-			new Model_Url(
-				1,
-				'other_page',
-				'/test/',
-				0,
-				'',
-				0,
-				1,
-				0,
-				'',
-				'0000-00-00 00:00:00',
-				0,
-				'0000-00-00 00:00:00',
-				'0000-00-00 00:00:00',
-				'0000-00-00 00:00:00'
-			)
-		);
-		$expect_urls_in_database = array(
-			new Expect_Url( Expect_Url::TYPE_OTHER_PAGE, '/test/', '1' ),
-			new Expect_Url( Expect_Url::TYPE_OTHER_PAGE, '/', '1' ),
-			new Expect_Url( Expect_Url::TYPE_STATIC_FILE, '/wp-content/plugins/akismet/_inc/akismet.css', '1' ),
-			new Expect_Url( Expect_Url::TYPE_STATIC_FILE, "/wp-content/themes/{$theme_to_activate}/style.css", '1' ),
-		);
-		activate_plugin( 'akismet/akismet.php' );
-		switch_theme( $theme_to_activate );
-		$static_press = new Static_Press( 'staticpress', '/', self::OUTPUT_DIRECTORY );
-		$reflection   = new \ReflectionClass( get_class( $static_press ) );
-		$method       = $reflection->getMethod( 'update_url' );
-		$method->setAccessible( true );
-		$method->invokeArgs( $static_press, array( $urls ) );
-		$method = $reflection->getMethod( 'fetch_start_time' );
-		$method->setAccessible( true );
-		$start_time = $method->invokeArgs( $static_press, array() );
-		$repository = new Static_Press_Repository();
-		$results    = $repository->get_all_url( $start_time );
-		Expect_Url::assert_url( $this, $expect_urls_in_database, $results );
-	}
-
-	/**
-	 * Function get_urls() should trancate database table for list URL.
-	 * Function get_urls() should return urls of front page, static files, and SEO.
-	 */
-	public function test_get_urls_trancate() {
-		Test_Utility::set_up_seo_url();
-		Repository_For_Test::insert_url(
-			new Model_Url(
-				1,
-				'other_page',
-				'/test/',
-				0,
-				'',
-				0,
-				1,
-				0,
-				'',
-				'0000-00-00 00:00:00',
-				0,
-				'0000-00-00 00:00:00',
-				'0000-00-00 00:00:00',
-				'0000-00-00 00:00:00'
-			)
-		);
-		$expect_database = array(
-			new Expect_Url( Expect_Url::TYPE_OTHER_PAGE, '/test/', '1' ),
-		);
-		Expect_Url::assert_url( $this, $expect_database, Repository_For_Test::get_all_url() );
-		$expect_urls = array_merge(
-			Test_Utility::get_expect_urls_front_page( DATE_FOR_TEST ),
-			Test_Utility::get_expect_urls_static_files( DATE_FOR_TEST ),
-			Test_Utility::get_expect_urls_seo( DATE_FOR_TEST )
-		);
-		$actual      = $this->create_accessable_method( 'get_urls', array() );
-		Array_Url_Handler::assert_contains_urls( $this, $expect_urls, $actual );
-		Expect_Url::assert_url( $this, array(), Repository_For_Test::get_all_url() );
-	}
-
-	/**
-	 * Function delete_url() should delete URLs specified by key "url" of arrays.
-	 */
-	public function test_delete_url() {
-		Repository_For_Test::insert_url(
-			new Model_Url(
-				1,
-				'other_page',
-				'/test1/',
-				0,
-				'',
-				0,
-				1,
-				1,
-				'',
-				'0000-00-00 00:00:00',
-				0,
-				'0000-00-00 00:00:00',
-				'0000-00-00 00:00:00',
-				'0000-00-00 00:00:00'
-			)
-		);
-		Repository_For_Test::insert_url(
-			new Model_Url(
-				2,
-				'other_page',
-				'/test2/',
-				0,
-				'',
-				0,
-				1,
-				1,
-				'',
-				'0000-00-00 00:00:00',
-				0,
-				'0000-00-00 00:00:00',
-				'0000-00-00 00:00:00',
-				'0000-00-00 00:00:00'
-			)
-		);
-		Repository_For_Test::insert_url(
-			new Model_Url(
-				3,
-				'other_page',
-				'/test3/',
-				0,
-				'',
-				0,
-				1,
-				1,
-				'',
-				'0000-00-00 00:00:00',
-				0,
-				'0000-00-00 00:00:00',
-				'0000-00-00 00:00:00',
-				'0000-00-00 00:00:00'
-			)
-		);
-		Repository_For_Test::insert_url(
-			new Model_Url(
-				4,
-				'other_page',
-				'/test4/',
-				0,
-				'',
-				0,
-				1,
-				1,
-				'',
-				'0000-00-00 00:00:00',
-				0,
-				'0000-00-00 00:00:00',
-				'0000-00-00 00:00:00',
-				'0000-00-00 00:00:00'
-			)
-		);
-		$parameter               = array(
-			array(),
-			array( 'url' => '/test1/' ),
-			array( 'url' => '/test3/' ),
-		);
-		$expect_urls_in_database = array(
-			new Expect_Url( Expect_Url::TYPE_OTHER_PAGE, '/test2/', '1' ),
-			new Expect_Url( Expect_Url::TYPE_OTHER_PAGE, '/test4/', '1' ),
-		);
-
-		$actual = $this->create_accessable_method( 'delete_url', array( $parameter ) );
-		$this->assertEquals( $parameter, $actual );
-		$static_press = new Static_Press( 'staticpress', '/', self::OUTPUT_DIRECTORY );
-		$reflection   = new \ReflectionClass( get_class( $static_press ) );
-		$method       = $reflection->getMethod( 'fetch_start_time' );
-		$method->setAccessible( true );
-		$start_time = $method->invokeArgs( $static_press, array() );
-		$repository = new Static_Press_Repository();
-		$results    = $repository->get_all_url( $start_time );
-		Expect_Url::assert_url( $this, $expect_urls_in_database, $results );
-	}
-
-	/**
-	 * Function update_url() should save as disable when dump directory is same with absolute path.
-	 */
-	public function test_update_url_case_dump_directory_is_absolute_path() {
-		$urls                    = array(
-			array(
-				'url'  => '/',
-				'type' => 'static_file',
-			),
-		);
-		$expect_urls_in_database = array();
-		$static_press            = new Static_Press( 'staticpress' );
-		$reflection              = new \ReflectionClass( get_class( $static_press ) );
-		$method                  = $reflection->getMethod( 'update_url' );
-		$method->setAccessible( true );
-
-		$method->invokeArgs( $static_press, array( $urls ) );
-		$method = $reflection->getMethod( 'fetch_start_time' );
-		$method->setAccessible( true );
-		$start_time = $method->invokeArgs( $static_press, array() );
-		$repository = new Static_Press_Repository();
-		$results    = $repository->get_all_url( $start_time );
-		Expect_Url::assert_url( $this, $expect_urls_in_database, $results );
-	}
-
-	/**
-	 * Function update_url() should save as disable when file is not updated after last dump.
-	 */
-	public function test_update_url_case_non_update_file() {
-		mkdir( self::OUTPUT_DIRECTORY, 0755 );
-		file_put_contents( self::OUTPUT_DIRECTORY . 'test.txt', '' );
-		file_put_contents( ABSPATH . 'test.txt', '' );
-		$urls                    = array(
-			array(
-				'url'  => '/test.txt',
-				'type' => 'static_file',
-			),
-		);
-		$expect_urls_in_database = array();
-		$static_press            = new Static_Press( 'staticpress', '/', self::OUTPUT_DIRECTORY );
-		$reflection              = new \ReflectionClass( get_class( $static_press ) );
-		$method                  = $reflection->getMethod( 'update_url' );
-		$method->setAccessible( true );
-
-		$method->invokeArgs( $static_press, array( $urls ) );
-		$method = $reflection->getMethod( 'fetch_start_time' );
-		$method->setAccessible( true );
-		$start_time = $method->invokeArgs( $static_press, array() );
-		$repository = new Static_Press_Repository();
-		$results    = $repository->get_all_url( $start_time );
-		Expect_Url::assert_url( $this, $expect_urls_in_database, $results );
-	}
-
-	/**
-	 * Function update_url() should save as disable when URL is not activated plugin's static file.
-	 */
-	public function test_update_url_case_non_active_plugin_static_file() {
-		deactivate_plugins( array( 'akismet/akismet.php' ) );
-		$urls                    = array(
-			array(
-				'url'  => '/wp-content/plugins/akismet/_inc/akismet.css',
-				'type' => 'static_file',
-			),
-		);
-		$expect_urls_in_database = array();
-		$static_press            = new Static_Press( 'staticpress', '/', self::OUTPUT_DIRECTORY );
-		$reflection              = new \ReflectionClass( get_class( $static_press ) );
-		$method                  = $reflection->getMethod( 'update_url' );
-		$method->setAccessible( true );
-
-		$method->invokeArgs( $static_press, array( $urls ) );
-		$method = $reflection->getMethod( 'fetch_start_time' );
-		$method->setAccessible( true );
-		$start_time = $method->invokeArgs( $static_press, array() );
-		$repository = new Static_Press_Repository();
-		$results    = $repository->get_all_url( $start_time );
-		Expect_Url::assert_url( $this, $expect_urls_in_database, $results );
-	}
-
-	/**
-	 * Function update_url() should save as disable when URL is not activated plugin's static file.
-	 */
-	public function test_update_url_case_static_file_not_plugin_nor_theme() {
-		file_put_contents( ABSPATH . 'wp-content/uploads/2020/03/test.txt', '' );
-		$urls                    = array(
-			array(
-				'url'  => '/wp-content/uploads/2020/03/test.txt',
-				'type' => 'static_file',
-			),
-		);
-		$expect_urls_in_database = array(
-			new Expect_Url( Expect_Url::TYPE_STATIC_FILE, '/wp-content/uploads/2020/03/test.txt', '1' ),
-		);
-		$static_press            = new Static_Press( 'staticpress', '/', self::OUTPUT_DIRECTORY );
-		$reflection              = new \ReflectionClass( get_class( $static_press ) );
-		$method                  = $reflection->getMethod( 'update_url' );
-		$method->setAccessible( true );
-
-		$method->invokeArgs( $static_press, array( $urls ) );
-		$method = $reflection->getMethod( 'fetch_start_time' );
-		$method->setAccessible( true );
-		$start_time = $method->invokeArgs( $static_press, array() );
-		$repository = new Static_Press_Repository();
-		$results    = $repository->get_all_url( $start_time );
-		Expect_Url::assert_url( $this, $expect_urls_in_database, $results );
-	}
-
-	/**
-	 * Function test_fetch_start_time() should return current date time string
-	 * when fetch_start_time in transient_key is not set.
-	 *
-	 * @throws ReflectionException When fail to create ReflectionClass instance.
-	 */
-	public function test_fetch_start_time() {
-		$result = $this->create_accessable_method( 'fetch_start_time', array() );
-		$this->assertEquals( $result, DATE_FOR_TEST );
-	}
-
-	/**
-	 * Function fetch_last_id() should return 0 when parameter is not set.
-	 */
-	public function test_fetch_last_id_without_parameter_with_transient() {
-		set_transient( 'static static', array( 'fetch_last_id' => 2 ), 3600 );
-		$result = $this->create_accessable_method( 'fetch_last_id', array() );
-		$this->assertEquals( $result, 2 );
-	}
-
-	/**
-	 * Function fetch_last_id() should return 0 when parameter is not set.
-	 */
-	public function test_fetch_last_id_without_parameter_without_transient() {
-		$result = $this->create_accessable_method( 'fetch_last_id', array() );
-		$this->assertEquals( $result, 0 );
-	}
-
-	/**
-	 * Test steps for constructor.
-	 * 
-	 * @dataProvider provider_fetch_last_id_with_paramter_with_transient
-	 * 
-	 * @param string $next_id ID to set next.
-	 * @param string $expect  Expect return value.
-	 */
-	public function test_fetch_last_id_with_paramter_with_transient( $next_id, $expect ) {
-		set_transient( 'static static', array( 'fetch_last_id' => 2 ), 3600 );
-		$result = $this->create_accessable_method( 'fetch_last_id', array( $next_id ) );
-		$this->assertEquals( $result, $expect );
-	}
-
-	/**
-	 * Function fetch_finalyze() should delete transient.
-	 */
-	public function test_fetch_finalyze() {
-		set_transient( 'static static', array( 'fetch_last_id' => 2 ), 3600 );
-		$this->create_accessable_method( 'fetch_finalyze', array() );
-		$this->assertFalse( get_transient( 'static static', array( 'fetch_last_id' => 2 ), 3600 ) );
-	}
-
-	/**
-	 * Function fetch_last_id() should return Cached ID when $next_id is 0
-	 * Function fetch_last_id() should return Cached ID when $next_id is false,
-	 * Function fetch_last_id() should return  $next_id when $next_id is not 0 nor false.
-	 */
-	public function provider_fetch_last_id_with_paramter_with_transient() {
-		return array(
-			array( 0, 2 ),
-			array( false, 2 ),
-			array( 1, 1 ),
-		);
-	}
-
-	/**
-	 * Test steps for constructor.
-	 * 
-	 * @dataProvider provider_fetch_last_id_with_paramter_without_transient
-	 * 
-	 * @param string $next_id ID to set next.
-	 * @param string $expect  Expect return value.
-	 */
-	public function test_fetch_last_id_with_paramter_without_transient( $next_id, $expect ) {
-		$result = $this->create_accessable_method( 'fetch_last_id', array( $next_id ) );
-		$this->assertEquals( $result, $expect );
-	}
-
-	/**
-	 * Function fetch_last_id() should return Cached ID when $next_id is 0
-	 * Function fetch_last_id() should return Cached ID when $next_id is false,
-	 * Function fetch_last_id() should return  $next_id when $next_id is not 0 nor false.
-	 */
-	public function provider_fetch_last_id_with_paramter_without_transient() {
-		return array(
-			array( 0, 0 ),
-			array( false, 0 ),
-			array( 1, 1 ),
-		);
-	}
-
-	/**
-	 * Function fetch_start_time() should return fetch_start_time in transient_key
-	 * when fetch_start_time in transient_key is set.
-	 *
-	 * @throws ReflectionException When fail to create ReflectionClass instance.
-	 */
-	public function test_fetch_start_time_transient_key() {
-		$start_time                = '2019-12-23 12:34:56';
-		$param['fetch_start_time'] = $start_time;
-		set_transient( 'static static', $param, 3600 );
-		$result = $this->create_accessable_method( 'fetch_start_time', array() );
-		$this->assertEquals( $start_time, $result );
-	}
-
-	/**
-	 * Function fetch_url() should return false when URLs do not exist in database table.
-	 *
-	 * @throws ReflectionException When fail to create ReflectionClass instance.
-	 */
-	public function test_fetch_url_url_not_exists() {
-		$this->assertFalse( $this->create_accessable_method( 'fetch_url', array() ) );
-	}
-
-	/**
-	 * Function fetch_url() should return URL of first record in database table when URLs exist in database table.
-	 *
-	 * @throws ReflectionException When fail to create ReflectionClass instance.
-	 */
-	public function test_fetch_url_url_exists() {
-		Repository_For_Test::insert_url(
-			new Model_Url(
-				1,
-				'other_page',
-				'/test1/',
-				0,
-				'',
-				0,
-				1,
-				1,
-				'',
-				'0000-00-00 00:00:00',
-				0,
-				'0000-00-00 00:00:00',
-				'0000-00-00 00:00:00',
-				'0000-00-00 00:00:00'
-			)
-		);
-		Repository_For_Test::insert_url(
-			new Model_Url(
-				2,
-				'other_page',
-				'/test2/',
-				0,
-				'',
-				0,
-				1,
-				1,
-				'',
-				'0000-00-00 00:00:00',
-				0,
-				'0000-00-00 00:00:00',
-				'0000-00-00 00:00:00',
-				'0000-00-00 00:00:00'
-			)
-		);
-		$expect = array(
-			new Expect_Url( Expect_Url::TYPE_OTHER_PAGE, '/test1/', '1' ),
-		);
-		Expect_Url::assert_url( $this, $expect, array( $this->create_accessable_method( 'fetch_url', array() ) ) );
-	}
-
-	/**
 	 * Creates accessable method.
 	 * 
 	 * @param string $method_name     Method name.
 	 * @param array  $array_parameter Array of parameter.
 	 */
 	private function create_accessable_method( $method_name, $array_parameter ) {
-		$static_press = new Static_Press( 'staticpress', '/', '', array(), $this->create_terminator_mock(), $this->create_remote_getter_mock() );
+		$static_press = new Static_Press();
 		$reflection   = new \ReflectionClass( get_class( $static_press ) );
 		$method       = $reflection->getMethod( $method_name );
 		$method->setAccessible( true );

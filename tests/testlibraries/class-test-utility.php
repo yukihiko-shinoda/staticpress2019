@@ -87,9 +87,8 @@ class Test_Utility {
 	 * @param string $file_name File name.
 	 * @return array Responce.
 	 */
-	public static function create_response( $url, $file_name ) {
+	public static function create_response( $url, $file_name, $status_code = 200 ) {
 		$body        = self::get_test_resource_content( $file_name );
-		$status_code = 200;
 		$header_data = array(
 			'content-encoding' => 'gzip',
 			'age'              => '354468',
@@ -259,5 +258,23 @@ class Test_Utility {
 				'last_modified' => $last_modified,
 			),
 		);
+	}
+
+	/**
+	 * Creates mock for Terminator to prevent to call die().
+	 */
+	public static function create_terminator_mock() {
+		$terminator_mock = Mockery::mock( 'alias:Terminator_Mock' );
+		$terminator_mock->shouldReceive( 'terminate' )->andThrow( new \Exception( 'Dead!' ) );
+		return $terminator_mock;
+	}
+
+	/**
+	 * Creates mock for Remote Getter to prevent to call wp_remote_get since web server is not running in PHPUnit environment.
+	 */
+	public static function create_remote_getter_mock() {
+		$remote_getter_mock = Mockery::mock( 'alias:Remote_Getter_Mock' );
+		$remote_getter_mock->shouldReceive( 'remote_get' )->andReturn( self::create_response( '/', 'index-example.html' ) );
+		return $remote_getter_mock;
 	}
 }

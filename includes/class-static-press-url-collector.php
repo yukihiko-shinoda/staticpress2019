@@ -29,14 +29,14 @@ class Static_Press_Url_Collector {
 	/**
 	 * Remote get options.
 	 * 
-	 * @var array
+	 * @var Static_Press_Remote_Getter
 	 */
 	private $remote_getter;
 	/**
 	 * Constructor.
 	 * 
-	 * @param string[] $static_files_ext List of extension of static file.
-	 * @param array    $remote_getter    Remote get options.
+	 * @param string[]                   $static_files_ext List of extension of static file.
+	 * @param Static_Press_Remote_Getter $remote_getter    Remote get options.
 	 */
 	public function __construct( $static_files_ext, $remote_getter ) {
 		$this->static_files_ext = $static_files_ext;

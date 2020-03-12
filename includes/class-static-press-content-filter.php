@@ -17,6 +17,8 @@ use static_press\includes\Static_Press_Plugin_Information;
  * Content filter.
  */
 class Static_Press_Content_Filter {
+	const DOC_TYPE_HTML  = 'html';
+	const DOC_TYPE_XHTML = 'xhtml';
 	/**
 	 * Plugin information instance.
 	 * 
@@ -33,7 +35,7 @@ class Static_Press_Content_Filter {
 	/**
 	 * Constructor.
 	 * 
-	 * @param Static_Press_Date_Time_Factory  $date_time_factory  Date time factory.
+	 * @param Static_Press_Date_Time_Factory $date_time_factory  Date time factory.
 	 */
 	public function __construct( $date_time_factory ) {
 		$this->plugin_information = new Static_Press_Plugin_Information();
@@ -72,14 +74,14 @@ class Static_Press_Content_Filter {
 		if ( intval( $http_code ) !== 200 ) {
 			return $content;
 		}
-		$type = preg_match( '#<!DOCTYPE html>#i', $content ) ? 'html' : 'xhtml';
+		$type = preg_match( '#<!DOCTYPE html>#i', $content ) ? self::DOC_TYPE_HTML : self::DOC_TYPE_XHTML;
 		switch ( $type ) {
-			case 'html':
-				$last_modified = sprintf( '<meta http-equiv="Last-Modified" content="%s GMT">', $this->date_time_factory->create_gmdate( "D, d M Y H:i:s" ) );
+			case self::DOC_TYPE_HTML:
+				$last_modified = sprintf( '<meta http-equiv="Last-Modified" content="%s GMT">', $this->date_time_factory->create_gmdate( 'D, d M Y H:i:s' ) );
 				break;
-			case 'xhtml':
+			case self::DOC_TYPE_XHTML:
 			default:
-				$last_modified = sprintf( '<meta http-equiv="Last-Modified" content="%s GMT" />', $this->date_time_factory->create_gmdate( "D, d M Y H:i:s" ) );
+				$last_modified = sprintf( '<meta http-equiv="Last-Modified" content="%s GMT" />', $this->date_time_factory->create_gmdate( 'D, d M Y H:i:s' ) );
 				break;
 		}
 		return preg_replace( '#(<head>|<head [^>]+>)#ism', '$1' . "\n" . $last_modified, $content );
@@ -98,5 +100,23 @@ class Static_Press_Content_Filter {
 			'$1$2 with ' . ( (string) $this->plugin_information ) . '$3',
 			$content
 		);
+	}
+
+	/**
+	 * Replaces URL.
+	 * 
+	 * @param  string $url                         URL.
+	 * @param  string $array_extension_static_file List of extension of static file.
+	 * @return string Replaced URL.
+	 */
+	public static function replace_url( $url, $array_extension_static_file ) {
+		$url_dynamic         = trailingslashit( Static_Press_Url_Collector::get_site_url() );
+		$url                 = trim( str_replace( $url_dynamic, '/', $url ) );
+		$static_files_filter = apply_filters( 'StaticPress::static_files_filter', $array_extension_static_file );
+		if ( ! preg_match( '#[^/]+\.' . implode( '|', array_merge( $static_files_filter, array( 'php' ) ) ) . '$#i', $url ) ) {
+			$url = trailingslashit( $url );
+		}
+		unset( $static_files_filter );
+		return $url;
 	}
 }

@@ -35,6 +35,15 @@ class Static_Press_Transient_Manager_Test extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * Function delete_transient() should delete transient.
+	 */
+	public function test_delete_transient() {
+		set_transient( 'static static', array( 'fetch_last_id' => 2 ), 3600 );
+		Static_Press_Transient_Manager::delete_transient();
+		$this->assertFalse( get_transient( 'static static' ) );
+	}
+
+	/**
 	 * Call private method.
 	 * 
 	 * @param string $method_name     Method name.

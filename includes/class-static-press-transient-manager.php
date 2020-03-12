@@ -49,8 +49,8 @@ class Static_Press_Transient_Manager {
 	/**
 	 * Deletes from transient.
 	 */
-	public function delete_transient() {
-		$transient_key = $this->get_transient_key();
+	public static function delete_transient() {
+		$transient_key = self::get_transient_key();
 		if ( get_transient( $transient_key ) ) {
 			delete_transient( $transient_key );
 		}
@@ -61,7 +61,7 @@ class Static_Press_Transient_Manager {
 	 * 
 	 * @return string Transient key.
 	 */
-	private function get_transient_key() {
+	private static function get_transient_key() {
 		$current_user = function_exists( 'wp_get_current_user' ) ? wp_get_current_user() : '';
 		if ( isset( $current_user->ID ) && $current_user->ID ) {
 			return self::TRANSIENT_KEY . " - {$current_user->ID}";
