@@ -25,6 +25,56 @@ class Static_Press_Url_Collector_Test extends \WP_UnitTestCase {
 	 * @var \Mockery\MockInterface
 	 */
 	public static $wordpress_mock;
+	/**
+	 * For WordPress
+	 * 
+	 * @var string
+	 */
+	public static $url_amother_blog;
+	/**
+	 * For WordPress
+	 * 
+	 * @var string
+	 */
+	public static $url_previous;
+	/**
+	 * For WordPress
+	 * 
+	 * @var string
+	 */
+	public static $blog_id;
+	/**
+	 * Creates another blog.
+	 */
+	public function setUp() {
+		parent::setUp();
+		if ( defined( 'MULTISITE' ) && MULTISITE === true ) {
+			remove_filter( 'query', array( $this, '_create_temporary_tables' ) );
+			remove_filter( 'query', array( $this, '_drop_temporary_tables' ) );
+			$domain        = 'something.example.com';
+			$path          = '/';
+			$title         = 'Look at my awesome site';
+			$this->blog_id = wpmu_create_blog( $domain, $path, $title, 1 );
+			switch_to_blog( $this->blog_id );
+			$this->url_amother_blog = "https://$domain/sub/";
+			$this->url_previous     = get_option( 'home', $this->url_amother_blog );
+			update_option( 'home', $this->url_amother_blog );
+		}
+	}
+
+	/**
+	 * Removes another blog.
+	 */
+	public function tearDown() {
+		if ( defined( 'MULTISITE' ) && MULTISITE === true ) {
+			update_option( 'home', $this->url_previous );
+			restore_current_blog();
+			wpmu_delete_blog( $this->blog_id, true );
+			add_filter( 'query', array( $this, '_create_temporary_tables' ) );
+			add_filter( 'query', array( $this, '_drop_temporary_tables' ) );
+		}
+		parent::tearDown();
+	}
 
 	/**
 	 * Function get_site_url() should return site URL.
@@ -42,20 +92,8 @@ class Static_Press_Url_Collector_Test extends \WP_UnitTestCase {
 		if ( ! defined( 'MULTISITE' ) || MULTISITE === false ) {
 			return;
 		}
-		remove_filter( 'query', array( $this, '_create_temporary_tables' ) );
-		remove_filter( 'query', array( $this, '_drop_temporary_tables' ) );
-		$domain  = 'something.example.com';
-		$path    = '/';
-		$title   = 'Look at my awesome site';
-		$blog_id = wpmu_create_blog( $domain, $path, $title, 1 );
-		switch_to_blog( $blog_id );
-		$url = "https://$domain/sub/";
-		update_option( 'home', $url );
 		$result = Static_Press_Url_Collector::get_site_url();
-		$this->assertEquals( $url, $result );
-		restore_current_blog();
-		add_filter( 'query', array( $this, '_create_temporary_tables' ) );
-		add_filter( 'query', array( $this, '_drop_temporary_tables' ) );
+		$this->assertEquals( $this->url_amother_blog, $result );
 	}
 
 	/**
@@ -119,17 +157,19 @@ class Static_Press_Url_Collector_Test extends \WP_UnitTestCase {
 				),
 			);
 		}
+		$title = 'Post Title 1';
 		wp_insert_post(
 			array(
-				'post_title'   => 'Post Title 1',
+				'post_title'   => $title,
 				'post_content' => 'Post content 1.',
 				'post_status'  => 'publish',
 				'post_type'    => 'attachment',
 			)
 		);
+		$title = 'Post Title 2';
 		wp_insert_post(
 			array(
-				'post_title'   => 'Post Title 2',
+				'post_title'   => $title,
 				'post_content' => 'test<!--nextpage-->test<!--nextpage-->test',
 				'post_status'  => 'publish',
 				'post_type'    => 'attachment',
