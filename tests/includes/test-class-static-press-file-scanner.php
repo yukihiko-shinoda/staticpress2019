@@ -8,6 +8,7 @@
 namespace static_press\tests\includes;
 
 use static_press\includes\Static_Press_File_Scanner;
+use static_press\includes\Static_Press_Model_Static_File;
 
 require_once dirname( __FILE__ ) . '/../testlibraries/class-test-utility.php';
 use static_press\tests\testlibraries\Test_Utility;
@@ -64,7 +65,7 @@ class Static_Press_File_Scanner_Test extends \WP_UnitTestCase {
 	 * Function scan_file should returns list of file.
 	 */
 	public function test_scan_file() {
-		$static_press_file_scanner = new Static_Press_File_Scanner( apply_filters( 'StaticPress::static_files_filter', Test_Utility::EXTENSION_STATIC_FILE ) );
+		$static_press_file_scanner = new Static_Press_File_Scanner( Static_Press_Model_Static_File::get_filtered_array_extension() );
 		$actual                    = $static_press_file_scanner->scan( trailingslashit( self::DIRECTORY ), true );
 		$this->assertEquals( $this->array_static_file, $actual );
 	}
@@ -86,7 +87,7 @@ class Static_Press_File_Scanner_Test extends \WP_UnitTestCase {
 	 * @param string[] $array_directory Array of directories.
 	 */
 	private function list_static_and_not_static_files( $array_directory ) {
-		$this->array_static_file     = $this->list_files( $array_directory, Test_Utility::EXTENSION_STATIC_FILE );
+		$this->array_static_file     = $this->list_files( $array_directory, Static_Press_Model_Static_File::get_filtered_array_extension() );
 		$this->array_not_static_file = $this->list_files( $array_directory, self::EXTENSION_NOT_STATIC_FILE );
 	}
 
@@ -94,11 +95,12 @@ class Static_Press_File_Scanner_Test extends \WP_UnitTestCase {
 	 * Lists files.
 	 * 
 	 * @param string[] $array_directory Array of directories.
+	 * @param string[] $array_extension      Array of extension.
 	 */
-	private function list_files( $array_directory ) {
+	private function list_files( $array_directory, $array_extension ) {
 		$array_file = array();
 		foreach ( $array_directory as $directory ) {
-			foreach ( Test_Utility::EXTENSION_STATIC_FILE as $extension ) {
+			foreach ( $array_extension as $extension ) {
 				$array_file[] = $directory . '/test.' . $extension;
 			}
 		}

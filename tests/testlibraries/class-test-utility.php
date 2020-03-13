@@ -15,48 +15,6 @@ use static_press\tests\testlibraries\Expect_Urls_Static_Files;
  * URL Collector.
  */
 class Test_Utility {
-		/**
-	 * Extensions which is static file.
-	 */
-	// Reason: This project no longer support PHP 5.5 nor lower.
-	const EXTENSION_STATIC_FILE = array( //phpcs:ignore
-		'html',
-		'htm',
-		'txt',
-		'css',
-		'js',
-		'gif',
-		'png',
-		'jpg',
-		'jpeg',
-		'mp3',
-		'ico',
-		'ttf',
-		'woff',
-		'woff2',
-		'otf',
-		'eot',
-		'svg',
-		'svgz',
-		'xml',
-		'gz',
-		'zip',
-		'pdf',
-		'swf',
-		'xsl',
-		'mov',
-		'mp4',
-		'wmv',
-		'flv',
-		'webm',
-		'ogg',
-		'oga',
-		'ogv',
-		'ogx',
-		'spx',
-		'opus',
-	);
-
 	/**
 	 * Sets up for testing seo_url().
 	 */
@@ -83,8 +41,9 @@ class Test_Utility {
 	/**
 	 * Creates response.
 	 * 
-	 * @param string $url       URL.
-	 * @param string $file_name File name.
+	 * @param string $url         URL.
+	 * @param string $file_name   File name.
+	 * @param int    $status_code HTTP status code.
 	 * @return array Responce.
 	 */
 	public static function create_response( $url, $file_name, $status_code = 200 ) {
@@ -262,6 +221,8 @@ class Test_Utility {
 
 	/**
 	 * Creates mock for Terminator to prevent to call die().
+	 * 
+	 * @return MockInterface Mock interface.
 	 */
 	public static function create_terminator_mock() {
 		$terminator_mock = Mockery::mock( 'alias:Terminator_Mock' );
@@ -271,6 +232,8 @@ class Test_Utility {
 
 	/**
 	 * Creates mock for Remote Getter to prevent to call wp_remote_get since web server is not running in PHPUnit environment.
+	 * 
+	 * @return MockInterface Mock interface.
 	 */
 	public static function create_remote_getter_mock() {
 		$remote_getter_mock = Mockery::mock( 'alias:Remote_Getter_Mock' );

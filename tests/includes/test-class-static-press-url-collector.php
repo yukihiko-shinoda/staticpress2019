@@ -256,12 +256,12 @@ class Static_Press_Url_Collector_Test extends \WP_UnitTestCase {
 	/**
 	 * Creates accessable method.
 	 * 
-	 * @param any    $remote_getter_mock Mock for Remote Getter.
+	 * @param mixed  $remote_getter_mock Mock for Remote Getter.
 	 * @param string $method_name        Method name.
 	 * @param array  $array_parameter    Array of parameter.
 	 */
 	private function create_accessable_method( $remote_getter_mock, $method_name, $array_parameter ) {
-		$url_collector = new Static_Press_Url_Collector( Test_Utility::EXTENSION_STATIC_FILE, $remote_getter_mock );
+		$url_collector = new Static_Press_Url_Collector( $remote_getter_mock );
 		$reflection    = new \ReflectionClass( get_class( $url_collector ) );
 		$method        = $reflection->getMethod( $method_name );
 		$method->setAccessible( true );

@@ -53,12 +53,18 @@ abstract class Static_Press_Ajax_Processor {
 
 	/**
 	 * Constructor.
+	 * 
+	 * @param string                     $static_site_url  Absolute URL of static site.
+	 * @param string                     $dump_directory   Directory to dump static files.
+	 * @param Static_Press_Repository    $repository       Database access instance.
+	 * @param Static_Press_Remote_Getter $remote_getter    Remote getter instance.
+	 * @param Static_Press_Terminator    $terminator       Terminator instance.
 	 */
-	public function __construct( $static_site_url, $dump_directory, $repository, $static_files_ext, $remote_getter, $terminator = null ) {
+	public function __construct( $static_site_url, $dump_directory, $repository, $remote_getter, $terminator = null ) {
 		$this->static_site_url = $static_site_url;
 		$this->dump_directory  = $dump_directory;
 		$this->repository      = $repository;
-		$this->url_collector   = new Static_Press_Url_Collector( $static_files_ext, $remote_getter );
+		$this->url_collector   = new Static_Press_Url_Collector( $remote_getter );
 		$this->terminator      = $terminator ? $terminator : new Static_Press_Terminator();
 	}
 	/**
@@ -90,7 +96,7 @@ abstract class Static_Press_Ajax_Processor {
 		if ( isset( $param['fetch_start_time'] ) ) {
 			return $param['fetch_start_time'];
 		} else {
-			$start_time = date( 'Y-m-d h:i:s', time() );
+			$start_time                = date( 'Y-m-d h:i:s', time() );
 			$param['fetch_start_time'] = $start_time;
 			$transient_manager->set_transient( $param );
 			return $start_time;
@@ -134,6 +140,10 @@ abstract class Static_Press_Ajax_Processor {
 
 	/**
 	 * Gets remote file.
+	 * 
+	 * @param Static_Press_Model_Static_File $model_static_file Static file.
+	 * @param bool                           $crawling   Whether crawl HTML body to check other URL or not.
+	 * @param bool                           $create_404 Whether create even if HTTP status code is 404 or not.
 	 */
 	private function get_remote_file( $model_static_file, $crawling, $create_404 ) {
 		$content = $this->url_collector->remote_get( $model_static_file->url );
@@ -172,6 +182,7 @@ abstract class Static_Press_Ajax_Processor {
 	/**
 	 * Gets static file.
 	 * 
+	 * @param Static_Press_Model_Static_File $model_static_file Static file.
 	 * @throws Static_Press_Business_Logic_Exception When source file doesn't exist.
 	 */
 	private function get_static_file( $model_static_file ) {

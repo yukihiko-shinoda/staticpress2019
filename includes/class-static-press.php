@@ -65,11 +65,17 @@ use static_press\includes\Static_Press_Terminator;
  */
 class Static_Press {
 	/**
-	 * Remote getter.
+	 * Absolute URL of static site.
 	 * 
-	 * @var Static_Press_Remote_Getter
+	 * @var string
 	 */
-	private $remote_getter;
+	private $static_site_url;
+	/**
+	 * Directory to dump static files.
+	 * 
+	 * @var string
+	 */
+	private $dump_directory;
 	/**
 	 * Database access instance.
 	 * 
@@ -89,28 +95,17 @@ class Static_Press {
 	 */
 	private $content_filter;
 	/**
-	 * Absolute URL of static site.
+	 * Remote getter.
 	 * 
-	 * @var string
+	 * @var Static_Press_Remote_Getter
 	 */
-	private $static_site_url;
+	private $remote_getter;
 	/**
-	 * Directory to dump static files.
+	 * Url filter.
 	 * 
-	 * @var string
+	 * @var Static_Press_Url_Filter
 	 */
-	private $dump_directory;
-	/**
-	 * List of extension of static file.
-	 * 
-	 * @var array
-	 */
-	private $static_files_ext = array(
-		'html','htm','txt','css','js','gif','png','jpg','jpeg',
-		'mp3','ico','ttf','woff','woff2','otf','eot','svg','svgz','xml',
-		'gz','zip', 'pdf', 'swf', 'xsl', 'mov', 'mp4', 'wmv', 'flv',
-		'webm', 'ogg', 'oga', 'ogv', 'ogx', 'spx', 'opus',
-	);
+	private $url_filter;
 
 	/**
 	 * Constructor.
@@ -119,6 +114,7 @@ class Static_Press {
 	 * @param string                         $dump_directory    Directory to dump static files.
 	 * @param array                          $remote_get_option Remote get options.
 	 * @param Static_Press_Date_Time_Factory $date_time_factory Date time factory.
+	 * @param Static_Press_Remote_Getter     $remote_getter     Remote getter.
 	 */
 	public function __construct(
 		$url_static_home = '/',
@@ -134,6 +130,7 @@ class Static_Press {
 		$this->date_time_factory = $date_time_factory ? $date_time_factory : new Static_Press_Date_Time_Factory();
 		$this->content_filter    = new Static_Press_Content_Filter( $this->date_time_factory );
 		$this->remote_getter     = $remote_getter ? $remote_getter : new Static_Press_Remote_Getter( $remote_get_option );
+		$this->url_filter        = new Static_Press_Url_Filter();
 
 		$this->repository->create_table();
 
@@ -203,7 +200,6 @@ class Static_Press {
 			$this->static_site_url,
 			$this->dump_directory,
 			$this->repository,
-			$this->static_files_ext,
 			$this->remote_getter,
 			$terminator
 		);
@@ -220,7 +216,6 @@ class Static_Press {
 			$this->static_site_url,
 			$this->dump_directory,
 			$this->repository,
-			$this->static_files_ext,
 			$this->remote_getter,
 			$terminator
 		);
@@ -237,7 +232,6 @@ class Static_Press {
 			$this->static_site_url,
 			$this->dump_directory,
 			$this->repository,
-			$this->static_files_ext,
 			$this->remote_getter,
 			$terminator
 		);
@@ -262,7 +256,7 @@ class Static_Press {
 	 * @return string      Replaced URL.
 	 */
 	public function replace_url( $url ) {
-		return Static_Press_Url_Filter::replace_url( $url, $this->static_files_ext );
+		return $this->url_filter->replace_url( $url );
 	}
 
 	/**

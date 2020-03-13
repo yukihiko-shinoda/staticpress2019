@@ -43,7 +43,6 @@ class Static_Press_Ajax_Processor_Test extends \WP_UnitTestCase {
 			null,
 			new Static_Press_Repository(),
 			null,
-			null,
 			Test_Utility::create_terminator_mock()
 		);
 		$reflection   = new \ReflectionClass( get_class( $static_press ) );
@@ -142,7 +141,6 @@ class Static_Press_Ajax_Processor_Test extends \WP_UnitTestCase {
 			null,
 			null,
 			new Static_Press_Repository(),
-			null,
 			null
 		);
 		$reflection   = new \ReflectionClass( get_class( $static_press ) );
@@ -326,7 +324,6 @@ class Static_Press_Ajax_Processor_Test extends \WP_UnitTestCase {
 			null,
 			null,
 			new Static_Press_Repository(),
-			null,
 			null
 		);
 		$reflection   = new \ReflectionClass( get_class( $static_press ) );
@@ -446,7 +443,6 @@ class Static_Press_Ajax_Processor_Test extends \WP_UnitTestCase {
 			null,
 			null,
 			new Static_Press_Repository(),
-			null,
 			null
 		);
 		$reflection   = new \ReflectionClass( get_class( $static_press ) );
@@ -546,7 +542,6 @@ class Static_Press_Ajax_Processor_Test extends \WP_UnitTestCase {
 			null,
 			null,
 			new Static_Press_Repository(),
-			null,
 			null
 		);
 		$reflection   = new \ReflectionClass( get_class( $static_press ) );
@@ -576,7 +571,6 @@ class Static_Press_Ajax_Processor_Test extends \WP_UnitTestCase {
 			null,
 			self::OUTPUT_DIRECTORY,
 			new Static_Press_Repository(),
-			null,
 			null
 		);
 		$reflection              = new \ReflectionClass( get_class( $static_press ) );
@@ -611,7 +605,6 @@ class Static_Press_Ajax_Processor_Test extends \WP_UnitTestCase {
 			null,
 			self::OUTPUT_DIRECTORY,
 			new Static_Press_Repository(),
-			null,
 			null
 		);
 		$reflection              = new \ReflectionClass( get_class( $static_press ) );
@@ -643,7 +636,6 @@ class Static_Press_Ajax_Processor_Test extends \WP_UnitTestCase {
 			null,
 			null,
 			new Static_Press_Repository(),
-			null,
 			null
 		);
 		$reflection              = new \ReflectionClass( get_class( $static_press ) );
@@ -677,7 +669,6 @@ class Static_Press_Ajax_Processor_Test extends \WP_UnitTestCase {
 			null,
 			null,
 			new Static_Press_Repository(),
-			null,
 			null
 		);
 		$reflection              = new \ReflectionClass( get_class( $static_press ) );
@@ -721,15 +712,16 @@ class Static_Press_Ajax_Processor_Test extends \WP_UnitTestCase {
 	/**
 	 * Creates accessable method.
 	 * 
-	 * @param string $method_name        Method name.
-	 * @param array  $array_parameter    Array of parameter.
+	 * @param  string        $method_name     Method name.
+	 * @param  array         $array_parameter Array of parameter.
+	 * @param  MockInterface $remote_get_mock Mock interface for Remote get.
+	 * @return mixed  Returned value.
 	 */
 	private function create_accessable_method( $method_name, $array_parameter, $remote_get_mock = null ) {
 		$static_press = new Static_Press_Ajax_Init(
 			null,
 			self::OUTPUT_DIRECTORY,
 			new Static_Press_Repository(),
-			null,
 			$remote_get_mock ? $remote_get_mock : Test_Utility::create_remote_getter_mock(),
 			Test_Utility::create_terminator_mock()
 		);

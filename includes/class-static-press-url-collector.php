@@ -21,12 +21,6 @@ use static_press\includes\Static_Press_File_Scanner;
  */
 class Static_Press_Url_Collector {
 	/**
-	 * List of extension of static file.
-	 * 
-	 * @var array
-	 */
-	private $static_files_ext;
-	/**
 	 * Remote get options.
 	 * 
 	 * @var Static_Press_Remote_Getter
@@ -35,12 +29,10 @@ class Static_Press_Url_Collector {
 	/**
 	 * Constructor.
 	 * 
-	 * @param string[]                   $static_files_ext List of extension of static file.
-	 * @param Static_Press_Remote_Getter $remote_getter    Remote get options.
+	 * @param Static_Press_Remote_Getter $remote_getter    Remote getter.
 	 */
-	public function __construct( $static_files_ext, $remote_getter ) {
-		$this->static_files_ext = $static_files_ext;
-		$this->remote_getter    = $remote_getter;
+	public function __construct( $remote_getter ) {
+		$this->remote_getter = $remote_getter;
 	}
 
 	/**
@@ -57,6 +49,11 @@ class Static_Press_Url_Collector {
 		);
 	}
 
+	/**
+	 * Collects URLs.
+	 * 
+	 * @return array Collected URLs.
+	 */
 	public function collect() {
 		return array_merge(
 			self::front_page_url(),
@@ -68,6 +65,11 @@ class Static_Press_Url_Collector {
 		);
 	}
 
+	/**
+	 * Gets front page URL.
+	 * 
+	 * @return array Front page URL.
+	 */
 	private static function front_page_url() {
 		$urls     = array();
 		$site_url = self::get_site_url();
@@ -91,12 +93,12 @@ class Static_Press_Url_Collector {
 			$post_id   = $post->ID;
 			$modified  = $post->post_modified;
 			$permalink = get_permalink( $post->ID );
-			if ( $permalink === false || is_wp_error( $permalink ) ) {
+			if ( false === $permalink || is_wp_error( $permalink ) ) {
 				// TODO Is is_wp_error() correct? Commited at 2013-04-22 22:54:05 450c6ce5731b27fc98707d8a881844778ced4763 .
 				continue;
 			}
 			$count = 1;
-			if ( $splite = preg_split( "#<!--nextpage-->#", $post->post_content ) ) {
+			if ( $splite = preg_split( '#<!--nextpage-->#', $post->post_content ) ) {
 				$count = count( $splite );
 			}
 			$urls[] = array(
@@ -113,6 +115,8 @@ class Static_Press_Url_Collector {
 
 	/**
 	 * Gets URLs of terms.
+	 * 
+	 * @param string $url_type URL type.
 	 */
 	private function terms_url( $url_type = 'term_archive' ) {
 		$repository = new Static_Press_Repository();
@@ -130,7 +134,7 @@ class Static_Press_Url_Collector {
 					continue;
 				}
 				list( $modified, $page_count ) = $this->get_term_info( $term_id, $repository );
-				$urls[] = array(
+				$urls[]                        = array(
 					'type'          => $url_type,
 					'url'           => apply_filters( 'StaticPress::get_url', $termlink ),
 					'object_id'     => intval( $term_id ),
@@ -155,7 +159,7 @@ class Static_Press_Url_Collector {
 						continue;
 					}
 					list( $modified, $page_count ) = $this->get_term_info( $term_id, $repository );
-					$urls[] = array(
+					$urls[]                        = array(
 						'type'          => $url_type,
 						'url'           => apply_filters( 'StaticPress::get_url', $termlink ),
 						'object_id'     => intval( $term_id ),
@@ -193,7 +197,7 @@ class Static_Press_Url_Collector {
 	 * Gets URLs of authors.
 	 */
 	private function author_url() {
-		$post_types = get_post_types( array( 'public' => true) );
+		$post_types = get_post_types( array( 'public' => true ) );
 		$repository = new Static_Press_Repository();
 		$authors    = $repository->get_post_authors( $post_types );
 		$urls       = array();
@@ -224,7 +228,7 @@ class Static_Press_Url_Collector {
 	 * Gets URLs of static files.
 	 */
 	private function static_files_url() {
-		$file_scanner = new Static_Press_File_Scanner( apply_filters( 'StaticPress::static_files_filter', $this->static_files_ext ) );
+		$file_scanner = new Static_Press_File_Scanner( Static_Press_Model_Static_File::get_filtered_array_extension() );
 		$static_files = array_merge(
 			$file_scanner->scan( trailingslashit( ABSPATH ), false ),
 			$file_scanner->scan( trailingslashit( ABSPATH ) . 'wp-admin/', true ),
@@ -235,7 +239,7 @@ class Static_Press_Url_Collector {
 		$urls = array();
 		foreach ( $static_files as $static_file ) {
 			$static_file_url = str_replace( trailingslashit( ABSPATH ), trailingslashit( $this->get_site_url() ), $static_file );
-			$urls[] = array(
+			$urls[]          = array(
 				'type'          => 'static_file',
 				'url'           => apply_filters( 'StaticPress::get_url', $static_file_url ),
 				'last_modified' => date( 'Y-m-d h:i:s', filemtime( $static_file ) ),
@@ -253,8 +257,13 @@ class Static_Press_Url_Collector {
 		$analyzed = array();
 		$sitemap  = '/sitemap.xml';
 		$robots   = '/robots.txt';
-		$urls[]   = array( 'type' => $url_type, 'url' => $robots, 'last_modified' => date( 'Y-m-d h:i:s' ) );
-		if ( ( $txt = $this->remote_get( $robots ) ) && isset( $txt['body'] ) ) {
+		$urls[]   = array(
+			'type'          => $url_type,
+			'url'           => $robots,
+			'last_modified' => date( 'Y-m-d h:i:s' ),
+		);
+		$txt      = $this->remote_get( $robots );
+		if ( $txt && isset( $txt['body'] ) ) {
 			$http_code = intval( $txt['code'] );
 			switch ( intval( $http_code ) ) {
 				case 200:
@@ -269,12 +278,17 @@ class Static_Press_Url_Collector {
 
 	/**
 	 * Crawls sitemap XML files.
+	 * 
+	 * @param array  $analyzed Analyzed.
+	 * @param array  $urls     URLs.
+	 * @param string $url      URL.
+	 * @param string $url_type URL type.
 	 */
 	private function sitemap_analyzer( &$analyzed, &$urls, $url, $url_type ) {
 		$urls[]     = array(
 			'type'          => $url_type,
 			'url'           => $url,
-			'last_modified' => date( 'Y-m-d h:i:s' )
+			'last_modified' => date( 'Y-m-d h:i:s' ),
 		);
 		$analyzed[] = $url;
 		$xml        = $this->remote_get( $url );

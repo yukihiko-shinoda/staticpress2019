@@ -32,6 +32,14 @@ class Static_Press_Fetch_Result {
 		$this->file_count = 0;
 	}
 
+	/**
+	 * Sets page fetch result.
+	 * 
+	 * @param Object $url         URL.
+	 * @param int    $page        Page.
+	 * @param string $page_url    Page URL.
+	 * @param string $static_file Static file.
+	 */
 	public function set_page_fetch_result( $url, $page, $page_url, $static_file ) {
 		$this->file_count++;
 		$this->result[ "{$url->ID}-{$page}" ] = array(

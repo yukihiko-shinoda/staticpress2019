@@ -36,7 +36,6 @@ class Static_Press_Repository_Test extends \WP_UnitTestCase {
 			null,
 			null,
 			$repository,
-			array(),
 			null
 		);
 		$reflection   = new \ReflectionClass( get_class( $static_press ) );

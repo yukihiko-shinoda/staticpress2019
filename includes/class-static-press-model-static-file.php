@@ -12,6 +12,49 @@ namespace static_press\includes;
  */
 class Static_Press_Model_Static_File {
 	/**
+	 * List of extension of static file.
+	 * 
+	 * @var string[]
+	 */
+	// Reason: This project no longer support PHP 5.5 nor lower.
+	const ARRAY_EXTENSION = array( //phpcs:ignore
+		'html',
+		'htm',
+		'txt',
+		'css',
+		'js',
+		'gif',
+		'png',
+		'jpg',
+		'jpeg',
+		'mp3',
+		'ico',
+		'ttf',
+		'woff',
+		'woff2',
+		'otf',
+		'eot',
+		'svg',
+		'svgz',
+		'xml',
+		'gz',
+		'zip',
+		'pdf',
+		'swf',
+		'xsl',
+		'mov',
+		'mp4',
+		'wmv',
+		'flv',
+		'webm',
+		'ogg',
+		'oga',
+		'ogv',
+		'ogx',
+		'spx',
+		'opus',
+	);
+	/**
 	 * HTTP status code.
 	 * 
 	 * @var int
@@ -84,6 +127,9 @@ class Static_Press_Model_Static_File {
 
 	/**
 	 * Checks file existance and creates array type URL.
+	 * 
+	 * @param string $file_type File type.
+	 * @return array URL model (array).
 	 */
 	public function check_file_existance_and_create_array_url( $file_type ) {
 		if ( file_exists( $this->file_dest ) ) {
@@ -105,5 +151,14 @@ class Static_Press_Model_Static_File {
 				'last_upload'     => date( 'Y-m-d h:i:s', time() ),
 			);
 		}
+	}
+
+	/**
+	 * Gets filtered array of extension.
+	 * 
+	 * @return array Filtered array of extension.
+	 */
+	public static function get_filtered_array_extension() {
+		return apply_filters( 'StaticPress::static_files_filter', self::ARRAY_EXTENSION );
 	}
 }

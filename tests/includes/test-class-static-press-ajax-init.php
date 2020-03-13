@@ -74,7 +74,6 @@ class Static_Press_Ajax_Init_Test extends \WP_UnitTestCase {
 			null,
 			null,
 			new Static_Press_Repository(),
-			Test_Utility::EXTENSION_STATIC_FILE,
 			Test_Utility::create_remote_getter_mock(),
 			Test_Utility::create_terminator_mock()
 		);
