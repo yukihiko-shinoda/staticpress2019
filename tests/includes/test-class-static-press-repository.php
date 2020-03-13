@@ -8,12 +8,12 @@
 namespace static_press\tests\includes;
 
 require_once dirname( __FILE__ ) . '/../testlibraries/class-expect-url.php';
-use static_press\includes\Static_Press;
+use static_press\includes\Static_Press_Ajax_Init;
 use static_press\includes\Static_Press_Repository;
 use static_press\tests\testlibraries\Expect_Url;
 
 /**
- * StaticPress test case.
+ * Reposistory test case.
  */
 class Static_Press_Repository_Test extends \WP_UnitTestCase {
 	/**
@@ -32,7 +32,12 @@ class Static_Press_Repository_Test extends \WP_UnitTestCase {
 		);
 
 		$repository   = new Static_Press_Repository();
-		$static_press = new Static_Press( 'staticpress' );
+		$static_press = new Static_Press_Ajax_Init(
+			null,
+			null,
+			$repository,
+			null
+		);
 		$reflection   = new \ReflectionClass( get_class( $static_press ) );
 		$method       = $reflection->getMethod( 'update_url' );
 		$method->setAccessible( true );

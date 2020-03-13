@@ -12,7 +12,7 @@ namespace static_press\includes;
  */
 class Static_Press_Repository {
 	/**
-	 * Table name for list up URL.
+	 * Table name for list URL.
 	 * 
 	 * @var string
 	 */
@@ -27,7 +27,7 @@ class Static_Press_Repository {
 	}
 
 	/**
-	 * Ensures that table for list up URL exists.
+	 * Ensures that table for list URL exists.
 	 */
 	public function ensure_table_exists() {
 		global $wpdb;
@@ -40,7 +40,7 @@ class Static_Press_Repository {
 	}
 
 	/**
-	 * Creates table for list up URL.
+	 * Creates table for list URL.
 	 */
 	public function create_table() {
 		global $wpdb;
@@ -74,7 +74,7 @@ class Static_Press_Repository {
 	}
 
 	/**
-	 * Ensures that table for listup URL doesn't exist.
+	 * Ensures that table for list URL doesn't exist.
 	 */
 	public function ensure_table_not_exists() {
 		global $wpdb;
@@ -90,6 +90,22 @@ class Static_Press_Repository {
 	private function drop_table() {
 		global $wpdb;
 		$wpdb->query( "DROP TABLE `{$this->url_table}`" );
+	}
+
+	/**
+	 * Drops table if exists.
+	 */
+	public function drop_table_if_exists() {
+		global $wpdb;
+		$wpdb->query( "DROP TABLE IF EXISTS `{$this->url_table}`" );
+	}
+
+	/**
+	 * Trancates table.
+	 */
+	public function truncate_table() {
+		global $wpdb;
+		$wpdb->query( "TRUNCATE TABLE `{$this->url_table}`" );
 	}
 
 	/**
@@ -161,6 +177,23 @@ class Static_Press_Repository {
 	}
 
 	/**
+	 * Gets next URL.
+	 * 
+	 * @param string $fetch_start_time Start time.
+	 * @param int    $fetch_last_id    ID in database table which got last time.
+	 */
+	public function get_next_url( $fetch_start_time, $fetch_last_id ) {
+		global $wpdb;
+
+		$sql = $wpdb->prepare(
+			"SELECT ID, type, url, pages FROM {$this->url_table} WHERE `last_upload` < %s and ID > %d and enable = 1 ORDER BY ID LIMIT 1",
+			$fetch_start_time,
+			$fetch_last_id
+		);
+		return $wpdb->get_row( $sql );
+	}
+
+	/**
 	 * Gets posts.
 	 * 
 	 * @param array $post_types Post type.
@@ -197,5 +230,78 @@ class Static_Press_Repository {
 			group by post_author
 			order by post_author"
 		);
+	}
+
+	/**
+	 * Counts URLs.
+	 * 
+	 * @param string $url URL.
+	 */
+	public function count_url( $url ) {
+		global $wpdb;
+
+		$sql = $wpdb->prepare(
+			"SELECT count(*) FROM {$this->url_table} WHERE `url` = %s LIMIT 1",
+			$url
+		);
+		return intval( $wpdb->get_var( $sql ) );
+	}
+
+	/**
+	 * Counts URLs.
+	 * 
+	 * @param  string $start_time Start time.
+	 * @return array Result.
+	 */
+	public function count_url_per_type( $start_time ) {
+		global $wpdb;
+
+		$sql = $wpdb->prepare(
+			"SELECT type, count(*) as count FROM {$this->url_table} WHERE `last_upload` < %s and enable = 1 GROUP BY type",
+			$start_time
+		);
+		return $wpdb->get_results( $sql );
+	}
+
+	/**
+	 * Gets term infomation.
+	 * 
+	 * @param int   $term_id Term ID.
+	 * @param array $post_types Post type.
+	 */
+	public function get_term_info( $term_id, $post_types ) {
+		global $wpdb;
+
+		$concatenated_post_types = "'" . implode( "','", $post_types ) . "'";
+
+		return $wpdb->get_row(
+			$wpdb->prepare(
+				"SELECT MAX(P.post_modified) as last_modified, count(P.ID) as count
+				from {$wpdb->posts} as P
+				inner join {$wpdb->term_relationships} as tr on tr.object_id = P.ID
+				inner join {$wpdb->term_taxonomy} as tt on tt.term_taxonomy_id = tr.term_taxonomy_id
+				where P.post_status = %s and P.post_type in ({$concatenated_post_types})
+				and tt.term_id = %d",
+				'publish',
+				intval( $term_id )
+			)
+		);
+	}
+
+	/**
+	 * Deletes URL.
+	 * 
+	 * @param string $url URL.
+	 */
+	public function delete_url( $url ) {
+		global $wpdb;
+
+		$sql = $wpdb->prepare(
+			"DELETE FROM `{$this->url_table}` WHERE `url` = %s",
+			$url
+		);
+		if ( $sql ) {
+			$wpdb->query( $sql );
+		}
 	}
 }

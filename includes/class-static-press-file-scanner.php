@@ -9,6 +9,7 @@ namespace static_press\includes;
 
 /**
  * File scanner.
+ * This class should be instantiated before entering loop since constructor includes loop process.
  */
 class Static_Press_File_Scanner {
 	/**
