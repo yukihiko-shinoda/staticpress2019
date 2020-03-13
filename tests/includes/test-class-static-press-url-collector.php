@@ -24,7 +24,7 @@ class Static_Press_Url_Collector_Test extends \WP_UnitTestCase {
 	 * 
 	 * @var string
 	 */
-	private $url_amother_blog;
+	private $url;
 	/**
 	 * For WordPress
 	 * 
@@ -36,66 +36,19 @@ class Static_Press_Url_Collector_Test extends \WP_UnitTestCase {
 	 * 
 	 * @var string
 	 */
-	private $blog_id;
-	/**
-	 * Creates another blog.
-	 */
-	public function setUp() {
-		parent::setUp();
-		if ( defined( 'MULTISITE' ) && MULTISITE === true ) {
-			remove_filter( 'query', array( $this, '_create_temporary_tables' ) );
-			remove_filter( 'query', array( $this, '_drop_temporary_tables' ) );
-			$domain        = 'something.example.com';
-			$path          = '/';
-			$title         = 'Look at my awesome site';
-			$this->blog_id = wpmu_create_blog( $domain, $path, $title, 1 );
-			switch_to_blog( $this->blog_id );
-			$this->url_amother_blog = "https://$domain/sub/";
-			$this->url_previous     = get_option( 'home', $this->url_amother_blog );
-			update_option( 'home', $this->url_amother_blog );
-		}
-	}
-
-	/**
-	 * Removes another blog.
-	 */
-	public function tearDown() {
-		if ( defined( 'MULTISITE' ) && MULTISITE === true ) {
-			update_option( 'home', $this->url_previous );
-			restore_current_blog();
-			wpmu_delete_blog( $this->blog_id, true );
-			add_filter( 'query', array( $this, '_create_temporary_tables' ) );
-			add_filter( 'query', array( $this, '_drop_temporary_tables' ) );
-		}
-		parent::tearDown();
-	}
-
-	/**
-	 * Function get_site_url() should return site URL.
-	 */
-	public function test_get_site_url() {
-		$url    = 'http://example.org/';
-		$result = Static_Press_Url_Collector::get_site_url();
-		$this->assertEquals( $url, $result );
-	}
-
-	/**
-	 * Function get_site_url() should return site URL.
-	 */
-	public function test_get_site_url_multi_site() {
-		if ( ! defined( 'MULTISITE' ) || MULTISITE === false ) {
-			return;
-		}
-		$result = Static_Press_Url_Collector::get_site_url();
-		$this->assertEquals( $this->url_amother_blog, $result );
-	}
+	private $blog_id_another_blog;
 
 	/**
 	 * Function front_page_url() should return appropriate URLs.
 	 */
 	public function test_front_page_url() {
 		$expect        = Test_Utility::get_expect_urls_front_page( self::DATE_FOR_TEST );
-		$actual        = $this->create_accessable_method( self::crete_remote_getter_mock(), 'front_page_url', array() );
+		$actual        = $this->create_accessable_method(
+			self::crete_remote_getter_mock(),
+			'front_page_url',
+			array(),
+			$this->create_date_time_factory_mock( 'create_date', 'Y-m-d h:i:s', self::DATE_FOR_TEST )
+		);
 		$length_expect = count( $expect );
 		$this->assertEquals( $length_expect, count( $actual ) );
 		for ( $index = 0; $index < $length_expect; $index ++ ) {
@@ -151,19 +104,17 @@ class Static_Press_Url_Collector_Test extends \WP_UnitTestCase {
 				),
 			);
 		}
-		$title = 'Post Title 1';
 		wp_insert_post(
 			array(
-				'post_title'   => $title,
+				'post_title'   => 'Post Title 1',
 				'post_content' => 'Post content 1.',
 				'post_status'  => 'publish',
 				'post_type'    => 'attachment',
 			)
 		);
-		$title = 'Post Title 2';
 		wp_insert_post(
 			array(
-				'post_title'   => $title,
+				'post_title'   => 'Post Title 2',
 				'post_content' => 'test<!--nextpage-->test<!--nextpage-->test',
 				'post_status'  => 'publish',
 				'post_type'    => 'attachment',
@@ -283,19 +234,20 @@ class Static_Press_Url_Collector_Test extends \WP_UnitTestCase {
 	 */
 	public function test_seo_url() {
 		$expect_urls = Test_Utility::get_expect_urls_seo( self::DATE_FOR_TEST );
-		$actual      = $this->create_accessable_method( Test_Utility::set_up_seo_url(), 'seo_url', array() );
+		$actual      = $this->create_accessable_method( Test_Utility::set_up_seo_url( 'http://example.org/' ), 'seo_url', array() );
 		Test_Utility::assert_urls( $this, $expect_urls, $actual );
 	}
 
 	/**
 	 * Creates accessable method.
 	 * 
-	 * @param mixed  $remote_getter_mock Mock for Remote Getter.
-	 * @param string $method_name        Method name.
-	 * @param array  $array_parameter    Array of parameter.
+	 * @param mixed         $remote_getter_mock     Mock for Remote Getter.
+	 * @param string        $method_name            Method name.
+	 * @param array         $array_parameter        Array of parameter.
+	 * @param MockInterface $date_time_factory_mock Mock interface for Date time factory.
 	 */
-	private function create_accessable_method( $remote_getter_mock, $method_name, $array_parameter ) {
-		$url_collector = new Static_Press_Url_Collector( $remote_getter_mock );
+	private function create_accessable_method( $remote_getter_mock, $method_name, $array_parameter, $date_time_factory_mock = null ) {
+		$url_collector = new Static_Press_Url_Collector( $remote_getter_mock, $date_time_factory_mock );
 		$reflection    = new \ReflectionClass( get_class( $url_collector ) );
 		$method        = $reflection->getMethod( $method_name );
 		$method->setAccessible( true );
@@ -309,5 +261,16 @@ class Static_Press_Url_Collector_Test extends \WP_UnitTestCase {
 		$remote_getter_mock = Mockery::mock( 'alias:Url_Collector_Mock' );
 		$remote_getter_mock->shouldReceive( 'remote_get' )->andReturn( Test_Utility::create_response( '/', 'index-example.html' ) );
 		return $remote_getter_mock;
+	}
+
+	/**
+	 * Creates mock for Date time factory to fix date time.
+	 */
+	private function create_date_time_factory_mock( $function_name, $parameter, $return_value ) {
+		$date_time_factory_mock = Mockery::mock( 'alias:Date_Time_Factory_Mock' );
+		$date_time_factory_mock->shouldReceive( $function_name )
+		->with( $parameter )
+		->andReturn( $return_value );
+		return $date_time_factory_mock;
 	}
 }

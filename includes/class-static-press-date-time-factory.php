@@ -12,6 +12,15 @@ namespace static_press\includes;
  */
 class Static_Press_Date_Time_Factory {
 	/**
+	 * Creates date.
+	 * 
+	 * @param string $format Format.
+	 */
+	public function create_date( $format ) {
+		return date( $format );
+	}
+
+	/**
 	 * Creates GM date.
 	 * 
 	 * @param string $format Format.

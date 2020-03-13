@@ -10,10 +10,14 @@ namespace static_press\includes;
 if ( ! class_exists( 'static_press\includes\Static_Press_Business_Logic_Exception' ) ) {
 	require dirname( __FILE__ ) . '/class-static-press-business-logic-exception.php';
 }
+if ( ! class_exists( 'static_press\includes\Static_Press_Date_Time_Factory' ) ) {
+	require dirname( __FILE__ ) . '/class-static-press-date-time-factory.php';
+}
 if ( ! class_exists( 'static_press\includes\Static_Press_Url_Updater' ) ) {
 	require dirname( __FILE__ ) . '/class-static-press-url-updater.php';
 }
 use static_press\includes\Static_Press_Business_Logic_Exception;
+use static_press\includes\Static_Press_Date_Time_Factory;
 use static_press\includes\Static_Press_Url_Updater;
 
 /**
@@ -54,17 +58,18 @@ abstract class Static_Press_Ajax_Processor {
 	/**
 	 * Constructor.
 	 * 
-	 * @param string                     $static_site_url  Absolute URL of static site.
-	 * @param string                     $dump_directory   Directory to dump static files.
-	 * @param Static_Press_Repository    $repository       Database access instance.
-	 * @param Static_Press_Remote_Getter $remote_getter    Remote getter instance.
-	 * @param Static_Press_Terminator    $terminator       Terminator instance.
+	 * @param string                         $static_site_url   Absolute URL of static site.
+	 * @param string                         $dump_directory    Directory to dump static files.
+	 * @param Static_Press_Repository        $repository        Database access instance.
+	 * @param Static_Press_Remote_Getter     $remote_getter     Remote getter instance.
+	 * @param Static_Press_Terminator        $terminator        Terminator instance.
+	 * @param Static_Press_Date_Time_Factory $date_time_factory Date time factory instance.
 	 */
-	public function __construct( $static_site_url, $dump_directory, $repository, $remote_getter, $terminator = null ) {
+	public function __construct( $static_site_url, $dump_directory, $repository, $remote_getter, $terminator = null, $date_time_factory = null ) {
 		$this->static_site_url = $static_site_url;
 		$this->dump_directory  = $dump_directory;
 		$this->repository      = $repository;
-		$this->url_collector   = new Static_Press_Url_Collector( $remote_getter );
+		$this->url_collector   = new Static_Press_Url_Collector( $remote_getter, $date_time_factory );
 		$this->terminator      = $terminator ? $terminator : new Static_Press_Terminator();
 	}
 	/**

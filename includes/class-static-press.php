@@ -201,7 +201,8 @@ class Static_Press {
 			$this->dump_directory,
 			$this->repository,
 			$this->remote_getter,
-			$terminator
+			$terminator,
+			$this->date_time_factory
 		);
 		$ajax_processor->execute();
 	}
@@ -217,7 +218,8 @@ class Static_Press {
 			$this->dump_directory,
 			$this->repository,
 			$this->remote_getter,
-			$terminator
+			$terminator,
+			$this->date_time_factory
 		);
 		$ajax_processor->execute();
 	}
@@ -233,7 +235,8 @@ class Static_Press {
 			$this->dump_directory,
 			$this->repository,
 			$this->remote_getter,
-			$terminator
+			$terminator,
+			$this->date_time_factory
 		);
 		$ajax_processor->execute();
 	}

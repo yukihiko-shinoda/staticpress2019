@@ -304,7 +304,7 @@ class Static_Press_Test extends \WP_UnitTestCase {
 		$this->sign_on_to_word_press();
 
 		$expect       = '{"result":true,"urls_count":[{"type":"front_page","count":"1"},{"type":"seo_files","count":"5"}]}';
-		$static_press = new Static_Press( '/', '', array(), null, Test_Utility::set_up_seo_url() );
+		$static_press = new Static_Press( '/', '', array(), null, Test_Utility::set_up_seo_url( 'http://example.org/' ) );
 		ob_start();
 		try {
 			$static_press->ajax_init( Test_Utility::create_terminator_mock() );

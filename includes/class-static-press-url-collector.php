@@ -13,8 +13,12 @@ if ( ! class_exists( 'static_press\includes\Static_Press_Content_Filter' ) ) {
 if ( ! class_exists( 'static_press\includes\Static_Press_File_Scanner' ) ) {
 	require dirname( __FILE__ ) . '/class-static-press-file-scanner.php';
 }
+if ( ! class_exists( 'static_press\includes\Static_Press_Site_Dependency' ) ) {
+	require dirname( __FILE__ ) . '/class-static-press-site-dependency.php';
+}
 use static_press\includes\Static_Press_Content_Filter;
 use static_press\includes\Static_Press_File_Scanner;
+use static_press\includes\Static_Press_Site_Dependency;
 
 /**
  * URL Collector.
@@ -27,12 +31,20 @@ class Static_Press_Url_Collector {
 	 */
 	private $remote_getter;
 	/**
+	 * Date time factory.
+	 * 
+	 * @var Static_Press_Date_Time_Factory
+	 */
+	private $date_time_factory;
+	/**
 	 * Constructor.
 	 * 
-	 * @param Static_Press_Remote_Getter $remote_getter    Remote getter.
+	 * @param Static_Press_Remote_Getter     $remote_getter     Remote getter.
+	 * @param Static_Press_Date_Time_Factory $date_time_factory Date time factory.
 	 */
-	public function __construct( $remote_getter ) {
-		$this->remote_getter = $remote_getter;
+	public function __construct( $remote_getter, $date_time_factory = null ) {
+		$this->remote_getter     = $remote_getter;
+		$this->date_time_factory = $date_time_factory ? $date_time_factory : new Static_Press_Date_Time_Factory();
 	}
 
 	/**
@@ -41,12 +53,7 @@ class Static_Press_Url_Collector {
 	 * @return string Site URL.
 	 */
 	public static function get_site_url() {
-		global $current_blog;
-		return trailingslashit(
-			isset( $current_blog )
-			? get_home_url( get_current_blog_id() )
-			: get_home_url()
-		);
+		return Static_Press_Site_Dependency::get_site_url();
 	}
 
 	/**
@@ -70,13 +77,13 @@ class Static_Press_Url_Collector {
 	 * 
 	 * @return array Front page URL.
 	 */
-	private static function front_page_url() {
+	private function front_page_url() {
 		$urls     = array();
 		$site_url = self::get_site_url();
 		$urls[]   = array(
 			'type'          => 'front_page',
 			'url'           => apply_filters( 'StaticPress::get_url', $site_url ),
-			'last_modified' => date( 'Y-m-d h:i:s' ),
+			'last_modified' => $this->date_time_factory->create_date( 'Y-m-d h:i:s' ),
 		);
 		return $urls;
 	}

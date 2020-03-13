@@ -18,22 +18,22 @@ class Test_Utility {
 	/**
 	 * Sets up for testing seo_url().
 	 */
-	public static function set_up_seo_url() {
+	public static function set_up_seo_url( $url ) {
 		$remote_getter_mock = Mockery::mock( 'alias:Remote_Getter_Mock' );
 		$remote_getter_mock->shouldReceive( 'remote_get' )
-		->with( 'http://example.org/robots.txt' )
+		->with( $url . 'robots.txt' )
 		->andReturn( self::create_response( '/robots.txt', 'robots.txt' ) );
 		$remote_getter_mock->shouldReceive( 'remote_get' )
-		->with( 'http://example.org/sitemap.xml' )
+		->with( $url . 'sitemap.xml' )
 		->andReturn( self::create_response( '/sitemap.xml', 'sitemap.xml' ) );
 		$remote_getter_mock->shouldReceive( 'remote_get' )
-		->with( 'http://example.org/sitemap-misc.xml' )
+		->with( $url . 'sitemap-misc.xml' )
 		->andReturn( self::create_response( '/sitemap-misc.xml', 'sitemap-misc.xml' ) );
 		$remote_getter_mock->shouldReceive( 'remote_get' )
-		->with( 'http://example.org/sitemap-tax-category.xml' )
+		->with( $url . 'sitemap-tax-category.xml' )
 		->andReturn( self::create_response( '/sitemap-tax-category.xml', 'sitemap-tax-category.xml' ) );
 		$remote_getter_mock->shouldReceive( 'remote_get' )
-		->with( 'http://example.org/sitemap-pt-post-2020-02.xml' )
+		->with( $url . 'sitemap-pt-post-2020-02.xml' )
 		->andReturn( self::create_response( '/sitemap-pt-post-2020-02.xml', 'sitemap-pt-post-2020-02.xml' ) );
 		return $remote_getter_mock;
 	}
