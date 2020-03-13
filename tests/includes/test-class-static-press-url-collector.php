@@ -22,27 +22,21 @@ class Static_Press_Url_Collector_Test extends \WP_UnitTestCase {
 	/**
 	 * For WordPress
 	 * 
-	 * @var \Mockery\MockInterface
+	 * @var string
 	 */
-	public static $wordpress_mock;
+	private $url_amother_blog;
 	/**
 	 * For WordPress
 	 * 
 	 * @var string
 	 */
-	public static $url_amother_blog;
+	private $url_previous;
 	/**
 	 * For WordPress
 	 * 
 	 * @var string
 	 */
-	public static $url_previous;
-	/**
-	 * For WordPress
-	 * 
-	 * @var string
-	 */
-	public static $blog_id;
+	private $blog_id;
 	/**
 	 * Creates another blog.
 	 */
