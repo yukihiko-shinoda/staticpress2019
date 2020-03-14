@@ -56,8 +56,8 @@ class Static_Press_Content_Filter_Replace_Relative_Uri {
 	public function filter( $content ) {
 		// Replaces relative URI to absolute URI of dynamic site.
 		$pattern = array(
-			'# (href|src|action)="(/[^"]*)"#ism',
-			"# (href|src|action)='(/[^']*)'#ism",
+			'# (href|src|action)="(/[^/][^"]*)"#ism',
+			"# (href|src|action)='(/[^/][^']*)'#ism",
 		);
 		$content = preg_replace( $pattern, ' $1="' . $this->url_dynamic_home . '$2"', $content );
 		$content = $this->replace_static_site_url( $this->url_dynamic, $content );
