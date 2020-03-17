@@ -13,11 +13,15 @@ if ( ! class_exists( 'static_press\includes\Static_Press_Business_Logic_Exceptio
 if ( ! class_exists( 'static_press\includes\Static_Press_Date_Time_Factory' ) ) {
 	require dirname( __FILE__ ) . '/class-static-press-date-time-factory.php';
 }
+if ( ! class_exists( 'static_press\includes\Static_Press_Model_Url' ) ) {
+	require dirname( __FILE__ ) . '/class-static-press-model-url.php';
+}
 if ( ! class_exists( 'static_press\includes\Static_Press_Url_Updater' ) ) {
 	require dirname( __FILE__ ) . '/class-static-press-url-updater.php';
 }
 use static_press\includes\Static_Press_Business_Logic_Exception;
 use static_press\includes\Static_Press_Date_Time_Factory;
+use static_press\includes\Static_Press_Model_Url;
 use static_press\includes\Static_Press_Url_Updater;
 
 /**
@@ -128,7 +132,7 @@ abstract class Static_Press_Ajax_Processor {
 			case 'other_page':
 				$this->get_remote_file( $model_static_file, $crawling, $create_404 );
 				break;
-			case 'static_file':
+			case Static_Press_Model_Url::TYPE_STATIC_FILE:
 				try {
 					$this->get_static_file( $model_static_file );
 				} catch ( Static_Press_Business_Logic_Exception $exception ) {

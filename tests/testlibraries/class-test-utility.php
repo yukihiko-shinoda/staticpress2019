@@ -8,8 +8,10 @@
 namespace static_press\tests\testlibraries;
 
 require_once dirname( __FILE__ ) . '/../testlibraries/class-expect-urls-static-files.php';
+require_once dirname( __FILE__ ) . '/../testlibraries/class-model-url.php';
 use Mockery;
 use static_press\tests\testlibraries\Expect_Urls_Static_Files;
+use static_press\tests\testlibraries\Model_Url;
 
 /**
  * URL Collector.
@@ -122,7 +124,7 @@ class Test_Utility {
 		$expect = array();
 		foreach ( Expect_Urls_Static_Files::EXPECT_URLS as $expect_url ) {
 			$expect[] = array(
-				'type'          => 'static_file',
+				'type'          => Model_Url::TYPE_STATIC_FILE,
 				'url'           => $expect_url,
 				'last_modified' => $last_modified,
 			);

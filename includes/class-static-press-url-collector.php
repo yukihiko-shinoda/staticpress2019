@@ -13,11 +13,15 @@ if ( ! class_exists( 'static_press\includes\Static_Press_Content_Filter' ) ) {
 if ( ! class_exists( 'static_press\includes\Static_Press_File_Scanner' ) ) {
 	require dirname( __FILE__ ) . '/class-static-press-file-scanner.php';
 }
+if ( ! class_exists( 'static_press\includes\Static_Press_Model_Url' ) ) {
+	require dirname( __FILE__ ) . '/class-static-press-model-url.php';
+}
 if ( ! class_exists( 'static_press\includes\Static_Press_Site_Dependency' ) ) {
 	require dirname( __FILE__ ) . '/class-static-press-site-dependency.php';
 }
 use static_press\includes\Static_Press_Content_Filter;
 use static_press\includes\Static_Press_File_Scanner;
+use static_press\includes\Static_Press_Model_Url;
 use static_press\includes\Static_Press_Site_Dependency;
 
 /**
@@ -63,11 +67,11 @@ class Static_Press_Url_Collector {
 	 */
 	public function collect() {
 		return array_merge(
-			self::front_page_url(),
+			$this->front_page_url(),
 			self::single_url(),
-			self::terms_url(),
+			$this->terms_url(),
 			self::author_url(),
-			self::static_files_url(),
+			$this->static_files_url(),
 			$this->seo_url()
 		);
 	}
@@ -203,7 +207,7 @@ class Static_Press_Url_Collector {
 	/**
 	 * Gets URLs of authors.
 	 */
-	private function author_url() {
+	private static function author_url() {
 		$post_types = get_post_types( array( 'public' => true ) );
 		$repository = new Static_Press_Repository();
 		$authors    = $repository->get_post_authors( $post_types );
@@ -247,7 +251,7 @@ class Static_Press_Url_Collector {
 		foreach ( $static_files as $static_file ) {
 			$static_file_url = str_replace( trailingslashit( ABSPATH ), trailingslashit( $this->get_site_url() ), $static_file );
 			$urls[]          = array(
-				'type'          => 'static_file',
+				'type'          => Static_Press_Model_Url::TYPE_STATIC_FILE,
 				'url'           => apply_filters( 'StaticPress::get_url', $static_file_url ),
 				'last_modified' => date( 'Y-m-d h:i:s', filemtime( $static_file ) ),
 			);

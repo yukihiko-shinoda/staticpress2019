@@ -11,6 +11,8 @@ namespace static_press\tests\testlibraries;
  * Class Model_Url
  */
 class Model_Url {
+	const TYPE_OTHER_PAGE  = 'other_page';
+	const TYPE_STATIC_FILE = 'static_file';
 	/**
 	 * ID.
 	 * 

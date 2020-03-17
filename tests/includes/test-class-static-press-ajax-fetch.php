@@ -144,7 +144,7 @@ class Static_Press_Ajax_Fetch_Test extends \WP_UnitTestCase {
 			)
 		);
 		$expect = array(
-			new Expect_Url( Expect_Url::TYPE_OTHER_PAGE, '/test1/', '1' ),
+			new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/test1/', '1' ),
 		);
 		Expect_Url::assert_url( $this, $expect, array( $this->create_accessable_method( 'fetch_url', array() ) ) );
 	}

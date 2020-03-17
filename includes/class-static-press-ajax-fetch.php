@@ -18,6 +18,7 @@ if ( ! class_exists( 'static_press\includes\Static_Press_Transient_Manager' ) ) 
 }
 use static_press\includes\Static_Press_Ajax_Processor;
 use static_press\includes\Static_Press_Fetch_Result;
+use static_press\includes\Static_Press_Model_Url;
 use static_press\includes\Static_Press_Transient_Manager;
 
 /**
@@ -33,7 +34,7 @@ class Static_Press_Ajax_Fetch extends Static_Press_Ajax_Processor {
 		$fetch_result = $this->fetch_first_url();
 
 		while ( $url = $this->fetch_url() ) {
-			$limit       = ( 'static_file' == $url->type ) ? self::FETCH_LIMIT_STATIC : self::FETCH_LIMIT;
+			$limit       = ( Static_Press_Model_Url::TYPE_STATIC_FILE == $url->type ) ? self::FETCH_LIMIT_STATIC : self::FETCH_LIMIT;
 			$static_file = $this->create_static_file( $url->url, $url->type, true, true );
 			$fetch_result->set_fetch_result( $url, $static_file );
 			if ( $fetch_result->file_count >= $limit ) {

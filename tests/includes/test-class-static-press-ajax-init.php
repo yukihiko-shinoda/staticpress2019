@@ -50,7 +50,7 @@ class Static_Press_Ajax_Init_Test extends \WP_UnitTestCase {
 			)
 		);
 		$expect_database = array(
-			new Expect_Url( Expect_Url::TYPE_OTHER_PAGE, '/test/', '1' ),
+			new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/test/', '1' ),
 		);
 		Expect_Url::assert_url( $this, $expect_database, Repository_For_Test::get_all_url() );
 		$expect_urls = array_merge(

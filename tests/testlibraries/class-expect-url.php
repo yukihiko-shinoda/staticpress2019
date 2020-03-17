@@ -11,9 +11,6 @@ namespace static_press\tests\testlibraries;
  * Class Expect_Url
  */
 class Expect_Url {
-	const TYPE_OTHER_PAGE  = 'other_page';
-	const TYPE_STATIC_FILE = 'static_file';
-
 	/**
 	 * Expect type of URL object.
 	 *

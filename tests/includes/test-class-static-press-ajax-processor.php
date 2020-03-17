@@ -110,8 +110,8 @@ class Static_Press_Ajax_Processor_Test extends \WP_UnitTestCase {
 		return array(
 			array( 200, '/', 'front_page', '/tmp/static/index.html', '/index.html' ),
 			array( 500, '/?author=1/', 'author_archive', false, null ),
-			array( 200, '/wp-content/uploads/2020/03/test.png', 'static_file', false, null ),
-			array( 200, '/wp-content/uploads/2020/03/test.txt', 'static_file', '/tmp/static/wp-content/uploads/2020/03/test.txt', '/wp-content/uploads/2020/03/test.txt' ),
+			array( 200, '/wp-content/uploads/2020/03/test.png', Model_Url::TYPE_STATIC_FILE, false, null ),
+			array( 200, '/wp-content/uploads/2020/03/test.txt', Model_Url::TYPE_STATIC_FILE, '/tmp/static/wp-content/uploads/2020/03/test.txt', '/wp-content/uploads/2020/03/test.txt' ),
 			array( 200, '/sitemap.xml', 'seo_files', '/tmp/static/sitemap.xml', '/sitemap.xml' ),
 		);
 	}
@@ -179,8 +179,8 @@ class Static_Press_Ajax_Processor_Test extends \WP_UnitTestCase {
 				'/',
 				array(),
 				array(
-					new Expect_Url( Expect_Url::TYPE_OTHER_PAGE, '/', '1' ),
-					new Expect_Url( Expect_Url::TYPE_OTHER_PAGE, '/test/', '1' ),
+					new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/', '1' ),
+					new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/test/', '1' ),
 				),
 			),
 			array(
@@ -188,8 +188,8 @@ class Static_Press_Ajax_Processor_Test extends \WP_UnitTestCase {
 				'/test/',
 				array(),
 				array(
-					new Expect_Url( Expect_Url::TYPE_OTHER_PAGE, '/', '1' ),
-					new Expect_Url( Expect_Url::TYPE_OTHER_PAGE, '/test/', '1' ),
+					new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/', '1' ),
+					new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/test/', '1' ),
 				),
 			),
 			array(
@@ -197,8 +197,8 @@ class Static_Press_Ajax_Processor_Test extends \WP_UnitTestCase {
 				'/test/index.html',
 				array(),
 				array(
-					new Expect_Url( Expect_Url::TYPE_OTHER_PAGE, '/', '1' ),
-					new Expect_Url( Expect_Url::TYPE_OTHER_PAGE, '/test/', '1' ),
+					new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/', '1' ),
+					new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/test/', '1' ),
 				),
 			),
 			array(
@@ -211,9 +211,9 @@ class Static_Press_Ajax_Processor_Test extends \WP_UnitTestCase {
 					),
 				),
 				array(
-					new Expect_Url( Expect_Url::TYPE_OTHER_PAGE, '/', '1' ),
-					new Expect_Url( Expect_Url::TYPE_OTHER_PAGE, '/test/', '1' ),
-					new Expect_Url( Expect_Url::TYPE_OTHER_PAGE, '/test/test/', '1' ),
+					new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/', '1' ),
+					new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/test/', '1' ),
+					new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/test/test/', '1' ),
 				),
 			),
 			array(
@@ -221,8 +221,8 @@ class Static_Press_Ajax_Processor_Test extends \WP_UnitTestCase {
 				'/',
 				array(),
 				array(
-					new Expect_Url( Expect_Url::TYPE_OTHER_PAGE, '/', '1' ),
-					new Expect_Url( Expect_Url::TYPE_OTHER_PAGE, '/test/', '1' ),
+					new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/', '1' ),
+					new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/test/', '1' ),
 				),
 			),
 			array(
@@ -235,9 +235,9 @@ class Static_Press_Ajax_Processor_Test extends \WP_UnitTestCase {
 					),
 				),
 				array(
-					new Expect_Url( Expect_Url::TYPE_OTHER_PAGE, '/', '1' ),
-					new Expect_Url( Expect_Url::TYPE_OTHER_PAGE, '/test/', '1' ),
-					new Expect_Url( Expect_Url::TYPE_OTHER_PAGE, '/test/test/', '1' ),
+					new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/', '1' ),
+					new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/test/', '1' ),
+					new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/test/test/', '1' ),
 				),
 			),
 			array(
@@ -250,9 +250,9 @@ class Static_Press_Ajax_Processor_Test extends \WP_UnitTestCase {
 					),
 				),
 				array(
-					new Expect_Url( Expect_Url::TYPE_OTHER_PAGE, '/', '1' ),
-					new Expect_Url( Expect_Url::TYPE_OTHER_PAGE, '/test/', '1' ),
-					new Expect_Url( Expect_Url::TYPE_OTHER_PAGE, '/test/test/', '1' ),
+					new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/', '1' ),
+					new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/test/', '1' ),
+					new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/test/test/', '1' ),
 				),
 			),
 			array(
@@ -269,10 +269,10 @@ class Static_Press_Ajax_Processor_Test extends \WP_UnitTestCase {
 					),
 				),
 				array(
-					new Expect_Url( Expect_Url::TYPE_OTHER_PAGE, '/', '1' ),
-					new Expect_Url( Expect_Url::TYPE_OTHER_PAGE, '/test/', '1' ),
-					new Expect_Url( Expect_Url::TYPE_OTHER_PAGE, '/test/test/index.html', '1' ),
-					new Expect_Url( Expect_Url::TYPE_OTHER_PAGE, '/test/test2/index.html', '1' ),
+					new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/', '1' ),
+					new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/test/', '1' ),
+					new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/test/test/index.html', '1' ),
+					new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/test/test2/index.html', '1' ),
 				),
 			),
 			array(
@@ -293,11 +293,11 @@ class Static_Press_Ajax_Processor_Test extends \WP_UnitTestCase {
 					),
 				),
 				array(
-					new Expect_Url( Expect_Url::TYPE_OTHER_PAGE, '/', '1' ),
-					new Expect_Url( Expect_Url::TYPE_OTHER_PAGE, '/test/', '1' ),
-					new Expect_Url( Expect_Url::TYPE_OTHER_PAGE, '/test/test/', '1' ),
-					new Expect_Url( Expect_Url::TYPE_OTHER_PAGE, '/test/test/index.html', '1' ),
-					new Expect_Url( Expect_Url::TYPE_OTHER_PAGE, '/test/test2/index.html', '1' ),
+					new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/', '1' ),
+					new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/test/', '1' ),
+					new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/test/test/', '1' ),
+					new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/test/test/index.html', '1' ),
+					new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/test/test2/index.html', '1' ),
 				),
 			),
 		);
@@ -433,8 +433,8 @@ class Static_Press_Ajax_Processor_Test extends \WP_UnitTestCase {
 			array( 'url' => '/test3/' ),
 		);
 		$expect_urls_in_database = array(
-			new Expect_Url( Expect_Url::TYPE_OTHER_PAGE, '/test2/', '1' ),
-			new Expect_Url( Expect_Url::TYPE_OTHER_PAGE, '/test4/', '1' ),
+			new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/test2/', '1' ),
+			new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/test4/', '1' ),
 		);
 
 		$actual = $this->create_accessable_method( 'delete_url', array( $parameter ) );
@@ -493,23 +493,23 @@ class Static_Press_Ajax_Processor_Test extends \WP_UnitTestCase {
 			),
 			array(
 				'url'  => '/readme.txt',
-				'type' => 'static_file',
+				'type' => Model_Url::TYPE_STATIC_FILE,
 			),
 			array(
 				'url'  => '/test.png',
-				'type' => 'static_file',
+				'type' => Model_Url::TYPE_STATIC_FILE,
 			),
 			array(
 				'url'  => '/wp-content/plugins/akismet/_inc/akismet.css',
-				'type' => 'static_file',
+				'type' => Model_Url::TYPE_STATIC_FILE,
 			),
 			array(
 				'url'  => '/wp-content/themes/twentynineteen/style.css',
-				'type' => 'static_file',
+				'type' => Model_Url::TYPE_STATIC_FILE,
 			),
 			array(
 				'url'  => "/wp-content/themes/{$theme_to_activate}/style.css",
-				'type' => 'static_file',
+				'type' => Model_Url::TYPE_STATIC_FILE,
 			),
 		);
 		Repository_For_Test::insert_url(
@@ -531,10 +531,10 @@ class Static_Press_Ajax_Processor_Test extends \WP_UnitTestCase {
 			)
 		);
 		$expect_urls_in_database = array(
-			new Expect_Url( Expect_Url::TYPE_OTHER_PAGE, '/test/', '1' ),
-			new Expect_Url( Expect_Url::TYPE_OTHER_PAGE, '/', '1' ),
-			new Expect_Url( Expect_Url::TYPE_STATIC_FILE, '/wp-content/plugins/akismet/_inc/akismet.css', '1' ),
-			new Expect_Url( Expect_Url::TYPE_STATIC_FILE, "/wp-content/themes/{$theme_to_activate}/style.css", '1' ),
+			new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/test/', '1' ),
+			new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/', '1' ),
+			new Expect_Url( Model_Url::TYPE_STATIC_FILE, '/wp-content/plugins/akismet/_inc/akismet.css', '1' ),
+			new Expect_Url( Model_Url::TYPE_STATIC_FILE, "/wp-content/themes/{$theme_to_activate}/style.css", '1' ),
 		);
 		activate_plugin( 'akismet/akismet.php' );
 		switch_theme( $theme_to_activate );
@@ -563,7 +563,7 @@ class Static_Press_Ajax_Processor_Test extends \WP_UnitTestCase {
 		$urls                    = array(
 			array(
 				'url'  => '/',
-				'type' => 'static_file',
+				'type' => Model_Url::TYPE_STATIC_FILE,
 			),
 		);
 		$expect_urls_in_database = array();
@@ -597,7 +597,7 @@ class Static_Press_Ajax_Processor_Test extends \WP_UnitTestCase {
 		$urls                    = array(
 			array(
 				'url'  => '/test.txt',
-				'type' => 'static_file',
+				'type' => Model_Url::TYPE_STATIC_FILE,
 			),
 		);
 		$expect_urls_in_database = array();
@@ -628,7 +628,7 @@ class Static_Press_Ajax_Processor_Test extends \WP_UnitTestCase {
 		$urls                    = array(
 			array(
 				'url'  => '/wp-content/plugins/akismet/_inc/akismet.css',
-				'type' => 'static_file',
+				'type' => Model_Url::TYPE_STATIC_FILE,
 			),
 		);
 		$expect_urls_in_database = array();
@@ -659,11 +659,11 @@ class Static_Press_Ajax_Processor_Test extends \WP_UnitTestCase {
 		$urls                    = array(
 			array(
 				'url'  => '/wp-content/uploads/2020/03/test.txt',
-				'type' => 'static_file',
+				'type' => Model_Url::TYPE_STATIC_FILE,
 			),
 		);
 		$expect_urls_in_database = array(
-			new Expect_Url( Expect_Url::TYPE_STATIC_FILE, '/wp-content/uploads/2020/03/test.txt', '1' ),
+			new Expect_Url( Model_Url::TYPE_STATIC_FILE, '/wp-content/uploads/2020/03/test.txt', '1' ),
 		);
 		$static_press            = new Static_Press_Ajax_Init(
 			null,
