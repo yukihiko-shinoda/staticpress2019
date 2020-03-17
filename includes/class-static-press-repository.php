@@ -32,9 +32,9 @@ class Static_Press_Repository {
 	public function ensure_table_exists() {
 		global $wpdb;
 
-		if ( $wpdb->get_var( "show tables like '{$this->url_table}'" ) != $this->url_table ) {
+		if ( $wpdb->get_var( "SHOW TABLES LIKE '{$this->url_table}'" ) != $this->url_table ) {
 			$this->create_table();
-		} elseif ( ! $wpdb->get_row( "show fields from `{$this->url_table}` where field = 'enable'" ) ) {
+		} elseif ( ! $wpdb->get_row( "SHOW FIELDS FROM `{$this->url_table}` WHERE field = 'enable'" ) ) {
 			$wpdb->query( "ALTER TABLE `{$this->url_table}` ADD COLUMN `enable` int(1) unsigned NOT NULL DEFAULT '1'" );
 		}
 	}
@@ -45,7 +45,7 @@ class Static_Press_Repository {
 	public function create_table() {
 		global $wpdb;
 
-		if ( $wpdb->get_var( "show tables like '{$this->url_table}'" ) != $this->url_table ) {
+		if ( $wpdb->get_var( "SHOW TABLES LIKE '{$this->url_table}'" ) != $this->url_table ) {
 			$wpdb->query(
 				"CREATE TABLE `{$this->url_table}` (
 					`ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
@@ -79,7 +79,7 @@ class Static_Press_Repository {
 	public function ensure_table_not_exists() {
 		global $wpdb;
 
-		if ( $wpdb->get_var( "show tables like '{$this->url_table}'" ) == $this->url_table ) {
+		if ( $wpdb->get_var( "SHOW TABLES LIKE '{$this->url_table}'" ) == $this->url_table ) {
 			$this->drop_table();
 		}
 	}
@@ -117,7 +117,7 @@ class Static_Press_Repository {
 	public function get_id( $url ) {
 		global $wpdb;
 		$sql = $wpdb->prepare(
-			"select ID from {$this->url_table} where url=%s limit 1",
+			"SELECT ID FROM {$this->url_table} WHERE url=%s LIMIT 1",
 			$url
 		);
 
@@ -131,14 +131,14 @@ class Static_Press_Repository {
 	 */
 	public function insert_url( $url ) {
 		global $wpdb;
-		$sql        = "insert into {$this->url_table}";
+		$sql        = "INSERT INTO {$this->url_table}";
 		$sql       .= ' (`' . implode( '`,`', array_keys( $url ) ) . '`,`create_date`)';
 		$insert_val = array();
 		foreach ( $url as $val ) {
 			$insert_val[] = $wpdb->prepare( '%s', $val );
 		}
 		$insert_val[] = $wpdb->prepare( '%s', date( 'Y-m-d h:i:s' ) );
-		$sql         .= ' values (' . implode( ',', $insert_val ) . ')';
+		$sql         .= ' VALUES (' . implode( ',', $insert_val ) . ')';
 		$wpdb->query( $sql );
 	}
 
@@ -150,13 +150,13 @@ class Static_Press_Repository {
 	 */
 	public function update_url( $id, $url ) {
 		global $wpdb;
-		$sql        = "update {$this->url_table}";
+		$sql        = "UPDATE {$this->url_table}";
 		$update_sql = array();
 		foreach ( $url as $key => $val ) {
 			$update_sql[] = $wpdb->prepare( "{$key} = %s", $val );
 		}
-		$sql .= ' set ' . implode( ',', $update_sql );
-		$sql .= $wpdb->prepare( ' where ID=%s', $id );
+		$sql .= ' SET ' . implode( ',', $update_sql );
+		$sql .= $wpdb->prepare( ' WHERE ID=%s', $id );
 		$wpdb->query( $sql );
 	}
 
@@ -205,10 +205,10 @@ class Static_Press_Repository {
 
 		return $wpdb->get_results(
 			"SELECT ID, post_type, post_content, post_status, post_modified
-			from {$wpdb->posts}
-			where (post_status = 'publish' or post_type = 'attachment')
+			FROM {$wpdb->posts}
+			WHERE (post_status = 'publish' or post_type = 'attachment')
 			and post_type in ({$concatenated_post_types})
-			order by post_type, ID"
+			ORDER BY post_type, ID"
 		);
 	}
 
@@ -225,10 +225,10 @@ class Static_Press_Repository {
 		return $wpdb->get_results(
 			"SELECT DISTINCT post_author, COUNT(ID) AS count, MAX(post_modified) AS modified
 			FROM {$wpdb->posts} 
-			where post_status = 'publish'
+			WHERE post_status = 'publish'
 			and post_type in ({$concatenated_post_types})
-			group by post_author
-			order by post_author"
+			GROUP BY post_author
+			ORDER BY post_author"
 		);
 	}
 
@@ -276,11 +276,11 @@ class Static_Press_Repository {
 
 		return $wpdb->get_row(
 			$wpdb->prepare(
-				"SELECT MAX(P.post_modified) as last_modified, count(P.ID) as count
-				from {$wpdb->posts} as P
-				inner join {$wpdb->term_relationships} as tr on tr.object_id = P.ID
-				inner join {$wpdb->term_taxonomy} as tt on tt.term_taxonomy_id = tr.term_taxonomy_id
-				where P.post_status = %s and P.post_type in ({$concatenated_post_types})
+				"SELECT MAX(P.post_modified) AS last_modified, count(P.ID) AS count
+				FROM {$wpdb->posts} AS P
+				INNER JOIN {$wpdb->term_relationships} AS tr ON tr.object_id = P.ID
+				INNER JOIN {$wpdb->term_taxonomy} AS tt ON tt.term_taxonomy_id = tr.term_taxonomy_id
+				WHERE P.post_status = %s and P.post_type in ({$concatenated_post_types})
 				and tt.term_id = %d",
 				'publish',
 				intval( $term_id )
