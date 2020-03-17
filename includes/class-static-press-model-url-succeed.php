@@ -18,7 +18,7 @@ use static_press\includes\Static_Press_Model_Url;
 use static_press\includes\Static_Press_Repository;
 
 /**
- * Model URL other.
+ * Model URL succeed.
  */
 class Static_Press_Model_Url_Succeed extends Static_Press_Model_Url {
 	/**

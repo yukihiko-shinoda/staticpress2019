@@ -140,11 +140,16 @@ class Static_Press_Repository {
 	public function get_all_url( $start_time ) {
 		global $wpdb;
 
-		$sql = $wpdb->prepare(
+		$sql         = $wpdb->prepare(
 			"SELECT ID, type, url, pages FROM {$this->url_table} WHERE `last_upload` < %s and enable = 1",
 			$start_time
 		);
-		return $wpdb->get_results( $sql );
+		$results     = $wpdb->get_results( $sql );
+		$array_model = array();
+		foreach ( $results as $result ) {
+			$array_model[] = new Static_Press_Model_Url_Fetched( $result );
+		}
+		return $array_model;
 	}
 
 	/**

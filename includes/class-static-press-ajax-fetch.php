@@ -13,12 +13,15 @@ if ( ! class_exists( 'static_press\includes\Static_Press_Ajax_Processor' ) ) {
 if ( ! class_exists( 'static_press\includes\Static_Press_Fetch_Result' ) ) {
 	require dirname( __FILE__ ) . '/class-static-press-fetch-result.php';
 }
+if ( ! class_exists( 'static_press\includes\Static_Press_Model_Url_Fetched' ) ) {
+	require dirname( __FILE__ ) . '/class-static-press-model-url-fetched.php';
+}
 if ( ! class_exists( 'static_press\includes\Static_Press_Transient_Manager' ) ) {
 	require dirname( __FILE__ ) . '/class-static-press-transient-manager.php';
 }
 use static_press\includes\Static_Press_Ajax_Processor;
 use static_press\includes\Static_Press_Fetch_Result;
-use static_press\includes\Static_Press_Model_Url;
+use static_press\includes\Static_Press_Model_Url_Fetched;
 use static_press\includes\Static_Press_Transient_Manager;
 
 /**
@@ -34,9 +37,8 @@ class Static_Press_Ajax_Fetch extends Static_Press_Ajax_Processor {
 		$fetch_result = $this->fetch_first_url();
 
 		while ( $url = $this->fetch_url() ) {
-			$limit       = ( Static_Press_Model_Url::TYPE_STATIC_FILE == $url->type ) ? self::FETCH_LIMIT_STATIC : self::FETCH_LIMIT;
-			$static_file = $this->create_static_file( $url->url, $url->type, true, true );
-			$fetch_result->set_fetch_result( $url, $static_file );
+			$fetch_result->set_fetch_result( $url, $this->create_static_file( $url->get_url(), $url->get_type_fetched(), true, true ) );
+			$limit = $url->is_static_file() ? self::FETCH_LIMIT_STATIC : self::FETCH_LIMIT;
 			if ( $fetch_result->file_count >= $limit ) {
 				break;
 			}
@@ -60,18 +62,19 @@ class Static_Press_Ajax_Fetch extends Static_Press_Ajax_Processor {
 				'result' => false,
 				'final'  => true,
 			);
-			$this->json_output( apply_filters( 'StaticPress::ajax_fetch', $result, $url ) );
+			$this->json_output( apply_filters( 'StaticPress::ajax_fetch', $result, false ) );
 		}
 
 		$fetch_result = new Static_Press_Fetch_Result();
-		$fetch_result->set_fetch_result( $url, $this->create_static_file( $url->url, $url->type, true, true ) );
-		if ( $url->pages <= 1 ) {
+		$fetch_result->set_fetch_result( $url, $this->create_static_file( $url->get_url(), $url->get_type_fetched(), true, true ) );
+		if ( ! $url->has_multiple_page() ) {
 			return $fetch_result;
 		}
-		for ( $page = 2; $page <= $url->pages; $page++ ) {
-			$page_url    = untrailingslashit( trim( $url->url ) );
+		$pages = $url->get_pages_fetched();
+		for ( $page = 2; $page <= $pages; $page++ ) {
+			$page_url    = untrailingslashit( trim( $url->get_url() ) );
 			$static_file = false;
-			switch ( $url->type ) {
+			switch ( $url->get_type_fetched() ) {
 				case 'term_archive':
 				case 'author_archive':
 				case 'other_page':
@@ -94,7 +97,7 @@ class Static_Press_Ajax_Fetch extends Static_Press_Ajax_Processor {
 	/**
 	 * Fetches URL.
 	 * 
-	 * @return array|bool List of fetched URL when exist in database table, false when not exist in database table.
+	 * @return Static_Press_Model_Url_Fetched|bool Fetched URL when exist in database table, false when not exist in database table.
 	 */
 	private function fetch_url() {
 		$result = $this->repository->get_next_url(
@@ -103,7 +106,7 @@ class Static_Press_Ajax_Fetch extends Static_Press_Ajax_Processor {
 		);
 		if ( ! is_null( $result ) && ! is_wp_error( $result ) && $result->ID ) {
 			$this->fetch_last_id( $result->ID );
-			return $result;
+			return new Static_Press_Model_Url_Fetched( $result );
 		} else {
 			Static_Press_Transient_Manager::delete_transient();
 			return false;

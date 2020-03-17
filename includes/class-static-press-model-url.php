@@ -139,6 +139,13 @@ abstract class Static_Press_Model_Url {
 	/**
 	 * Getter.
 	 */
+	protected function get_id() {
+		return $this->id;
+	}
+
+	/**
+	 * Getter.
+	 */
 	protected function get_type() {
 		return $this->type;
 	}
@@ -148,6 +155,13 @@ abstract class Static_Press_Model_Url {
 	 */
 	public function get_url() {
 		return $this->url;
+	}
+
+	/**
+	 * Getter.
+	 */
+	protected function get_pages() {
+		return $this->pages;
 	}
 
 	/**

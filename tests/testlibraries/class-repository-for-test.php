@@ -7,6 +7,7 @@
 
 namespace static_press\tests\testlibraries;
 
+use static_press\includes\Static_Press_Model_Url_Fetched;
 use static_press\tests\testlibraries\Model_Url;
 
 /**
@@ -46,7 +47,13 @@ class Repository_For_Test {
 	 */
 	public static function get_all_url() {
 		global $wpdb;
-		return $wpdb->get_results( 'SELECT * FROM ' . self::url_table() );
+		$sql         = 'SELECT * FROM ' . self::url_table();
+		$results     = $wpdb->get_results( $sql );
+		$array_model = array();
+		foreach ( $results as $result ) {
+			$array_model[] = new Static_Press_Model_Url_Fetched( $result );
+		}
+		return $array_model;
 	}
 
 	/**
