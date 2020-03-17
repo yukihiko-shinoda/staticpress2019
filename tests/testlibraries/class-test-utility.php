@@ -19,6 +19,8 @@ use static_press\tests\testlibraries\Model_Url;
 class Test_Utility {
 	/**
 	 * Sets up for testing seo_url().
+	 * 
+	 * @param string $url URL.
 	 */
 	public static function set_up_seo_url( $url ) {
 		$remote_getter_mock = Mockery::mock( 'alias:Remote_Getter_Mock' );
@@ -241,5 +243,34 @@ class Test_Utility {
 		$remote_getter_mock = Mockery::mock( 'alias:Remote_Getter_Mock' );
 		$remote_getter_mock->shouldReceive( 'remote_get' )->andReturn( self::create_response( '/', 'index-example.html' ) );
 		return $remote_getter_mock;
+	}
+
+	/**
+	 * Creates mock for Date time factory to fix date time.
+	 * 
+	 * @param string $function_name Function name.
+	 * @param string $parameter     Parameter.
+	 * @param mixed  $return_value  Return value.
+	 */
+	public static function create_date_time_factory_mock( $function_name, $parameter, $return_value ) {
+		$date_time_factory_mock = Mockery::mock( 'alias:Date_Time_Factory_Mock' );
+		$date_time_factory_mock->shouldReceive( $function_name )
+		->with( $parameter )
+		->andReturn( $return_value );
+		return $date_time_factory_mock;
+	}
+
+	/**
+	 * Sets create date by time.
+	 * 
+	 * @param MockInterface $date_time_factory_mock Date time factory mock.
+	 * @param string        $return_value           Return value.
+	 * @return MockInterface Date time factory mock.
+	 */
+	public static function set_create_date_by_time( $date_time_factory_mock, $return_value ) {
+		$date_time_factory_mock->shouldReceive( 'create_date_by_time' )
+		->with( 'Y-m-d h:i:s' )
+		->andReturn( $return_value );
+		return $date_time_factory_mock;
 	}
 }

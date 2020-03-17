@@ -47,7 +47,7 @@ class Static_Press_Url_Collector_Test extends \WP_UnitTestCase {
 			self::crete_remote_getter_mock(),
 			'front_page_url',
 			array(),
-			$this->create_date_time_factory_mock( 'create_date', 'Y-m-d h:i:s', self::DATE_FOR_TEST )
+			Test_Utility::create_date_time_factory_mock( 'create_date', 'Y-m-d h:i:s', self::DATE_FOR_TEST )
 		);
 		$length_expect = count( $expect );
 		$this->assertEquals( $length_expect, count( $actual ) );
@@ -261,16 +261,5 @@ class Static_Press_Url_Collector_Test extends \WP_UnitTestCase {
 		$remote_getter_mock = Mockery::mock( 'alias:Url_Collector_Mock' );
 		$remote_getter_mock->shouldReceive( 'remote_get' )->andReturn( Test_Utility::create_response( '/', 'index-example.html' ) );
 		return $remote_getter_mock;
-	}
-
-	/**
-	 * Creates mock for Date time factory to fix date time.
-	 */
-	private function create_date_time_factory_mock( $function_name, $parameter, $return_value ) {
-		$date_time_factory_mock = Mockery::mock( 'alias:Date_Time_Factory_Mock' );
-		$date_time_factory_mock->shouldReceive( $function_name )
-		->with( $parameter )
-		->andReturn( $return_value );
-		return $date_time_factory_mock;
 	}
 }

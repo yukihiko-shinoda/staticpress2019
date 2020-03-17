@@ -11,6 +11,13 @@ namespace static_press\includes;
  * Repository (DDD).
  */
 class Static_Press_Repository {
+	const FIELD_NAME_TYPE             = 'type';
+	const FIELD_NAME_URL              = 'url';
+	const FIELD_NAME_FILE_NAME        = 'file_name';
+	const FIELD_NAME_FILE_DATE        = 'file_date';
+	const FIELD_NAME_LAST_STATUS_CODE = 'last_statuscode';
+	const FIELD_NAME_LAST_UPLOAD      = 'last_upload';
+	const FIELD_NAME_LAST_MODIFIED    = 'last_modified';
 	/**
 	 * Table name for list URL.
 	 * 
@@ -122,42 +129,6 @@ class Static_Press_Repository {
 		);
 
 		return $wpdb->get_var( $sql );
-	}
-
-	/**
-	 * Inserts URL.
-	 * 
-	 * @param array $url URL.
-	 */
-	public function insert_url( $url ) {
-		global $wpdb;
-		$sql        = "INSERT INTO {$this->url_table}";
-		$sql       .= ' (`' . implode( '`,`', array_keys( $url ) ) . '`,`create_date`)';
-		$insert_val = array();
-		foreach ( $url as $val ) {
-			$insert_val[] = $wpdb->prepare( '%s', $val );
-		}
-		$insert_val[] = $wpdb->prepare( '%s', date( 'Y-m-d h:i:s' ) );
-		$sql         .= ' VALUES (' . implode( ',', $insert_val ) . ')';
-		$wpdb->query( $sql );
-	}
-
-	/**
-	 * Updates URL.
-	 * 
-	 * @param string $id  ID.
-	 * @param array  $url URL.
-	 */
-	public function update_url( $id, $url ) {
-		global $wpdb;
-		$sql        = "UPDATE {$this->url_table}";
-		$update_sql = array();
-		foreach ( $url as $key => $val ) {
-			$update_sql[] = $wpdb->prepare( "{$key} = %s", $val );
-		}
-		$sql .= ' SET ' . implode( ',', $update_sql );
-		$sql .= $wpdb->prepare( ' WHERE ID=%s', $id );
-		$wpdb->query( $sql );
 	}
 
 	/**
@@ -286,6 +257,44 @@ class Static_Press_Repository {
 				intval( $term_id )
 			)
 		);
+	}
+
+	/**
+	 * Inserts URL.
+	 * This function sets only defined field and create_date.
+	 * 
+	 * @param array $url URL.
+	 */
+	public function insert_url( $url ) {
+		global $wpdb;
+		$sql        = "INSERT INTO {$this->url_table}";
+		$sql       .= ' (`' . implode( '`,`', array_keys( $url ) ) . '`,`create_date`)';
+		$insert_val = array();
+		foreach ( $url as $val ) {
+			$insert_val[] = $wpdb->prepare( '%s', $val );
+		}
+		$insert_val[] = $wpdb->prepare( '%s', date( 'Y-m-d h:i:s' ) );
+		$sql         .= ' VALUES (' . implode( ',', $insert_val ) . ')';
+		$wpdb->query( $sql );
+	}
+
+	/**
+	 * Updates URL.
+	 * This function updates only defined field.
+	 * 
+	 * @param string $id  ID.
+	 * @param array  $url URL.
+	 */
+	public function update_url( $id, $url ) {
+		global $wpdb;
+		$sql        = "UPDATE {$this->url_table}";
+		$update_sql = array();
+		foreach ( $url as $key => $val ) {
+			$update_sql[] = $wpdb->prepare( "{$key} = %s", $val );
+		}
+		$sql .= ' SET ' . implode( ',', $update_sql );
+		$sql .= $wpdb->prepare( ' WHERE ID=%s', $id );
+		$wpdb->query( $sql );
 	}
 
 	/**

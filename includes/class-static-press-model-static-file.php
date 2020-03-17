@@ -7,6 +7,16 @@
 
 namespace static_press\includes;
 
+if ( ! class_exists( 'static_press\includes\Static_Press_Model_Url_Failed' ) ) {
+	require dirname( __FILE__ ) . '/class-static-press-model-url-failed.php';
+}
+if ( ! class_exists( 'static_press\includes\Static_Press_Model_Url_Succeed' ) ) {
+	require dirname( __FILE__ ) . '/class-static-press-model-url-succeed.php';
+}
+
+use static_press\includes\Static_Press_Model_Url_Failed;
+use static_press\includes\Static_Press_Model_Url_Succeed;
+
 /**
  * Plugin information.
  */
@@ -128,28 +138,16 @@ class Static_Press_Model_Static_File {
 	/**
 	 * Checks file existance and creates array type URL.
 	 * 
-	 * @param string $file_type File type.
-	 * @return array URL model (array).
+	 * @param string $file_type         File type.
+	 * @param string $date_time_factory Date time factory.
+	 * @return Static_Press_Model_Url URL model.
 	 */
-	public function check_file_existance_and_create_array_url( $file_type ) {
+	public function check_file_existance_and_create_array_url( $file_type, $date_time_factory ) {
 		if ( file_exists( $this->file_dest ) ) {
-			return array(
-				'type'            => $file_type,
-				'url'             => $this->url,
-				'file_name'       => $this->file_dest,
-				'file_date'       => $this->file_date,
-				'last_statuscode' => $this->http_code,
-				'last_upload'     => date( 'Y-m-d h:i:s', time() ),
-			);
+			return new Static_Press_Model_Url_Succeed( $file_type, $this->url, $this->file_dest, $this->file_date, $this->http_code, $date_time_factory );
 		} else {
 			$this->file_dest = false;
-			return array(
-				'type'            => $file_type,
-				'url'             => $this->url,
-				'file_name'       => '',
-				'last_statuscode' => 404,
-				'last_upload'     => date( 'Y-m-d h:i:s', time() ),
-			);
+			return new Static_Press_Model_Url_Failed( $file_type, $this->url, $date_time_factory );
 		}
 	}
 

@@ -642,7 +642,7 @@ class Static_Press_Test extends \WP_UnitTestCase {
 			'/',
 			'',
 			array(),
-			$this->create_date_time_factory_mock()
+			Test_Utility::create_date_time_factory_mock( 'create_gmdate', 'D, d M Y H:i:s', 'Mon, 23 Des 2019 12:34:56' )
 		);
 		$actual       = $static_press->add_last_modified( $content, $http_code );
 		$this->assertEquals( $expect, $actual );
@@ -732,17 +732,6 @@ class Static_Press_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Creates mock for Date time factory to fix date time.
-	 */
-	private function create_date_time_factory_mock() {
-		$date_time_factory_mock = Mockery::mock( 'alias:Date_Time_Factory_Mock' );
-		$date_time_factory_mock->shouldReceive( 'create_gmdate' )
-		->with( 'D, d M Y H:i:s' )
-		->andReturn( 'Mon, 23 Des 2019 12:34:56' );
-		return $date_time_factory_mock;
-	}
-
-	/**
 	 * Test steps for test_replace_relative_URI().
 	 *
 	 * @dataProvider provider_replace_relative_URI
@@ -775,19 +764,5 @@ class Static_Press_Test extends \WP_UnitTestCase {
 				'<a href="//example.test/foo/bar/"></a>',
 			),
 		);
-	}
-
-	/**
-	 * Creates accessable method.
-	 * 
-	 * @param string $method_name     Method name.
-	 * @param array  $array_parameter Array of parameter.
-	 */
-	private function create_accessable_method( $method_name, $array_parameter ) {
-		$static_press = new Static_Press();
-		$reflection   = new \ReflectionClass( get_class( $static_press ) );
-		$method       = $reflection->getMethod( $method_name );
-		$method->setAccessible( true );
-		return $method->invokeArgs( $static_press, $array_parameter );
 	}
 }

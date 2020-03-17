@@ -16,14 +16,17 @@ if ( ! class_exists( 'static_press\includes\Static_Press_Date_Time_Factory' ) ) 
 if ( ! class_exists( 'static_press\includes\Static_Press_Model_Url' ) ) {
 	require dirname( __FILE__ ) . '/class-static-press-model-url.php';
 }
+if ( ! class_exists( 'static_press\includes\Static_Press_Model_Url_Other' ) ) {
+	require dirname( __FILE__ ) . '/class-static-press-model-url-other.php';
+}
 if ( ! class_exists( 'static_press\includes\Static_Press_Url_Updater' ) ) {
 	require dirname( __FILE__ ) . '/class-static-press-url-updater.php';
 }
 use static_press\includes\Static_Press_Business_Logic_Exception;
 use static_press\includes\Static_Press_Date_Time_Factory;
 use static_press\includes\Static_Press_Model_Url;
+use static_press\includes\Static_Press_Model_Url_Other;
 use static_press\includes\Static_Press_Url_Updater;
-
 /**
  * Class Static_Press_Ajax_Processor
  */
@@ -58,6 +61,12 @@ abstract class Static_Press_Ajax_Processor {
 	 * @var Static_Press_Terminator
 	 */
 	private $terminator;
+	/**
+	 * Date time factory instance.
+	 * 
+	 * @var Static_Press_Date_Time_Factory
+	 */
+	private $date_time_factory;
 
 	/**
 	 * Constructor.
@@ -70,11 +79,12 @@ abstract class Static_Press_Ajax_Processor {
 	 * @param Static_Press_Date_Time_Factory $date_time_factory Date time factory instance.
 	 */
 	public function __construct( $static_site_url, $dump_directory, $repository, $remote_getter, $terminator = null, $date_time_factory = null ) {
-		$this->static_site_url = $static_site_url;
-		$this->dump_directory  = $dump_directory;
-		$this->repository      = $repository;
-		$this->url_collector   = new Static_Press_Url_Collector( $remote_getter, $date_time_factory );
-		$this->terminator      = $terminator ? $terminator : new Static_Press_Terminator();
+		$this->static_site_url   = $static_site_url;
+		$this->dump_directory    = $dump_directory;
+		$this->repository        = $repository;
+		$this->url_collector     = new Static_Press_Url_Collector( $remote_getter, $date_time_factory );
+		$this->terminator        = $terminator ? $terminator : new Static_Press_Terminator();
+		$this->date_time_factory = $date_time_factory ? $date_time_factory : new Static_Press_Date_Time_Factory();
 	}
 	/**
 	 * Executes to process ajax request.
@@ -105,7 +115,7 @@ abstract class Static_Press_Ajax_Processor {
 		if ( isset( $param['fetch_start_time'] ) ) {
 			return $param['fetch_start_time'];
 		} else {
-			$start_time                = date( 'Y-m-d h:i:s', time() );
+			$start_time                = $this->date_time_factory->create_date_by_time( 'Y-m-d h:i:s' );
 			$param['fetch_start_time'] = $start_time;
 			$transient_manager->set_transient( $param );
 			return $start_time;
@@ -142,7 +152,7 @@ abstract class Static_Press_Ajax_Processor {
 		}
 		$model_static_file->do_file_put_action( $this->static_site_url );
 
-		$this->update_url( array( $model_static_file->check_file_existance_and_create_array_url( $file_type ) ) );
+		$this->update_url( array( $model_static_file->check_file_existance_and_create_array_url( $file_type, $this->date_time_factory )->to_array() ) );
 
 		return $model_static_file->file_dest;
 	}
@@ -234,14 +244,11 @@ abstract class Static_Press_Ajax_Processor {
 	 * @return array
 	 */
 	private function other_url( $content, $url ) {
-		$urls = array();
+		$urls        = array();
 
 		while ( ( $url = dirname( $url ) ) && '/' != $url ) {
 			if ( ! $this->url_exists( $url ) ) {
-				$urls[] = array(
-					'url'           => apply_filters( 'StaticPress::get_url', $url ),
-					'last_modified' => date( 'Y-m-d h:i:s' ),
-				);
+				$urls[] = new Static_Press_Model_Url_Other( $url, $this->date_time_factory );
 			}
 		}
 
@@ -250,20 +257,21 @@ abstract class Static_Press_Ajax_Processor {
 			$matches = array_unique( $matches[1] );
 			foreach ( $matches as $link ) {
 				if ( ! $this->url_exists( $link ) ) {
-					$urls[] = array(
-						'url'           => apply_filters( 'StaticPress::get_url', $link ),
-						'last_modified' => date( 'Y-m-d h:i:s' ),
-					);
+					$urls[] = new Static_Press_Model_Url_Other( $link, $this->date_time_factory );
 				}
 			}
 		}
 		unset( $matches );
 
-		if ( count( $urls ) > 0 ) {
-			$this->update_url( $urls );
+		$array_array_url = array();
+		foreach ( $urls as $url ) {
+			$array_array_url[] = $url->to_array();
+		}
+		if ( count( $array_array_url ) > 0 ) {
+			$this->update_url( $array_array_url );
 		}
 
-		return $urls;
+		return $array_array_url;
 	}
 
 	/**

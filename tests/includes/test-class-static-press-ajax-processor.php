@@ -129,7 +129,7 @@ class Static_Press_Ajax_Processor_Test extends \WP_UnitTestCase {
 	 * @throws ReflectionException     When fail to create ReflectionClass instance.
 	 */
 	public function test_other_url( $content, $url, $expect, $expect_urls_in_database ) {
-		$urls         = array(
+		$urls                  = array(
 			array(
 				'url' => '/',
 			),
@@ -137,14 +137,17 @@ class Static_Press_Ajax_Processor_Test extends \WP_UnitTestCase {
 				'url' => '/test/',
 			),
 		);
-		$static_press = new Static_Press_Ajax_Init(
+		$date_time_factoy_mock = Test_Utility::create_date_time_factory_mock( 'create_date', 'Y-m-d h:i:s', self::DATE_FOR_TEST );
+		$static_press          = new Static_Press_Ajax_Init(
 			null,
 			null,
 			new Static_Press_Repository(),
-			null
+			null,
+			null,
+			Test_Utility::set_create_date_by_time( $date_time_factoy_mock, self::DATE_FOR_TEST )
 		);
-		$reflection   = new \ReflectionClass( get_class( $static_press ) );
-		$method       = $reflection->getMethod( 'update_url' );
+		$reflection            = new \ReflectionClass( get_class( $static_press ) );
+		$method                = $reflection->getMethod( 'update_url' );
 		$method->setAccessible( true );
 		$method->invokeArgs( $static_press, array( $urls ) );
 		$method = $reflection->getMethod( 'other_url' );
@@ -723,7 +726,8 @@ class Static_Press_Ajax_Processor_Test extends \WP_UnitTestCase {
 			self::OUTPUT_DIRECTORY,
 			new Static_Press_Repository(),
 			$remote_get_mock ? $remote_get_mock : Test_Utility::create_remote_getter_mock(),
-			Test_Utility::create_terminator_mock()
+			Test_Utility::create_terminator_mock(),
+			Test_Utility::create_date_time_factory_mock( 'create_date_by_time', 'Y-m-d h:i:s', '2019-12-23 12:34:56' )
 		);
 		$reflection   = new \ReflectionClass( get_class( $static_press ) );
 		$method       = $reflection->getMethod( $method_name );
