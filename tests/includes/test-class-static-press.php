@@ -378,7 +378,7 @@ class Static_Press_Test extends \WP_UnitTestCase {
 				array(
 					new Model_Url(
 						1,
-						'other_page',
+						Model_Url::TYPE_OTHER_PAGE,
 						'/test1/',
 						0,
 						'',
@@ -394,7 +394,7 @@ class Static_Press_Test extends \WP_UnitTestCase {
 					),
 					new Model_Url(
 						2,
-						'other_page',
+						Model_Url::TYPE_OTHER_PAGE,
 						'/test2/',
 						0,
 						'',
@@ -415,28 +415,28 @@ class Static_Press_Test extends \WP_UnitTestCase {
 						'1'   => array(
 							'ID'     => '1',
 							'page'   => 1,
-							'type'   => 'other_page',
+							'type'   => Model_Url::TYPE_OTHER_PAGE,
 							'url'    => '/test1/',
 							'static' => ABSPATH . 'test1/index.html',
 						),
 						'1-2' => array(
 							'ID'     => '1',
 							'page'   => 2,
-							'type'   => 'other_page',
+							'type'   => Model_Url::TYPE_OTHER_PAGE,
 							'url'    => '/test1/page/2',
 							'static' => ABSPATH . 'test1/page/2/index.html',
 						),
 						'2'   => array(
 							'ID'     => '2',
 							'page'   => 1,
-							'type'   => 'other_page',
+							'type'   => Model_Url::TYPE_OTHER_PAGE,
 							'url'    => '/test2/',
 							'static' => ABSPATH . 'test2/index.html',
 						),
 						'3'   => array(
 							'ID'     => '3',
 							'page'   => 1,
-							'type'   => 'other_page',
+							'type'   => Model_Url::TYPE_OTHER_PAGE,
 							'url'    => '/test1/page/',
 							'static' => ABSPATH . 'test1/page/index.html',
 						),
@@ -448,7 +448,7 @@ class Static_Press_Test extends \WP_UnitTestCase {
 				array(
 					new Model_Url(
 						1,
-						'single',
+						Model_Url::TYPE_SINGLE,
 						'/?attachment_id=3/',
 						3,
 						'attachment',
@@ -464,7 +464,7 @@ class Static_Press_Test extends \WP_UnitTestCase {
 					),
 					new Model_Url(
 						2,
-						'single',
+						Model_Url::TYPE_SINGLE,
 						'/?attachment_id=4/',
 						4,
 						'attachment',
@@ -485,21 +485,21 @@ class Static_Press_Test extends \WP_UnitTestCase {
 						'1'   => array(
 							'ID'     => '1',
 							'page'   => 1,
-							'type'   => 'single',
+							'type'   => Model_Url::TYPE_SINGLE,
 							'url'    => '/?attachment_id=3/',
 							'static' => ABSPATH . '?attachment_id=3/index.html',
 						),
 						'1-2' => array(
 							'ID'     => '1',
 							'page'   => 2,
-							'type'   => 'single',
+							'type'   => Model_Url::TYPE_SINGLE,
 							'url'    => '/?attachment_id=3/2',
 							'static' => ABSPATH . '?attachment_id=3/2/index.html',
 						),
 						'2'   => array(
 							'ID'     => '2',
 							'page'   => 1,
-							'type'   => 'single',
+							'type'   => Model_Url::TYPE_SINGLE,
 							'url'    => '/?attachment_id=4/',
 							'static' => ABSPATH . '?attachment_id=4/index.html',
 						),
@@ -642,7 +642,7 @@ class Static_Press_Test extends \WP_UnitTestCase {
 			'/',
 			'',
 			array(),
-			$this->create_date_time_factory_mock()
+			Test_Utility::create_date_time_factory_mock( 'create_gmdate', 'D, d M Y H:i:s', 'Mon, 23 Des 2019 12:34:56' )
 		);
 		$actual       = $static_press->add_last_modified( $content, $http_code );
 		$this->assertEquals( $expect, $actual );
@@ -732,17 +732,6 @@ class Static_Press_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Creates mock for Date time factory to fix date time.
-	 */
-	private function create_date_time_factory_mock() {
-		$date_time_factory_mock = Mockery::mock( 'alias:Date_Time_Factory_Mock' );
-		$date_time_factory_mock->shouldReceive( 'create_gmdate' )
-		->with( 'D, d M Y H:i:s' )
-		->andReturn( 'Mon, 23 Des 2019 12:34:56' );
-		return $date_time_factory_mock;
-	}
-
-	/**
 	 * Test steps for test_replace_relative_URI().
 	 *
 	 * @dataProvider provider_replace_relative_URI
@@ -775,19 +764,5 @@ class Static_Press_Test extends \WP_UnitTestCase {
 				'<a href="//example.test/foo/bar/"></a>',
 			),
 		);
-	}
-
-	/**
-	 * Creates accessable method.
-	 * 
-	 * @param string $method_name     Method name.
-	 * @param array  $array_parameter Array of parameter.
-	 */
-	private function create_accessable_method( $method_name, $array_parameter ) {
-		$static_press = new Static_Press();
-		$reflection   = new \ReflectionClass( get_class( $static_press ) );
-		$method       = $reflection->getMethod( $method_name );
-		$method->setAccessible( true );
-		return $method->invokeArgs( $static_press, $array_parameter );
 	}
 }

@@ -7,13 +7,12 @@
 
 namespace static_press\tests\testlibraries;
 
+use static_press\includes\Static_Press_Model_Url_Fetched;
+
 /**
  * Class Expect_Url
  */
 class Expect_Url {
-	const TYPE_OTHER_PAGE  = 'other_page';
-	const TYPE_STATIC_FILE = 'static_file';
-
 	/**
 	 * Expect type of URL object.
 	 *
@@ -49,9 +48,9 @@ class Expect_Url {
 	/**
 	 * Asserts Url data.
 	 *
-	 * @param PHPUnit_Framework_TestCase $test_case Test case.
-	 * @param Expect_Url[]               $expect    Expect url data.
-	 * @param array|object|null          $actual    Actual url data.
+	 * @param PHPUnit_Framework_TestCase                   $test_case Test case.
+	 * @param Expect_Url[]                                 $expect    Expect url data.
+	 * @param Static_Press_Model_Url_Fetched[]|object|null $actual    Actual url data.
 	 */
 	public static function assert_url( $test_case, $expect, $actual ) {
 		$length_expect = count( $expect );
@@ -60,24 +59,24 @@ class Expect_Url {
 		for ( $index = 0; $index < $length_expect; $index ++ ) {
 			$expect_url = $expect[ $index ];
 			$actual_url = $actual[ $index ];
-			$test_case->assertInternalType( 'string', $actual_url->ID );
-			$test_case->assertNotEquals( 0, intval( $actual_url->ID ) );
-			$test_case->assertEquals( $expect_url->type, $actual_url->type );
-			$test_case->assertEquals( $expect_url->url, $actual_url->url );
-			$test_case->assertEquals( $expect_url->pages, $actual_url->pages );
+			$test_case->assertInternalType( 'string', $actual_url->get_id_fetched() );
+			$test_case->assertNotEquals( 0, intval( $actual_url->get_id_fetched() ) );
+			$test_case->assertEquals( $expect_url->type, $actual_url->get_type_fetched() );
+			$test_case->assertEquals( $expect_url->url, $actual_url->get_url() );
+			$test_case->assertEquals( $expect_url->pages, $actual_url->get_pages_fetched() );
 		}
 	}
 
 	/**
 	 * For debug.
 	 * 
-	 * @param  array $actual Actual URLs.
+	 * @param  Static_Press_Model_Url_Fetched[] $actual Actual URLs.
 	 * @return string Converted string.
 	 */
 	private static function convert_actual_to_string( $actual ) {
 		$string = '(';
 		foreach ( $actual as $actual_url ) {
-			$string .= "(ID = $actual_url->ID, Type = $actual_url->type, URL = $actual_url->url, Pages = $actual_url->pages)";
+			$string .= "(ID = {$actual_url->get_id_fetched()}, Type = {$actual_url->get_type_fetched()}, URL = {$actual_url->get_url()}, Pages = {$actual_url->get_pages_fetched()})";
 		}
 		$string .= ')';
 		return $string;

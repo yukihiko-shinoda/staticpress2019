@@ -7,6 +7,12 @@
 
 namespace static_press\includes;
 
+if ( ! class_exists( 'static_press\includes\Static_Press_Model_Url' ) ) {
+	require dirname( __FILE__ ) . '/class-static-press-model-url.php';
+}
+
+use static_press\includes\Static_Press_Model_Url;
+
 /**
  * URL Updater.
  */
@@ -76,7 +82,7 @@ class Static_Press_Url_Updater {
 			// Seems to intend WordPress admin home page.
 			return 0;
 		}
-		if ( ! isset( $url['type'] ) || 'static_file' != $url['type'] ) {
+		if ( ! isset( $url['type'] ) || Static_Press_Model_Url::TYPE_STATIC_FILE != $url['type'] ) {
 			return 1;
 		}
 		return $this->classify_static_file( $url['url'] );

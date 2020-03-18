@@ -8,8 +8,10 @@
 namespace static_press\tests\testlibraries;
 
 require_once dirname( __FILE__ ) . '/../testlibraries/class-expect-urls-static-files.php';
+require_once dirname( __FILE__ ) . '/../testlibraries/class-model-url.php';
 use Mockery;
 use static_press\tests\testlibraries\Expect_Urls_Static_Files;
+use static_press\tests\testlibraries\Model_Url;
 
 /**
  * URL Collector.
@@ -17,6 +19,8 @@ use static_press\tests\testlibraries\Expect_Urls_Static_Files;
 class Test_Utility {
 	/**
 	 * Sets up for testing seo_url().
+	 * 
+	 * @param string $url URL.
 	 */
 	public static function set_up_seo_url( $url ) {
 		$remote_getter_mock = Mockery::mock( 'alias:Remote_Getter_Mock' );
@@ -106,7 +110,7 @@ class Test_Utility {
 	public static function get_expect_urls_front_page( $last_modified ) {
 		return array(
 			array(
-				'type'          => 'front_page',
+				'type'          => Model_Url::TYPE_FRONT_PAGE,
 				'url'           => '/',
 				'last_modified' => $last_modified,
 			),
@@ -122,7 +126,7 @@ class Test_Utility {
 		$expect = array();
 		foreach ( Expect_Urls_Static_Files::EXPECT_URLS as $expect_url ) {
 			$expect[] = array(
-				'type'          => 'static_file',
+				'type'          => Model_Url::TYPE_STATIC_FILE,
 				'url'           => $expect_url,
 				'last_modified' => $last_modified,
 			);
@@ -192,27 +196,27 @@ class Test_Utility {
 	public static function get_expect_urls_seo( $last_modified ) {
 		return array(
 			array(
-				'type'          => 'seo_files',
+				'type'          => Model_Url::TYPE_SEO_FILES,
 				'url'           => '/robots.txt',
 				'last_modified' => $last_modified,
 			),
 			array(
-				'type'          => 'seo_files',
+				'type'          => Model_Url::TYPE_SEO_FILES,
 				'url'           => '/sitemap.xml',
 				'last_modified' => $last_modified,
 			),
 			array(
-				'type'          => 'seo_files',
+				'type'          => Model_Url::TYPE_SEO_FILES,
 				'url'           => '/sitemap-misc.xml',
 				'last_modified' => $last_modified,
 			),
 			array(
-				'type'          => 'seo_files',
+				'type'          => Model_Url::TYPE_SEO_FILES,
 				'url'           => '/sitemap-tax-category.xml',
 				'last_modified' => $last_modified,
 			),
 			array(
-				'type'          => 'seo_files',
+				'type'          => Model_Url::TYPE_SEO_FILES,
 				'url'           => '/sitemap-pt-post-2020-02.xml',
 				'last_modified' => $last_modified,
 			),
@@ -239,5 +243,34 @@ class Test_Utility {
 		$remote_getter_mock = Mockery::mock( 'alias:Remote_Getter_Mock' );
 		$remote_getter_mock->shouldReceive( 'remote_get' )->andReturn( self::create_response( '/', 'index-example.html' ) );
 		return $remote_getter_mock;
+	}
+
+	/**
+	 * Creates mock for Date time factory to fix date time.
+	 * 
+	 * @param string $function_name Function name.
+	 * @param string $parameter     Parameter.
+	 * @param mixed  $return_value  Return value.
+	 */
+	public static function create_date_time_factory_mock( $function_name, $parameter, $return_value ) {
+		$date_time_factory_mock = Mockery::mock( 'alias:Date_Time_Factory_Mock' );
+		$date_time_factory_mock->shouldReceive( $function_name )
+		->with( $parameter )
+		->andReturn( $return_value );
+		return $date_time_factory_mock;
+	}
+
+	/**
+	 * Sets create date by time.
+	 * 
+	 * @param MockInterface $date_time_factory_mock Date time factory mock.
+	 * @param string        $return_value           Return value.
+	 * @return MockInterface Date time factory mock.
+	 */
+	public static function set_create_date_by_time( $date_time_factory_mock, $return_value ) {
+		$date_time_factory_mock->shouldReceive( 'create_date_by_time' )
+		->with( 'Y-m-d h:i:s' )
+		->andReturn( $return_value );
+		return $date_time_factory_mock;
 	}
 }

@@ -42,7 +42,6 @@ class Static_Press_Url_Filter {
 		if ( ! preg_match( $this->regex, $url ) ) {
 			$url = trailingslashit( $url );
 		}
-		unset( $static_files_filter );
 		return $url;
 	}
 }

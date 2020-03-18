@@ -15,6 +15,7 @@ class Static_Press_Date_Time_Factory {
 	 * Creates date.
 	 * 
 	 * @param string $format Format.
+	 * @return string Date.
 	 */
 	public function create_date( $format ) {
 		return date( $format );
@@ -24,8 +25,19 @@ class Static_Press_Date_Time_Factory {
 	 * Creates GM date.
 	 * 
 	 * @param string $format Format.
+	 * @return string GM date.
 	 */
 	public function create_gmdate( $format ) {
 		return gmdate( $format );
+	}
+
+	/**
+	 * Creates date by time().
+	 * 
+	 * @param string $format Format.
+	 * @return string Date by time().
+	 */
+	public function create_date_by_time( $format ) {
+		return date( $format, time() );
 	}
 }
