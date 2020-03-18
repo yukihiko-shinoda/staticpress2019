@@ -26,7 +26,6 @@ use static_press\tests\testlibraries\Test_Utility;
  */
 class Static_Press_Ajax_Processor_Test extends \WP_UnitTestCase {
 	const OUTPUT_DIRECTORY = '/tmp/static/';
-	const DATE_FOR_TEST    = '2019-12-23 12:34:56';
 	/**
 	 * Function json_output() should die.
 	 * 
@@ -103,31 +102,6 @@ class Static_Press_Ajax_Processor_Test extends \WP_UnitTestCase {
 			array( 200, '/wp-content/uploads/2020/03/test.txt', Model_Url::TYPE_STATIC_FILE, '/tmp/static/wp-content/uploads/2020/03/test.txt', '/wp-content/uploads/2020/03/test.txt' ),
 			array( 200, '/sitemap.xml', Model_Url::TYPE_SEO_FILES, '/tmp/static/sitemap.xml', '/sitemap.xml' ),
 		);
-	}
-
-	/**
-	 * Function test_fetch_start_time() should return current date time string
-	 * when fetch_start_time in transient_key is not set.
-	 *
-	 * @throws ReflectionException When fail to create ReflectionClass instance.
-	 */
-	public function test_fetch_start_time() {
-		$result = $this->create_accessable_method( 'fetch_start_time', array() );
-		$this->assertEquals( self::DATE_FOR_TEST, $result );
-	}
-
-	/**
-	 * Function fetch_start_time() should return fetch_start_time in transient_key
-	 * when fetch_start_time in transient_key is set.
-	 *
-	 * @throws ReflectionException When fail to create ReflectionClass instance.
-	 */
-	public function test_fetch_start_time_transient_key() {
-		$start_time                = '2019-12-23 12:34:56';
-		$param['fetch_start_time'] = $start_time;
-		set_transient( 'static static', $param, 3600 );
-		$result = $this->create_accessable_method( 'fetch_start_time', array() );
-		$this->assertEquals( $start_time, $result );
 	}
 
 	/**

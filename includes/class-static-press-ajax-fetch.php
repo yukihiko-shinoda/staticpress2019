@@ -19,15 +19,14 @@ if ( ! class_exists( 'static_press\includes\Static_Press_Model_Url_Fetched' ) ) 
 if ( ! class_exists( 'static_press\includes\Static_Press_Response_Processor_404' ) ) {
 	require dirname( __FILE__ ) . '/class-static-press-response-processor-404.php';
 }
-if ( ! class_exists( 'static_press\includes\Static_Press_Transient_Manager' ) ) {
-	require dirname( __FILE__ ) . '/class-static-press-transient-manager.php';
+if ( ! class_exists( 'static_press\includes\Static_Press_Transient_Service' ) ) {
+	require dirname( __FILE__ ) . '/class-static-press-transient-service.php';
 }
 use static_press\includes\Static_Press_Ajax_Processor;
 use static_press\includes\Static_Press_Fetch_Result;
 use static_press\includes\Static_Press_Model_Url_Fetched;
 use static_press\includes\Static_Press_Response_Processor_404;
-use static_press\includes\Static_Press_Transient_Manager;
-
+use static_press\includes\Static_Press_Transient_Service;
 /**
  * Class Static_Press_Ajax_Fetch
  */
@@ -112,32 +111,14 @@ class Static_Press_Ajax_Fetch extends Static_Press_Ajax_Processor {
 	private function fetch_url() {
 		$result = $this->repository->get_next_url(
 			$this->fetch_start_time(),
-			$this->fetch_last_id()
+			Static_Press_Transient_Service::fetch_last_id()
 		);
 		if ( ! is_null( $result ) && ! is_wp_error( $result ) && $result->ID ) {
-			$this->fetch_last_id( $result->ID );
+			Static_Press_Transient_Service::fetch_last_id( $result->ID );
 			return new Static_Press_Model_Url_Fetched( $result );
 		} else {
-			Static_Press_Transient_Manager::delete_transient();
+			Static_Press_Transient_Service::delete();
 			return false;
 		}
-	}
-
-	/**
-	 * Fetches last ID.
-	 * 
-	 * @param  int|bool $next_id ID to set next.
-	 * @return int Cached ID when $next_id is 0 or false, $next_id when $next_id is not 0 nor false.
-	 */
-	private function fetch_last_id( $next_id = false ) {
-		$transient_manager = new Static_Press_Transient_Manager();
-		$param             = $transient_manager->get_transient();
-		$last_id           = isset( $param['fetch_last_id'] ) ? intval( $param['fetch_last_id'] ) : 0;
-		if ( $next_id ) {
-			$last_id                = $next_id;
-			$param['fetch_last_id'] = $next_id;
-			$transient_manager->set_transient( $param );
-		}
-		return $last_id;
 	}
 }

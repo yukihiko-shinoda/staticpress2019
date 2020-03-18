@@ -15,8 +15,6 @@ require_once dirname( __FILE__ ) . '/../testlibraries/class-repository-for-test.
 require_once dirname( __FILE__ ) . '/../testlibraries/class-test-utility.php';
 use static_press\includes\Static_Press_Ajax_Init;
 use static_press\includes\Static_Press_Repository;
-use static_press\tests\testlibraries\Array_Url_Handler;
-use static_press\tests\testlibraries\Expect_Url;
 use static_press\tests\testlibraries\Model_Url;
 use static_press\tests\testlibraries\Model_Url_Handler;
 use static_press\tests\testlibraries\Repository_For_Test;

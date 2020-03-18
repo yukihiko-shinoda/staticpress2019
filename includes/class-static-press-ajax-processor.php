@@ -22,11 +22,14 @@ if ( ! class_exists( 'static_press\includes\Static_Press_Static_File_Creator_Rem
 if ( ! class_exists( 'static_press\includes\Static_Press_Url_Updater' ) ) {
 	require dirname( __FILE__ ) . '/class-static-press-url-updater.php';
 }
+if ( ! class_exists( 'static_press\includes\Static_Press_Transient_Service' ) ) {
+	require dirname( __FILE__ ) . '/class-static-press-transient-service.php';
+}
 use static_press\includes\Static_Press_Date_Time_Factory;
 use static_press\includes\Static_Press_Factory_Static_File_Creator;
 use static_press\includes\Static_Press_Response_Processor_200_Crawl;
 use static_press\includes\Static_Press_Static_File_Creator_Remote;
-use static_press\includes\Static_Press_Url_Updater;
+use static_press\includes\Static_Press_Transient_Service;
 
 /**
  * Class Static_Press_Ajax_Processor
@@ -111,16 +114,8 @@ abstract class Static_Press_Ajax_Processor {
 	 * @return string
 	 */
 	protected function fetch_start_time() {
-		$transient_manager = new Static_Press_Transient_Manager();
-		$param             = $transient_manager->get_transient();
-		if ( isset( $param['fetch_start_time'] ) ) {
-			return $param['fetch_start_time'];
-		} else {
-			$start_time                = $this->date_time_factory->create_date_by_time( 'Y-m-d h:i:s' );
-			$param['fetch_start_time'] = $start_time;
-			$transient_manager->set_transient( $param );
-			return $start_time;
-		}
+		$transient_service = new Static_Press_Transient_Service( $this->date_time_factory );
+		return $transient_service->fetch_start_time();
 	}
 
 	/**

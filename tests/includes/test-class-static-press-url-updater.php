@@ -10,8 +10,8 @@ namespace static_press\tests\includes;
 require_once dirname( __FILE__ ) . '/../testlibraries/class-expect-url.php';
 require_once dirname( __FILE__ ) . '/../testlibraries/class-model-url.php';
 require_once dirname( __FILE__ ) . '/../testlibraries/class-repository-for-test.php';
-use static_press\includes\Static_Press_Ajax_Init;
 use static_press\includes\Static_Press_Repository;
+use static_press\includes\Static_Press_Transient_Service;
 use static_press\includes\Static_Press_Url_Updater;
 use static_press\tests\testlibraries\Expect_Url;
 use static_press\tests\testlibraries\Model_Url;
@@ -109,17 +109,9 @@ class Static_Press_Url_Updater_Test extends \WP_UnitTestCase {
 		$repository  = new Static_Press_Repository();
 		$url_updater = new Static_Press_Url_Updater( $repository, null );
 		$url_updater->update( $urls );
-		$static_press = new Static_Press_Ajax_Init(
-			null,
-			null,
-			$repository,
-			null
-		);
-		$reflection   = new \ReflectionClass( get_class( $static_press ) );
-		$method       = $reflection->getMethod( 'fetch_start_time' );
-		$method->setAccessible( true );
-		$start_time = $method->invokeArgs( $static_press, array() );
-		$results    = $repository->get_all_url( $start_time );
+		$transient_service = new Static_Press_Transient_Service();
+		$start_time        = $transient_service->fetch_start_time();
+		$results           = $repository->get_all_url( $start_time );
 		Expect_Url::assert_url( $this, $expect_urls_in_database, $results );
 	}
 
@@ -137,17 +129,9 @@ class Static_Press_Url_Updater_Test extends \WP_UnitTestCase {
 		$repository              = new Static_Press_Repository();
 		$url_updater             = new Static_Press_Url_Updater( $repository, ABSPATH );
 		$url_updater->update( $urls );
-		$static_press = new Static_Press_Ajax_Init(
-			null,
-			ABSPATH,
-			$repository,
-			null
-		);
-		$reflection   = new \ReflectionClass( get_class( $static_press ) );
-		$method       = $reflection->getMethod( 'fetch_start_time' );
-		$method->setAccessible( true );
-		$start_time = $method->invokeArgs( $static_press, array() );
-		$results    = $repository->get_all_url( $start_time );
+		$transient_service = new Static_Press_Transient_Service();
+		$start_time        = $transient_service->fetch_start_time();
+		$results           = $repository->get_all_url( $start_time );
 		Expect_Url::assert_url( $this, $expect_urls_in_database, $results );
 	}
 
@@ -170,17 +154,9 @@ class Static_Press_Url_Updater_Test extends \WP_UnitTestCase {
 		$repository              = new Static_Press_Repository();
 		$url_updater             = new Static_Press_Url_Updater( $repository, self::OUTPUT_DIRECTORY );
 		$url_updater->update( $urls );
-		$static_press = new Static_Press_Ajax_Init(
-			null,
-			self::OUTPUT_DIRECTORY,
-			$repository,
-			null
-		);
-		$reflection   = new \ReflectionClass( get_class( $static_press ) );
-		$method       = $reflection->getMethod( 'fetch_start_time' );
-		$method->setAccessible( true );
-		$start_time = $method->invokeArgs( $static_press, array() );
-		$results    = $repository->get_all_url( $start_time );
+		$transient_service = new Static_Press_Transient_Service();
+		$start_time        = $transient_service->fetch_start_time();
+		$results           = $repository->get_all_url( $start_time );
 		Expect_Url::assert_url( $this, $expect_urls_in_database, $results );
 	}
 
@@ -199,18 +175,9 @@ class Static_Press_Url_Updater_Test extends \WP_UnitTestCase {
 		$repository              = new Static_Press_Repository();
 		$url_updater             = new Static_Press_Url_Updater( $repository, null );
 		$url_updater->update( $urls );
-		$static_press = new Static_Press_Ajax_Init(
-			null,
-			null,
-			$repository,
-			null
-		);
-		$reflection   = new \ReflectionClass( get_class( $static_press ) );
-		$method       = $reflection->getMethod( 'fetch_start_time' );
-		$method->setAccessible( true );
-		$start_time = $method->invokeArgs( $static_press, array() );
-		$repository = new Static_Press_Repository();
-		$results    = $repository->get_all_url( $start_time );
+		$transient_service = new Static_Press_Transient_Service();
+		$start_time        = $transient_service->fetch_start_time();
+		$results           = $repository->get_all_url( $start_time );
 		Expect_Url::assert_url( $this, $expect_urls_in_database, $results );
 	}
 
@@ -231,18 +198,9 @@ class Static_Press_Url_Updater_Test extends \WP_UnitTestCase {
 		$repository              = new Static_Press_Repository();
 		$url_updater             = new Static_Press_Url_Updater( $repository, null );
 		$url_updater->update( $urls );
-		$static_press = new Static_Press_Ajax_Init(
-			null,
-			null,
-			$repository,
-			null
-		);
-		$reflection   = new \ReflectionClass( get_class( $static_press ) );
-		$method       = $reflection->getMethod( 'fetch_start_time' );
-		$method->setAccessible( true );
-		$start_time = $method->invokeArgs( $static_press, array() );
-		$repository = new Static_Press_Repository();
-		$results    = $repository->get_all_url( $start_time );
+		$transient_service = new Static_Press_Transient_Service();
+		$start_time        = $transient_service->fetch_start_time();
+		$results           = $repository->get_all_url( $start_time );
 		Expect_Url::assert_url( $this, $expect_urls_in_database, $results );
 	}
 }

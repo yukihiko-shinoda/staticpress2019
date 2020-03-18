@@ -10,9 +10,9 @@ namespace static_press\tests\includes;
 require_once dirname( __FILE__ ) . '/../testlibraries/class-expect-url.php';
 require_once dirname( __FILE__ ) . '/../testlibraries/class-model-url.php';
 require_once dirname( __FILE__ ) . '/../testlibraries/class-test-utility.php';
-use static_press\includes\Static_Press_Ajax_Init;
 use static_press\includes\Static_Press_Repository;
 use static_press\includes\Static_Press_Response_Processor_200_Crawl;
+use static_press\includes\Static_Press_Transient_Service;
 use static_press\tests\testlibraries\Expect_Url;
 use static_press\tests\testlibraries\Model_Url;
 use static_press\tests\testlibraries\Test_Utility;
@@ -58,20 +58,10 @@ class Static_Press_Response_Processor_200_Crawl_Test extends \WP_UnitTestCase {
 
 		$result = $method->invokeArgs( $static_press, array( $content, $url ) );
 		$this->assertEquals( $expect, $result );
-		$static_press = new Static_Press_Ajax_Init(
-			null,
-			null,
-			new Static_Press_Repository(),
-			null,
-			null,
-			Test_Utility::set_create_date_by_time( $date_time_factoy_mock, self::DATE_FOR_TEST )
-		);
-		$reflection   = new \ReflectionClass( get_class( $static_press ) );
-		$method       = $reflection->getMethod( 'fetch_start_time' );
-		$method->setAccessible( true );
-		$start_time = $method->invokeArgs( $static_press, array() );
-		$repository = new Static_Press_Repository();
-		$results    = $repository->get_all_url( $start_time );
+		$transient_service = new Static_Press_Transient_Service( Test_Utility::set_create_date_by_time( $date_time_factoy_mock, self::DATE_FOR_TEST ) );
+		$start_time        = $transient_service->fetch_start_time();
+		$repository        = new Static_Press_Repository();
+		$results           = $repository->get_all_url( $start_time );
 		Expect_Url::assert_url( $this, $expect_urls_in_database, $results );
 	}
 
