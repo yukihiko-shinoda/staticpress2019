@@ -124,16 +124,6 @@ abstract class Static_Press_Ajax_Processor {
 	}
 
 	/**
-	 * Updates URL.
-	 * 
-	 * @param  array $urls URLs.
-	 */
-	protected function update_url( $urls ) {
-		$url_updater = new Static_Press_Url_Updater( $this->repository, $this->dump_directory );
-		$url_updater->update( $urls );
-	}
-
-	/**
 	 * Dumps JSON responce.
 	 * 
 	 * @param array $content Content.

@@ -210,4 +210,21 @@ abstract class Static_Press_Model_Url {
 	 * @return array
 	 */
 	abstract public function to_array();
+
+	/**
+	 * Compares.
+	 * 
+	 * @param Static_Press_Model_Url $that That.
+	 * @return bool True: Equals. False: Not equals.
+	 */
+	public function equals( $that ) {
+		$vars_this = get_object_vars( $this );
+		$vars_that = get_object_vars( $that );
+		foreach ( $vars_this as $key => $value ) {
+			if ( $value !== $vars_that[ $key ] ) {
+				return false;
+			}
+		}
+		return true;
+	}
 }

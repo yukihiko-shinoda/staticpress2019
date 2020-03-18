@@ -55,7 +55,11 @@ class Expect_Url {
 	public static function assert_url( $test_case, $expect, $actual ) {
 		$length_expect = count( $expect );
 		$length_actual = count( $actual );
-		$test_case->assertEquals( $length_expect, $length_actual, "Expect $length_expect, but $length_actual.\n\$expect = " . implode( ',', $expect ) . "\n\$actual = " . self::convert_actual_to_string( $actual ) );
+		$test_case->assertEquals(
+			$length_expect,
+			$length_actual,
+			"Expect $length_expect, but $length_actual.\n\$expect = " . implode( ',', $expect ) . "\n\$actual = " . self::convert_actual_to_string( $actual )
+		);
 		for ( $index = 0; $index < $length_expect; $index ++ ) {
 			$expect_url = $expect[ $index ];
 			$actual_url = $actual[ $index ];

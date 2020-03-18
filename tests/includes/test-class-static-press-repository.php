@@ -11,6 +11,7 @@ require_once dirname( __FILE__ ) . '/../testlibraries/class-expect-url.php';
 require_once dirname( __FILE__ ) . '/../testlibraries/class-model-url.php';
 use static_press\includes\Static_Press_Ajax_Init;
 use static_press\includes\Static_Press_Repository;
+use static_press\includes\Static_Press_Url_Updater;
 use static_press\tests\testlibraries\Expect_Url;
 use static_press\tests\testlibraries\Model_Url;
 
@@ -40,11 +41,10 @@ class Static_Press_Repository_Test extends \WP_UnitTestCase {
 			$repository,
 			null
 		);
-		$reflection   = new \ReflectionClass( get_class( $static_press ) );
-		$method       = $reflection->getMethod( 'update_url' );
-		$method->setAccessible( true );
-		$method->invokeArgs( $static_press, array( $urls ) );
-		$method = $reflection->getMethod( 'fetch_start_time' );
+		$url_updater  = new Static_Press_Url_Updater( $repository, null );
+		$url_updater->update( $urls );
+		$reflection = new \ReflectionClass( get_class( $static_press ) );
+		$method     = $reflection->getMethod( 'fetch_start_time' );
 		$method->setAccessible( true );
 		$start_time = $method->invokeArgs( $static_press, array() );
 		$results    = $repository->get_all_url( $start_time );
