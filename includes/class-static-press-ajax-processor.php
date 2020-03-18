@@ -7,26 +7,27 @@
 
 namespace static_press\includes;
 
-if ( ! class_exists( 'static_press\includes\Static_Press_Business_Logic_Exception' ) ) {
-	require dirname( __FILE__ ) . '/class-static-press-business-logic-exception.php';
-}
 if ( ! class_exists( 'static_press\includes\Static_Press_Date_Time_Factory' ) ) {
 	require dirname( __FILE__ ) . '/class-static-press-date-time-factory.php';
 }
-if ( ! class_exists( 'static_press\includes\Static_Press_Model_Url' ) ) {
-	require dirname( __FILE__ ) . '/class-static-press-model-url.php';
+if ( ! class_exists( 'static_press\includes\Static_Press_Factory_Static_File_Creator' ) ) {
+	require dirname( __FILE__ ) . '/class-static-press-factory-static-file-creator.php';
 }
-if ( ! class_exists( 'static_press\includes\Static_Press_Model_Url_Other' ) ) {
-	require dirname( __FILE__ ) . '/class-static-press-model-url-other.php';
+if ( ! class_exists( 'static_press\includes\Static_Press_Response_Processor_200_Crawl' ) ) {
+	require dirname( __FILE__ ) . '/class-static-press-response-processor-200-crawl.php';
+}
+if ( ! class_exists( 'static_press\includes\Static_Press_Static_File_Creator_Remote' ) ) {
+	require dirname( __FILE__ ) . '/class-static-press-static-file-creator-remote.php';
 }
 if ( ! class_exists( 'static_press\includes\Static_Press_Url_Updater' ) ) {
 	require dirname( __FILE__ ) . '/class-static-press-url-updater.php';
 }
-use static_press\includes\Static_Press_Business_Logic_Exception;
 use static_press\includes\Static_Press_Date_Time_Factory;
-use static_press\includes\Static_Press_Model_Url;
-use static_press\includes\Static_Press_Model_Url_Other;
+use static_press\includes\Static_Press_Factory_Static_File_Creator;
+use static_press\includes\Static_Press_Response_Processor_200_Crawl;
+use static_press\includes\Static_Press_Static_File_Creator_Remote;
 use static_press\includes\Static_Press_Url_Updater;
+
 /**
  * Class Static_Press_Ajax_Processor
  */
@@ -36,13 +37,13 @@ abstract class Static_Press_Ajax_Processor {
 	 * 
 	 * @var string
 	 */
-	private $static_site_url;
+	protected $static_site_url;
 	/**
 	 * Directory to dump static files.
 	 * 
 	 * @var string
 	 */
-	private $dump_directory;
+	protected $dump_directory;
 	/**
 	 * Database access instance.
 	 * 
@@ -123,158 +124,6 @@ abstract class Static_Press_Ajax_Processor {
 	}
 
 	/**
-	 * Creates static file.
-	 * 
-	 * @param  string $url        URL.
-	 * @param  string $file_type  File type.
-	 * @param  bool   $create_404 Whether create even if HTTP status code is 404 or not.
-	 * @param  bool   $crawling   Whether crawl HTML body to check other URL or not.
-	 * @return string             Destination of file.
-	 */
-	protected function create_static_file( $url, $file_type = 'other_page', $create_404 = true, $crawling = false ) {
-		$model_static_file = new Static_Press_Model_Static_File( $url, $this->dump_directory );
-		switch ( $file_type ) {
-			case 'front_page':
-			case 'single':
-			case 'term_archive':
-			case 'author_archive':
-			case 'seo_files':
-			case 'other_page':
-				$this->get_remote_file( $model_static_file, $crawling, $create_404 );
-				break;
-			case Static_Press_Model_Url::TYPE_STATIC_FILE:
-				try {
-					$this->get_static_file( $model_static_file );
-				} catch ( Static_Press_Business_Logic_Exception $exception ) {
-					return false;
-				}
-				break;
-		}
-		$model_static_file->do_file_put_action( $this->static_site_url );
-
-		$this->update_url( array( $model_static_file->check_file_existance_and_create_array_url( $file_type, $this->date_time_factory )->to_array() ) );
-
-		return $model_static_file->file_dest;
-	}
-
-	/**
-	 * Gets remote file.
-	 * 
-	 * @param Static_Press_Model_Static_File $model_static_file Static file.
-	 * @param bool                           $crawling   Whether crawl HTML body to check other URL or not.
-	 * @param bool                           $create_404 Whether create even if HTTP status code is 404 or not.
-	 */
-	private function get_remote_file( $model_static_file, $crawling, $create_404 ) {
-		$content = $this->url_collector->remote_get( $model_static_file->url );
-		if ( ! $content || ! isset( $content['body'] ) ) {
-			return;
-		}
-		if ( 'UTF-8' === get_option( 'blog_charset' ) ) {
-			$content['body'] = $this->clean_utf8( $content['body'] );
-		}
-		$model_static_file->http_code = intval( $content['code'] );
-		switch ( $model_static_file->http_code ) {
-			case 200:
-				if ( $crawling ) {
-					$this->other_url( $content['body'], $model_static_file->url, $model_static_file->http_code );
-				}
-				// No break.
-			case 404:
-				if ( $create_404 || 200 == $model_static_file->http_code ) {
-					$content = apply_filters( 'StaticPress::put_content', $content['body'], $model_static_file->http_code );
-					$this->make_subdirectories( $model_static_file->file_dest );
-					file_put_contents( $model_static_file->file_dest, $content );
-					$model_static_file->file_date = date( 'Y-m-d h:i:s', filemtime( $model_static_file->file_dest ) );
-				}
-		}
-	}
-
-	/**
-	 * Makes subdirectries.
-	 * 
-	 * @param string $file File.
-	 */
-	private function make_subdirectories( $file ) {
-		Static_Press_File_System_Utility::make_subdirectories( $file );
-	}
-
-	/**
-	 * Gets static file.
-	 * 
-	 * @param Static_Press_Model_Static_File $model_static_file Static file.
-	 * @throws Static_Press_Business_Logic_Exception When source file doesn't exist.
-	 */
-	private function get_static_file( $model_static_file ) {
-		$file_source = untrailingslashit( ABSPATH ) . $model_static_file->url;
-		if ( '/' !== $model_static_file->dir_sep ) {
-			$file_source = str_replace( '/', $model_static_file->dir_sep, $file_source );
-		}
-		if ( ! is_file( $file_source ) || ! file_exists( $file_source ) ) {
-			$this->delete_url( array( $model_static_file->url ) );
-			throw new Static_Press_Business_Logic_Exception();
-		}
-		if ( $file_source != $model_static_file->file_dest && ( ! file_exists( $model_static_file->file_dest ) || filemtime( $file_source ) > filemtime( $model_static_file->file_dest ) ) ) {
-			$model_static_file->file_date = date( 'Y-m-d h:i:s', filemtime( $file_source ) );
-			$this->make_subdirectories( $model_static_file->file_dest );
-			copy( $file_source, $model_static_file->file_dest );
-		}
-	}
-
-	/**
-	 * Deletes URL.
-	 * 
-	 * @param array $urls URLs.
-	 */
-	private function delete_url( $urls ) {
-		foreach ( (array) $urls as $url ) {
-			if ( ! isset( $url['url'] ) || ! $url['url'] ) {
-				continue;
-			}
-			$this->repository->delete_url( $url['url'] );
-			do_action( 'StaticPress::delete_url', $url );
-		}
-		return $urls;
-	}
-
-	/**
-	 * Checks other URL.
-	 * 
-	 * @param string $content Content.
-	 * @param string $url     URL.
-	 * @return array
-	 */
-	private function other_url( $content, $url ) {
-		$urls        = array();
-
-		while ( ( $url = dirname( $url ) ) && '/' != $url ) {
-			if ( ! $this->url_exists( $url ) ) {
-				$urls[] = new Static_Press_Model_Url_Other( $url, $this->date_time_factory );
-			}
-		}
-
-		$pattern = '#href=[\'"](' . preg_quote( Static_Press_Url_Collector::get_site_url() ) . '[^\'"\?\#]+)[^\'"]*[\'"]#i';
-		if ( preg_match_all( $pattern, $content, $matches ) ) {
-			$matches = array_unique( $matches[1] );
-			foreach ( $matches as $link ) {
-				if ( ! $this->url_exists( $link ) ) {
-					$urls[] = new Static_Press_Model_Url_Other( $link, $this->date_time_factory );
-				}
-			}
-		}
-		unset( $matches );
-
-		$array_array_url = array();
-		foreach ( $urls as $url ) {
-			$array_array_url[] = $url->to_array();
-		}
-		if ( count( $array_array_url ) > 0 ) {
-			$this->update_url( $array_array_url );
-		}
-
-		return $array_array_url;
-	}
-
-	/**
 	 * Updates URL.
 	 * 
 	 * @param  array $urls URLs.
@@ -282,50 +131,6 @@ abstract class Static_Press_Ajax_Processor {
 	protected function update_url( $urls ) {
 		$url_updater = new Static_Press_Url_Updater( $this->repository, $this->dump_directory );
 		$url_updater->update( $urls );
-	}
-
-	/**
-	 * Check whether URL exists or not.
-	 * 
-	 * @param  string $url URL.
-	 * @return bool
-	 */
-	private function url_exists( $url ) {
-		$url   = apply_filters( 'StaticPress::get_url', $url );
-		$count = intval( wp_cache_get( 'StaticPress::' . $url, 'static_press' ) );
-		if ( $count > 0 ) {
-			return true;
-		}
-
-		$count = $this->repository->count_url( $url );
-		wp_cache_set( 'StaticPress::' . $url, $count, 'static_press' );
-		
-		return $count > 0;
-	}
-
-	/**
-	 * Sometimes the content of a page contains invalid utf8 characters.
-	 * This breaks the static publishing process.
-	 * In order to prevent this, utf8 content gets cleaned before publishing.
-	 * 
-	 * @see https://github.com/megumiteam/staticpress/pull/13
-	 * @param  string $content Content.
-	 * @return string|string[]|null
-	 */
-	private function clean_utf8( $content ) {
-		$regex = <<<'END'
-		/
-		  (
-		    (?: [\x00-\x7F]                 # single-byte sequences   0xxxxxxx
-		    |   [\xC0-\xDF][\x80-\xBF]      # double-byte sequences   110xxxxx 10xxxxxx
-		    |   [\xE0-\xEF][\x80-\xBF]{2}   # triple-byte sequences   1110xxxx 10xxxxxx * 2
-		    |   [\xF0-\xF7][\x80-\xBF]{3}   # quadruple-byte sequence 11110xxx 10xxxxxx * 3 
-		    ){1,100}                        # ...one or more times
-		  )
-		| .                                 # anything else
-		/x
-END;
-		return preg_replace( $regex, '$1', $content );
 	}
 
 	/**
@@ -337,5 +142,51 @@ END;
 		header( 'Content-Type: application/json; charset=' . get_option( 'blog_charset' ) );
 		echo json_encode( $content );
 		$this->terminator->terminate();
+	}
+
+	/**
+	 * Creates static file creator remote.
+	 * 
+	 * @param Static_Press_Response_Processor_200 $response_processor_200 Response processor for HTTP status code 200.
+	 * @param Static_Press_Response_Processor_404 $response_processor_404 Response processor for HTTP status code 404.
+	 * @return Static_Press_Static_File_Creator_Remote Static file creator remote.
+	 */
+	protected function create_static_file_creator_remote( $response_processor_200, $response_processor_404 ) {
+		return new Static_Press_Static_File_Creator_Remote(
+			'other_page',
+			$this->dump_directory,
+			$this->static_site_url,
+			$this->repository,
+			$this->date_time_factory,
+			$response_processor_200,
+			$response_processor_404,
+			$this->url_collector
+		);
+	}
+
+	/**
+	 * Creates static file creator by factory.
+	 * 
+	 * @param Static_Press_Model_Url_Fetched $url URL.
+	 * @return Static_Press_Static_File_Creator Static file creator.
+	 */
+	protected function create_static_file_creator_by_factory( $url ) {
+		return Static_Press_Factory_Static_File_Creator::create(
+			$url->get_type_fetched(),
+			$this->dump_directory,
+			$this->static_site_url,
+			$this->repository,
+			$this->date_time_factory,
+			$this->url_collector
+		);
+	}
+
+	/**
+	 * Creates response processor 200 crawl.
+	 * 
+	 * @return Static_Press_Response_Processor_200_Crawl Response processor 200 crawl.
+	 */
+	protected function create_response_porcessor_200_crawl() {
+		return new Static_Press_Response_Processor_200_Crawl( $this->dump_directory, $this->repository, $this->date_time_factory );
 	}
 }

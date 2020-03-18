@@ -32,7 +32,10 @@ class Static_Press_Date_Time_Factory {
 	}
 
 	/**
-	 * Creates date by time.
+	 * Creates date by time().
+	 * 
+	 * @param string $format Format.
+	 * @return string Date by time().
 	 */
 	public function create_date_by_time( $format ) {
 		return date( $format, time() );

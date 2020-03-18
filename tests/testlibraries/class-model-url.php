@@ -18,7 +18,7 @@ class Model_Url {
 	 * 
 	 * @var int
 	 */
-	public $id;
+	public $ID;
 	/**
 	 * Type.
 	 * 
@@ -120,7 +120,7 @@ class Model_Url {
 		$id, $type, $url, $object_id, $object_type, $parent, $pages, $enable,
 		$file_name, $file_date, $last_statuscode, $last_modified, $last_upload, $create_date
 	) {
-		$this->id              = $id;
+		$this->ID              = $id;
 		$this->type            = $type;
 		$this->url             = $url;
 		$this->object_id       = $object_id;

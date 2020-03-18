@@ -108,8 +108,9 @@ class Static_Press_Url_Collector {
 				// TODO Is is_wp_error() correct? Commited at 2013-04-22 22:54:05 450c6ce5731b27fc98707d8a881844778ced4763 .
 				continue;
 			}
-			$count = 1;
-			if ( $splite = preg_split( '#<!--nextpage-->#', $post->post_content ) ) {
+			$count  = 1;
+			$splite = preg_split( '#<!--nextpage-->#', $post->post_content );
+			if ( $splite ) {
 				$count = count( $splite );
 			}
 			$urls[] = array(

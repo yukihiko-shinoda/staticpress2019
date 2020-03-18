@@ -16,12 +16,16 @@ if ( ! class_exists( 'static_press\includes\Static_Press_Fetch_Result' ) ) {
 if ( ! class_exists( 'static_press\includes\Static_Press_Model_Url_Fetched' ) ) {
 	require dirname( __FILE__ ) . '/class-static-press-model-url-fetched.php';
 }
+if ( ! class_exists( 'static_press\includes\Static_Press_Response_Processor_404' ) ) {
+	require dirname( __FILE__ ) . '/class-static-press-response-processor-404.php';
+}
 if ( ! class_exists( 'static_press\includes\Static_Press_Transient_Manager' ) ) {
 	require dirname( __FILE__ ) . '/class-static-press-transient-manager.php';
 }
 use static_press\includes\Static_Press_Ajax_Processor;
 use static_press\includes\Static_Press_Fetch_Result;
 use static_press\includes\Static_Press_Model_Url_Fetched;
+use static_press\includes\Static_Press_Response_Processor_404;
 use static_press\includes\Static_Press_Transient_Manager;
 
 /**
@@ -37,7 +41,8 @@ class Static_Press_Ajax_Fetch extends Static_Press_Ajax_Processor {
 		$fetch_result = $this->fetch_first_url();
 
 		while ( $url = $this->fetch_url() ) {
-			$fetch_result->set_fetch_result( $url, $this->create_static_file( $url->get_url(), $url->get_type_fetched(), true, true ) );
+			$static_file_creator = $this->create_static_file_creator_by_factory( $url );
+			$fetch_result->set_fetch_result( $url, $static_file_creator->create( $url->get_url() ) );
 			$limit = $url->is_static_file() ? self::FETCH_LIMIT_STATIC : self::FETCH_LIMIT;
 			if ( $fetch_result->file_count >= $limit ) {
 				break;
@@ -65,12 +70,17 @@ class Static_Press_Ajax_Fetch extends Static_Press_Ajax_Processor {
 			$this->json_output( apply_filters( 'StaticPress::ajax_fetch', $result, false ) );
 		}
 
-		$fetch_result = new Static_Press_Fetch_Result();
-		$fetch_result->set_fetch_result( $url, $this->create_static_file( $url->get_url(), $url->get_type_fetched(), true, true ) );
+		$static_file_creator = $this->create_static_file_creator_by_factory( $url );
+		$fetch_result        = new Static_Press_Fetch_Result();
+		$fetch_result->set_fetch_result( $url, $static_file_creator->create( $url->get_url() ) );
 		if ( ! $url->has_multiple_page() ) {
 			return $fetch_result;
 		}
-		$pages = $url->get_pages_fetched();
+		$static_file_creator = $this->create_static_file_creator_remote(
+			$this->create_response_porcessor_200_crawl(),
+			new Static_Press_Response_Processor_404()
+		);
+		$pages               = $url->get_pages_fetched();
 		for ( $page = 2; $page <= $pages; $page++ ) {
 			$page_url    = untrailingslashit( trim( $url->get_url() ) );
 			$static_file = false;
@@ -79,11 +89,11 @@ class Static_Press_Ajax_Fetch extends Static_Press_Ajax_Processor {
 				case 'author_archive':
 				case 'other_page':
 					$page_url    = sprintf( '%s/page/%d', $page_url, $page );
-					$static_file = $this->create_static_file( $page_url, 'other_page', false, true );
+					$static_file = $static_file_creator->create( $page_url );
 					break;
 				case 'single':
 					$page_url    = sprintf( '%s/%d', $page_url, $page );
-					$static_file = $this->create_static_file( $page_url, 'other_page', false, true );
+					$static_file = $static_file_creator->create( $page_url );
 					break;
 			}
 			if ( ! $static_file ) {

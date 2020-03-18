@@ -13,6 +13,8 @@ require_once dirname( __FILE__ ) . '/../testlibraries/class-repository-for-test.
 require_once dirname( __FILE__ ) . '/../testlibraries/class-test-utility.php';
 use Mockery;
 use static_press\includes\Static_Press_Ajax_Init;
+use static_press\includes\Static_Press_Model_Url_Failed;
+use static_press\includes\Static_Press_Model_Url_Fetched;
 use static_press\includes\Static_Press_Repository;
 use static_press\tests\testlibraries\Expect_Url;
 use static_press\tests\testlibraries\Model_Url;
@@ -61,19 +63,6 @@ class Static_Press_Ajax_Processor_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Function make_subdirectories() should make subdirectories.
-	 */
-	public function test_make_subdirectories() {
-		$this->assertDirectoryNotExists( '/tmp/sub1' );
-		$this->create_accessable_method( 'make_subdirectories', array( '/tmp/sub1/sub2/file' ) );
-		$this->assertDirectoryIsWritable( '/tmp' );
-		$this->assertDirectoryIsWritable( '/tmp/sub1' );
-		$this->assertDirectoryIsWritable( '/tmp/sub1/sub2' );
-		rmdir( '/tmp/sub1/sub2' );
-		rmdir( '/tmp/sub1' );
-	}
-
-	/**
 	 * Test steps for create_static_file().
 	 *
 	 * @dataProvider provider_create_static_file
@@ -90,7 +79,10 @@ class Static_Press_Ajax_Processor_Test extends \WP_UnitTestCase {
 		file_put_contents( ABSPATH . 'wp-content/uploads/2020/03/test.txt', '' );
 		$remote_getter_mock = Mockery::mock( 'alias:Remote_Getter_Mock' );
 		$remote_getter_mock->shouldReceive( 'remote_get' )->andReturn( Test_Utility::create_response( '/', 'index-example.html', $http_status_code ) );
-		$result = $this->create_accessable_method( 'create_static_file', array( $url, $file_type ), $remote_getter_mock );
+		$url_object          = new Model_Url( 1, $file_type, $url, null, null, null, 1, null, null, null, null, null, null, null );
+		$url_fetched         = new Static_Press_Model_Url_Fetched( $url_object );
+		$static_file_creator = $this->create_accessable_method( 'create_static_file_creator_by_factory', array( $url_fetched ), $remote_getter_mock );
+		$result              = $static_file_creator->create( $url );
 		$this->assertEquals( $expect, $result );
 		if ( false !== $expect ) {
 			$path_to_expect_file = self::OUTPUT_DIRECTORY . $expect_file;
@@ -114,347 +106,6 @@ class Static_Press_Ajax_Processor_Test extends \WP_UnitTestCase {
 			array( 200, '/wp-content/uploads/2020/03/test.txt', Model_Url::TYPE_STATIC_FILE, '/tmp/static/wp-content/uploads/2020/03/test.txt', '/wp-content/uploads/2020/03/test.txt' ),
 			array( 200, '/sitemap.xml', 'seo_files', '/tmp/static/sitemap.xml', '/sitemap.xml' ),
 		);
-	}
-
-	/**
-	 * Test steps for other_url().
-	 *
-	 * @dataProvider provider_other_url
-	 *
-	 * @param string       $content                 Argument.
-	 * @param string       $url                     Argument.
-	 * @param array        $expect                  Expect return value.
-	 * @param Expect_Url[] $expect_urls_in_database Expect URLs in table.
-	 *
-	 * @throws ReflectionException     When fail to create ReflectionClass instance.
-	 */
-	public function test_other_url( $content, $url, $expect, $expect_urls_in_database ) {
-		$urls                  = array(
-			array(
-				'url' => '/',
-			),
-			array(
-				'url' => '/test/',
-			),
-		);
-		$date_time_factoy_mock = Test_Utility::create_date_time_factory_mock( 'create_date', 'Y-m-d h:i:s', self::DATE_FOR_TEST );
-		$static_press          = new Static_Press_Ajax_Init(
-			null,
-			null,
-			new Static_Press_Repository(),
-			null,
-			null,
-			Test_Utility::set_create_date_by_time( $date_time_factoy_mock, self::DATE_FOR_TEST )
-		);
-		$reflection            = new \ReflectionClass( get_class( $static_press ) );
-		$method                = $reflection->getMethod( 'update_url' );
-		$method->setAccessible( true );
-		$method->invokeArgs( $static_press, array( $urls ) );
-		$method = $reflection->getMethod( 'other_url' );
-		$method->setAccessible( true );
-
-		$result = $method->invokeArgs( $static_press, array( $content, $url ) );
-		$this->assertEquals( $expect, $result );
-		$method = $reflection->getMethod( 'fetch_start_time' );
-		$method->setAccessible( true );
-		$start_time = $method->invokeArgs( $static_press, array() );
-		$repository = new Static_Press_Repository();
-		$results    = $repository->get_all_url( $start_time );
-		Expect_Url::assert_url( $this, $expect_urls_in_database, $results );
-	}
-
-	/**
-	 * Function other_url() should return empty array when all of self or parent URL exists.
-	 * Function other_url() shouldn't insert URL to table when all of self or parent URL exists.
-	 * Function other_url() shouldn't add any URL when content doesn't include link to other page.
-	 * Function other_url() should return array of map of all existing URL data
-	 * when any of self or parent URL doesn't exist.
-	 * Function other_url() should insert URL to table when any of self or parent URL exists.
-	 * Function other_url() should add URLs of other page included in content
-	 * when content includes link to other page.
-	 *
-	 * @return array[]
-	 */
-	public function provider_other_url() {
-		return array(
-			array(
-				'',
-				'/',
-				array(),
-				array(
-					new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/', '1' ),
-					new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/test/', '1' ),
-				),
-			),
-			array(
-				'',
-				'/test/',
-				array(),
-				array(
-					new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/', '1' ),
-					new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/test/', '1' ),
-				),
-			),
-			array(
-				'',
-				'/test/index.html',
-				array(),
-				array(
-					new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/', '1' ),
-					new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/test/', '1' ),
-				),
-			),
-			array(
-				'',
-				'/test/test/index.html',
-				array(
-					array(
-						'url'           => '/test/test/',
-						'last_modified' => self::DATE_FOR_TEST,
-					),
-				),
-				array(
-					new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/', '1' ),
-					new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/test/', '1' ),
-					new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/test/test/', '1' ),
-				),
-			),
-			array(
-				'href="http://example.org/test"',
-				'/',
-				array(),
-				array(
-					new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/', '1' ),
-					new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/test/', '1' ),
-				),
-			),
-			array(
-				'href="http://example.org/test/test"',
-				'/',
-				array(
-					array(
-						'url'           => '/test/test/',
-						'last_modified' => self::DATE_FOR_TEST,
-					),
-				),
-				array(
-					new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/', '1' ),
-					new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/test/', '1' ),
-					new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/test/test/', '1' ),
-				),
-			),
-			array(
-				'href="http://example.org/test/test/"',
-				'/',
-				array(
-					array(
-						'url'           => '/test/test/',
-						'last_modified' => self::DATE_FOR_TEST,
-					),
-				),
-				array(
-					new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/', '1' ),
-					new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/test/', '1' ),
-					new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/test/test/', '1' ),
-				),
-			),
-			array(
-				'href="http://example.org/test/test/index.html"' . "\n" . 'href="http://example.org/test/test2/index.html"',
-				'/',
-				array(
-					array(
-						'url'           => '/test/test/index.html',
-						'last_modified' => self::DATE_FOR_TEST,
-					),
-					array(
-						'url'           => '/test/test2/index.html',
-						'last_modified' => self::DATE_FOR_TEST,
-					),
-				),
-				array(
-					new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/', '1' ),
-					new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/test/', '1' ),
-					new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/test/test/index.html', '1' ),
-					new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/test/test2/index.html', '1' ),
-				),
-			),
-			array(
-				'href="http://example.org/test/test/index.html"' . "\n" . 'href="http://example.org/test/test2/index.html"',
-				'/test/test/index.html',
-				array(
-					array(
-						'url'           => '/test/test/',
-						'last_modified' => self::DATE_FOR_TEST,
-					),
-					array(
-						'url'           => '/test/test/index.html',
-						'last_modified' => self::DATE_FOR_TEST,
-					),
-					array(
-						'url'           => '/test/test2/index.html',
-						'last_modified' => self::DATE_FOR_TEST,
-					),
-				),
-				array(
-					new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/', '1' ),
-					new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/test/', '1' ),
-					new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/test/test/', '1' ),
-					new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/test/test/index.html', '1' ),
-					new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/test/test2/index.html', '1' ),
-				),
-			),
-		);
-	}
-
-	/**
-	 * Test steps for url_exists().
-	 *
-	 * @dataProvider provider_url_exists
-	 *
-	 * @param string $link   Argument.
-	 * @param bool   $expect Expect return value.
-	 *
-	 * @throws ReflectionException When fail to create ReflectionClass instance.
-	 */
-	public function test_url_exists( $link, $expect ) {
-		$urls = array(
-			array(
-				'url' => '/',
-			),
-		);
-
-		$static_press = new Static_Press_Ajax_Init(
-			null,
-			null,
-			new Static_Press_Repository(),
-			null
-		);
-		$reflection   = new \ReflectionClass( get_class( $static_press ) );
-		$method       = $reflection->getMethod( 'update_url' );
-		$method->setAccessible( true );
-		$method->invokeArgs( $static_press, array( $urls ) );
-		$method = $reflection->getMethod( 'url_exists' );
-		$method->setAccessible( true );
-
-		$result = $method->invokeArgs( $static_press, array( $link ) );
-		$this->assertEquals( $expect, $result );
-	}
-
-	/**
-	 * Function test_rul_exists() should return whether URL exists or not.
-	 *
-	 * @return array[]
-	 */
-	public function provider_url_exists() {
-		return array(
-			array( '', true ),
-			array( '/', true ),
-			array( '/test', false ),
-			array( '/test.php', false ),
-		);
-	}
-
-	/**
-	 * Function delete_url() should delete URLs specified by key "url" of arrays.
-	 */
-	public function test_delete_url() {
-		Repository_For_Test::insert_url(
-			new Model_Url(
-				1,
-				'other_page',
-				'/test1/',
-				0,
-				'',
-				0,
-				1,
-				1,
-				'',
-				'0000-00-00 00:00:00',
-				0,
-				'0000-00-00 00:00:00',
-				'0000-00-00 00:00:00',
-				'0000-00-00 00:00:00'
-			)
-		);
-		Repository_For_Test::insert_url(
-			new Model_Url(
-				2,
-				'other_page',
-				'/test2/',
-				0,
-				'',
-				0,
-				1,
-				1,
-				'',
-				'0000-00-00 00:00:00',
-				0,
-				'0000-00-00 00:00:00',
-				'0000-00-00 00:00:00',
-				'0000-00-00 00:00:00'
-			)
-		);
-		Repository_For_Test::insert_url(
-			new Model_Url(
-				3,
-				'other_page',
-				'/test3/',
-				0,
-				'',
-				0,
-				1,
-				1,
-				'',
-				'0000-00-00 00:00:00',
-				0,
-				'0000-00-00 00:00:00',
-				'0000-00-00 00:00:00',
-				'0000-00-00 00:00:00'
-			)
-		);
-		Repository_For_Test::insert_url(
-			new Model_Url(
-				4,
-				'other_page',
-				'/test4/',
-				0,
-				'',
-				0,
-				1,
-				1,
-				'',
-				'0000-00-00 00:00:00',
-				0,
-				'0000-00-00 00:00:00',
-				'0000-00-00 00:00:00',
-				'0000-00-00 00:00:00'
-			)
-		);
-		$parameter               = array(
-			array(),
-			array( 'url' => '/test1/' ),
-			array( 'url' => '/test3/' ),
-		);
-		$expect_urls_in_database = array(
-			new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/test2/', '1' ),
-			new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/test4/', '1' ),
-		);
-
-		$actual = $this->create_accessable_method( 'delete_url', array( $parameter ) );
-		$this->assertEquals( $parameter, $actual );
-		$static_press = new Static_Press_Ajax_Init(
-			null,
-			null,
-			new Static_Press_Repository(),
-			null
-		);
-		$reflection   = new \ReflectionClass( get_class( $static_press ) );
-		$method       = $reflection->getMethod( 'fetch_start_time' );
-		$method->setAccessible( true );
-		$start_time = $method->invokeArgs( $static_press, array() );
-		$repository = new Static_Press_Repository();
-		$results    = $repository->get_all_url( $start_time );
-		Expect_Url::assert_url( $this, $expect_urls_in_database, $results );
 	}
 
 	/**
@@ -572,7 +223,7 @@ class Static_Press_Ajax_Processor_Test extends \WP_UnitTestCase {
 		$expect_urls_in_database = array();
 		$static_press            = new Static_Press_Ajax_Init(
 			null,
-			self::OUTPUT_DIRECTORY,
+			ABSPATH,
 			new Static_Press_Repository(),
 			null
 		);
