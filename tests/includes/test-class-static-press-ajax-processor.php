@@ -100,11 +100,11 @@ class Static_Press_Ajax_Processor_Test extends \WP_UnitTestCase {
 	 */
 	public function provider_create_static_file() {
 		return array(
-			array( 200, '/', 'front_page', '/tmp/static/index.html', '/index.html' ),
-			array( 500, '/?author=1/', 'author_archive', false, null ),
+			array( 200, '/', Model_Url::TYPE_FRONT_PAGE, '/tmp/static/index.html', '/index.html' ),
+			array( 500, '/?author=1/', Model_Url::TYPE_AUTHOR_ARCHIVE, false, null ),
 			array( 200, '/wp-content/uploads/2020/03/test.png', Model_Url::TYPE_STATIC_FILE, false, null ),
 			array( 200, '/wp-content/uploads/2020/03/test.txt', Model_Url::TYPE_STATIC_FILE, '/tmp/static/wp-content/uploads/2020/03/test.txt', '/wp-content/uploads/2020/03/test.txt' ),
-			array( 200, '/sitemap.xml', 'seo_files', '/tmp/static/sitemap.xml', '/sitemap.xml' ),
+			array( 200, '/sitemap.xml', Model_Url::TYPE_SEO_FILES, '/tmp/static/sitemap.xml', '/sitemap.xml' ),
 		);
 	}
 
@@ -169,7 +169,7 @@ class Static_Press_Ajax_Processor_Test extends \WP_UnitTestCase {
 		Repository_For_Test::insert_url(
 			new Model_Url(
 				1,
-				'other_page',
+				Model_Url::TYPE_OTHER_PAGE,
 				'/test/',
 				0,
 				'',

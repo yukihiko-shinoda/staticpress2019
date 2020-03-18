@@ -11,8 +11,13 @@ namespace static_press\includes;
  * Model URL.
  */
 abstract class Static_Press_Model_Url {
-	const TYPE_OTHER_PAGE  = 'other_page';
-	const TYPE_STATIC_FILE = 'static_file';
+	const TYPE_FRONT_PAGE     = 'front_page';
+	const TYPE_SINGLE         = 'single';
+	const TYPE_TERM_ARCHIVE   = 'term_archive';
+	const TYPE_AUTHOR_ARCHIVE = 'author_archive';
+	const TYPE_SEO_FILES      = 'seo_files';
+	const TYPE_OTHER_PAGE     = 'other_page';
+	const TYPE_STATIC_FILE    = 'static_file';
 	/**
 	 * ID.
 	 * 

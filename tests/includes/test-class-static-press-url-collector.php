@@ -8,12 +8,13 @@
 namespace static_press\tests\includes;
 
 require_once dirname( __FILE__ ) . '/../testlibraries/class-array-url-handler.php';
+require_once dirname( __FILE__ ) . '/../testlibraries/class-model-url.php';
 require_once dirname( __FILE__ ) . '/../testlibraries/class-test-utility.php';
 use Mockery;
 use static_press\includes\Static_Press_Url_Collector;
 use static_press\tests\testlibraries\Array_Url_Handler;
+use static_press\tests\testlibraries\Model_Url;
 use static_press\tests\testlibraries\Test_Utility;
-
 /**
  * Reposistory test case.
  */
@@ -68,7 +69,7 @@ class Static_Press_Url_Collector_Test extends \WP_UnitTestCase {
 		if ( version_compare( $wp_version, '5.0.0', '<' ) ) {
 			$expect = array(
 				array(
-					'type'          => 'single',
+					'type'          => Model_Url::TYPE_SINGLE,
 					'url'           => '/?attachment_id=3/',
 					'object_id'     => 3,
 					'object_type'   => 'attachment',
@@ -76,7 +77,7 @@ class Static_Press_Url_Collector_Test extends \WP_UnitTestCase {
 					'last_modified' => self::DATE_FOR_TEST,
 				),
 				array(
-					'type'          => 'single',
+					'type'          => Model_Url::TYPE_SINGLE,
 					'url'           => '/?attachment_id=4/',
 					'object_id'     => 4,
 					'object_type'   => 'attachment',
@@ -87,7 +88,7 @@ class Static_Press_Url_Collector_Test extends \WP_UnitTestCase {
 		} else {
 			$expect = array(
 				array(
-					'type'          => 'single',
+					'type'          => Model_Url::TYPE_SINGLE,
 					'url'           => '/?attachment_id=4/',
 					'object_id'     => 4,
 					'object_type'   => 'attachment',
@@ -95,7 +96,7 @@ class Static_Press_Url_Collector_Test extends \WP_UnitTestCase {
 					'last_modified' => self::DATE_FOR_TEST,
 				),
 				array(
-					'type'          => 'single',
+					'type'          => Model_Url::TYPE_SINGLE,
 					'url'           => '/?attachment_id=5/',
 					'object_id'     => 5,
 					'object_type'   => 'attachment',
@@ -154,7 +155,7 @@ class Static_Press_Url_Collector_Test extends \WP_UnitTestCase {
 		);
 		$expect = array(
 			array(
-				'type'          => 'term_archive',
+				'type'          => Model_Url::TYPE_TERM_ARCHIVE,
 				'url'           => '/?cat=3/',
 				'object_id'     => 3,
 				'object_type'   => 'category',
@@ -163,7 +164,7 @@ class Static_Press_Url_Collector_Test extends \WP_UnitTestCase {
 				'last_modified' => self::DATE_FOR_TEST,
 			),
 			array(
-				'type'          => 'term_archive',
+				'type'          => Model_Url::TYPE_TERM_ARCHIVE,
 				'url'           => '/?cat=2/',
 				'object_id'     => 2,
 				'object_type'   => 'category',
@@ -172,7 +173,7 @@ class Static_Press_Url_Collector_Test extends \WP_UnitTestCase {
 				'last_modified' => self::DATE_FOR_TEST,
 			),
 			array(
-				'type'          => 'term_archive',
+				'type'          => Model_Url::TYPE_TERM_ARCHIVE,
 				'url'           => '/?cat=3/',
 				'object_id'     => 3,
 				'object_type'   => 'category',
@@ -191,7 +192,7 @@ class Static_Press_Url_Collector_Test extends \WP_UnitTestCase {
 	public function test_author_url() {
 		$expect = array(
 			array(
-				'type'          => 'author_archive',
+				'type'          => Model_Url::TYPE_AUTHOR_ARCHIVE,
 				'url'           => '/?author=1/',
 				'object_id'     => 1,
 				'pages'         => 1,

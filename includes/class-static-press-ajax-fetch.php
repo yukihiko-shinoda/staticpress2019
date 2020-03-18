@@ -85,13 +85,13 @@ class Static_Press_Ajax_Fetch extends Static_Press_Ajax_Processor {
 			$page_url    = untrailingslashit( trim( $url->get_url() ) );
 			$static_file = false;
 			switch ( $url->get_type_fetched() ) {
-				case 'term_archive':
-				case 'author_archive':
-				case 'other_page':
+				case Static_Press_Model_Url::TYPE_TERM_ARCHIVE:
+				case Static_Press_Model_Url::TYPE_AUTHOR_ARCHIVE:
+				case Static_Press_Model_Url::TYPE_OTHER_PAGE:
 					$page_url    = sprintf( '%s/page/%d', $page_url, $page );
 					$static_file = $static_file_creator->create( $page_url );
 					break;
-				case 'single':
+				case Static_Press_Model_Url::TYPE_SINGLE:
 					$page_url    = sprintf( '%s/%d', $page_url, $page );
 					$static_file = $static_file_creator->create( $page_url );
 					break;

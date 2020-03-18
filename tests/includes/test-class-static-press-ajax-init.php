@@ -34,7 +34,7 @@ class Static_Press_Ajax_Init_Test extends \WP_UnitTestCase {
 		Repository_For_Test::insert_url(
 			new Model_Url(
 				1,
-				'other_page',
+				Model_Url::TYPE_OTHER_PAGE,
 				'/test/',
 				0,
 				'',

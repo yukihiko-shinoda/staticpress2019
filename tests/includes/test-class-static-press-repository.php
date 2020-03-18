@@ -52,7 +52,7 @@ class Static_Press_Repository_Test extends \WP_UnitTestCase {
 			$this,
 			array(
 				new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/', '1' ),
-				new Expect_Url( 'other_page', '/test/', '1' ),
+				new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/test/', '1' ),
 			),
 			$results
 		);

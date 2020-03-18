@@ -85,7 +85,7 @@ class Static_Press_Url_Collector {
 		$urls     = array();
 		$site_url = self::get_site_url();
 		$urls[]   = array(
-			'type'          => 'front_page',
+			'type'          => Static_Press_Model_Url::TYPE_FRONT_PAGE,
 			'url'           => apply_filters( 'StaticPress::get_url', $site_url ),
 			'last_modified' => $this->date_time_factory->create_date( 'Y-m-d h:i:s' ),
 		);
@@ -114,7 +114,7 @@ class Static_Press_Url_Collector {
 				$count = count( $splite );
 			}
 			$urls[] = array(
-				'type'          => 'single',
+				'type'          => Static_Press_Model_Url::TYPE_SINGLE,
 				'url'           => apply_filters( 'StaticPress::get_url', $permalink ),
 				'object_id'     => intval( $post_id ),
 				'object_type'   => $post->post_type,
@@ -127,10 +127,8 @@ class Static_Press_Url_Collector {
 
 	/**
 	 * Gets URLs of terms.
-	 * 
-	 * @param string $url_type URL type.
 	 */
-	private function terms_url( $url_type = 'term_archive' ) {
+	private function terms_url() {
 		$repository = new Static_Press_Repository();
 		$urls       = array();
 		$taxonomies = get_taxonomies( array( 'public' => true ) );
@@ -147,7 +145,7 @@ class Static_Press_Url_Collector {
 				}
 				list( $modified, $page_count ) = $this->get_term_info( $term_id, $repository );
 				$urls[]                        = array(
-					'type'          => $url_type,
+					'type'          => Static_Press_Model_Url::TYPE_TERM_ARCHIVE,
 					'url'           => apply_filters( 'StaticPress::get_url', $termlink ),
 					'object_id'     => intval( $term_id ),
 					'object_type'   => $term->taxonomy,
@@ -172,7 +170,7 @@ class Static_Press_Url_Collector {
 					}
 					list( $modified, $page_count ) = $this->get_term_info( $term_id, $repository );
 					$urls[]                        = array(
-						'type'          => $url_type,
+						'type'          => Static_Press_Model_Url::TYPE_TERM_ARCHIVE,
 						'url'           => apply_filters( 'StaticPress::get_url', $termlink ),
 						'object_id'     => intval( $term_id ),
 						'object_type'   => $term->taxonomy,
@@ -226,7 +224,7 @@ class Static_Press_Url_Collector {
 				continue;
 			}
 			$urls[] = array(
-				'type'          => 'author_archive',
+				'type'          => Static_Press_Model_Url::TYPE_AUTHOR_ARCHIVE,
 				'url'           => apply_filters( 'StaticPress::get_url', $authorlink ),
 				'object_id'     => intval( $author_id ),
 				'pages'         => $page_count,
@@ -264,13 +262,12 @@ class Static_Press_Url_Collector {
 	 * Checks correct sitemap URL by robots.txt.
 	 */
 	private function seo_url() {
-		$url_type = 'seo_files';
 		$urls     = array();
 		$analyzed = array();
 		$sitemap  = '/sitemap.xml';
 		$robots   = '/robots.txt';
 		$urls[]   = array(
-			'type'          => $url_type,
+			'type'          => Static_Press_Model_Url::TYPE_SEO_FILES,
 			'url'           => $robots,
 			'last_modified' => date( 'Y-m-d h:i:s' ),
 		);
@@ -284,7 +281,7 @@ class Static_Press_Url_Collector {
 					}
 			}
 		}
-		$this->sitemap_analyzer( $analyzed, $urls, $sitemap, $url_type );
+		$this->sitemap_analyzer( $analyzed, $urls, $sitemap );
 		return $urls;
 	}
 
@@ -294,11 +291,10 @@ class Static_Press_Url_Collector {
 	 * @param array  $analyzed Analyzed.
 	 * @param array  $urls     URLs.
 	 * @param string $url      URL.
-	 * @param string $url_type URL type.
 	 */
-	private function sitemap_analyzer( &$analyzed, &$urls, $url, $url_type ) {
+	private function sitemap_analyzer( &$analyzed, &$urls, $url ) {
 		$urls[]     = array(
-			'type'          => $url_type,
+			'type'          => Static_Press_Model_Url::TYPE_SEO_FILES,
 			'url'           => $url,
 			'last_modified' => date( 'Y-m-d h:i:s' ),
 		);
@@ -312,7 +308,7 @@ class Static_Press_Url_Collector {
 						foreach ( $matches[1] as $link ) {
 							if ( preg_match( '/\/([\-_a-z0-9%]+\.xml)$/i', $link, $match_sub ) ) {
 								if ( ! in_array( $match_sub[0], $analyzed ) ) {
-									$this->sitemap_analyzer( $analyzed, $urls, $match_sub[0], $url_type );
+									$this->sitemap_analyzer( $analyzed, $urls, $match_sub[0] );
 								}
 							}
 						}

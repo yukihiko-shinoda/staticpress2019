@@ -33,12 +33,12 @@ class Static_Press_Factory_Static_File_Creator {
 	 */
 	public static function create( $file_type, $dump_directory, $static_site_url, $repository, $date_time_factory, $url_collector ) {
 		switch ( $file_type ) {
-			case 'front_page':
-			case 'single':
-			case 'term_archive':
-			case 'author_archive':
-			case 'seo_files':
-			case 'other_page':
+			case Static_Press_Model_Url::TYPE_FRONT_PAGE:
+			case Static_Press_Model_Url::TYPE_SINGLE:
+			case Static_Press_Model_Url::TYPE_TERM_ARCHIVE:
+			case Static_Press_Model_Url::TYPE_AUTHOR_ARCHIVE:
+			case Static_Press_Model_Url::TYPE_SEO_FILES:
+			case Static_Press_Model_Url::TYPE_OTHER_PAGE:
 				return new Static_Press_Static_File_Creator_Remote(
 					$file_type,
 					$dump_directory,

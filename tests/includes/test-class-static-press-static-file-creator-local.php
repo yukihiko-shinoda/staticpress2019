@@ -31,7 +31,7 @@ class Static_Press_Static_File_Creator_Local_Test extends \WP_UnitTestCase {
 		Repository_For_Test::insert_url(
 			new Model_Url(
 				1,
-				'other_page',
+				Model_Url::TYPE_OTHER_PAGE,
 				'/test1/',
 				0,
 				'',
@@ -49,7 +49,7 @@ class Static_Press_Static_File_Creator_Local_Test extends \WP_UnitTestCase {
 		Repository_For_Test::insert_url(
 			new Model_Url(
 				2,
-				'other_page',
+				Model_Url::TYPE_OTHER_PAGE,
 				'/test2/',
 				0,
 				'',
@@ -67,7 +67,7 @@ class Static_Press_Static_File_Creator_Local_Test extends \WP_UnitTestCase {
 		Repository_For_Test::insert_url(
 			new Model_Url(
 				3,
-				'other_page',
+				Model_Url::TYPE_OTHER_PAGE,
 				'/test3/',
 				0,
 				'',
@@ -85,7 +85,7 @@ class Static_Press_Static_File_Creator_Local_Test extends \WP_UnitTestCase {
 		Repository_For_Test::insert_url(
 			new Model_Url(
 				4,
-				'other_page',
+				Model_Url::TYPE_OTHER_PAGE,
 				'/test4/',
 				0,
 				'',

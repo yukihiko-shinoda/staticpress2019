@@ -153,7 +153,7 @@ abstract class Static_Press_Ajax_Processor {
 	 */
 	protected function create_static_file_creator_remote( $response_processor_200, $response_processor_404 ) {
 		return new Static_Press_Static_File_Creator_Remote(
-			'other_page',
+			Static_Press_Model_Url::TYPE_OTHER_PAGE,
 			$this->dump_directory,
 			$this->static_site_url,
 			$this->repository,

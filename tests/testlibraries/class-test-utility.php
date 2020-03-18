@@ -110,7 +110,7 @@ class Test_Utility {
 	public static function get_expect_urls_front_page( $last_modified ) {
 		return array(
 			array(
-				'type'          => 'front_page',
+				'type'          => Model_Url::TYPE_FRONT_PAGE,
 				'url'           => '/',
 				'last_modified' => $last_modified,
 			),
@@ -196,27 +196,27 @@ class Test_Utility {
 	public static function get_expect_urls_seo( $last_modified ) {
 		return array(
 			array(
-				'type'          => 'seo_files',
+				'type'          => Model_Url::TYPE_SEO_FILES,
 				'url'           => '/robots.txt',
 				'last_modified' => $last_modified,
 			),
 			array(
-				'type'          => 'seo_files',
+				'type'          => Model_Url::TYPE_SEO_FILES,
 				'url'           => '/sitemap.xml',
 				'last_modified' => $last_modified,
 			),
 			array(
-				'type'          => 'seo_files',
+				'type'          => Model_Url::TYPE_SEO_FILES,
 				'url'           => '/sitemap-misc.xml',
 				'last_modified' => $last_modified,
 			),
 			array(
-				'type'          => 'seo_files',
+				'type'          => Model_Url::TYPE_SEO_FILES,
 				'url'           => '/sitemap-tax-category.xml',
 				'last_modified' => $last_modified,
 			),
 			array(
-				'type'          => 'seo_files',
+				'type'          => Model_Url::TYPE_SEO_FILES,
 				'url'           => '/sitemap-pt-post-2020-02.xml',
 				'last_modified' => $last_modified,
 			),
