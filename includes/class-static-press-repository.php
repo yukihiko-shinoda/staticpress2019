@@ -13,6 +13,10 @@ namespace static_press\includes;
 class Static_Press_Repository {
 	const FIELD_NAME_TYPE             = 'type';
 	const FIELD_NAME_URL              = 'url';
+	const FIELD_NAME_OBJECT_ID        = 'object_id';
+	const FIELD_NAME_OBJECT_TYPE      = 'object_type';
+	const FIELD_NAME_PARENT           = 'parent';
+	const FIELD_NAME_PAGES            = 'pages';
 	const FIELD_NAME_FILE_NAME        = 'file_name';
 	const FIELD_NAME_FILE_DATE        = 'file_date';
 	const FIELD_NAME_LAST_STATUS_CODE = 'last_statuscode';

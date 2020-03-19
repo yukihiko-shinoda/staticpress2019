@@ -165,6 +165,27 @@ abstract class Static_Press_Model_Url {
 	/**
 	 * Getter.
 	 */
+	protected function get_object_id() {
+		return $this->object_id;
+	}
+
+	/**
+	 * Getter.
+	 */
+	protected function get_object_type() {
+		return $this->object_type;
+	}
+
+	/**
+	 * Getter.
+	 */
+	protected function get_parent() {
+		return $this->parent;
+	}
+
+	/**
+	 * Getter.
+	 */
 	protected function get_pages() {
 		return $this->pages;
 	}
