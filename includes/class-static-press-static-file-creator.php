@@ -54,7 +54,7 @@ abstract class Static_Press_Static_File_Creator {
 	 * @param string                         $file_type         File type.
 	 * @param string                         $dump_directory    Dump direcory.
 	 * @param string                         $static_site_url   Static site URL.
-	 * @param string                         $repository        Repository.
+	 * @param Static_Press_Repository        $repository        Repository.
 	 * @param Static_Press_Date_Time_Factory $date_time_factory Date time factory.
 	 */
 	public function __construct( $file_type, $dump_directory, $static_site_url, $repository, $date_time_factory ) {

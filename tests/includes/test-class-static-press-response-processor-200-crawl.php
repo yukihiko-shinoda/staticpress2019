@@ -47,7 +47,7 @@ class Static_Press_Response_Processor_200_Crawl_Test extends \WP_UnitTestCase {
 		$static_press          = new Static_Press_Response_Processor_200_Crawl(
 			null,
 			new Static_Press_Repository(),
-			Test_Utility::set_create_date_by_time( $date_time_factoy_mock, self::DATE_FOR_TEST )
+			$date_time_factoy_mock
 		);
 		$reflection            = new \ReflectionClass( get_class( $static_press ) );
 		$method                = $reflection->getMethod( 'update_url' );
@@ -58,7 +58,7 @@ class Static_Press_Response_Processor_200_Crawl_Test extends \WP_UnitTestCase {
 
 		$result = $method->invokeArgs( $static_press, array( $content, $url ) );
 		$this->assertEquals( $expect, $result );
-		$transient_service = new Static_Press_Transient_Service( Test_Utility::set_create_date_by_time( $date_time_factoy_mock, self::DATE_FOR_TEST ) );
+		$transient_service = new Static_Press_Transient_Service( $date_time_factoy_mock );
 		$start_time        = $transient_service->fetch_start_time();
 		$repository        = new Static_Press_Repository();
 		$results           = $repository->get_all_url( $start_time );

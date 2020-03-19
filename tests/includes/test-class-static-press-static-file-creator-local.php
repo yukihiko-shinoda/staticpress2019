@@ -115,7 +115,7 @@ class Static_Press_Static_File_Creator_Local_Test extends \WP_UnitTestCase {
 			self::OUTPUT_DIRECTORY,
 			null,
 			new Static_Press_Repository(),
-			Test_Utility::create_date_time_factory_mock( 'create_date_by_time', 'Y-m-d h:i:s', '2019-12-23 12:34:56' )
+			Test_Utility::create_date_time_factory_mock( 'create_date', 'Y-m-d h:i:s', '2019-12-23 12:34:56' )
 		);
 		$reflection   = new \ReflectionClass( get_class( $static_press ) );
 		$method       = $reflection->getMethod( 'delete_url' );

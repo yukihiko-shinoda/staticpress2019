@@ -24,13 +24,22 @@ class Static_Press_Repository {
 	 * @var string
 	 */
 	private $url_table;
+	/**
+	 * Date time factory instance.
+	 * 
+	 * @var Static_Press_Date_Time_Factory
+	 */
+	private $date_time_factory;
 
 	/**
 	 * Constructor.
+	 * 
+	 * @param Static_Press_Date_Time_Factory $date_time_factory Date time factory.
 	 */
-	public function __construct() {
+	public function __construct( $date_time_factory = null ) {
 		global $wpdb;
-		$this->url_table = $wpdb->prefix . 'urls';
+		$this->url_table         = $wpdb->prefix . 'urls';
+		$this->date_time_factory = $date_time_factory ? $date_time_factory : new Static_Press_Date_Time_Factory();
 	}
 
 	/**
@@ -278,7 +287,7 @@ class Static_Press_Repository {
 		foreach ( $url as $val ) {
 			$insert_val[] = $wpdb->prepare( '%s', $val );
 		}
-		$insert_val[] = $wpdb->prepare( '%s', date( 'Y-m-d h:i:s' ) );
+		$insert_val[] = $wpdb->prepare( '%s', $this->date_time_factory->create_date( 'Y-m-d h:i:s' ) );
 		$sql         .= ' VALUES (' . implode( ',', $insert_val ) . ')';
 		$wpdb->query( $sql );
 	}

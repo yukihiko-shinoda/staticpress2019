@@ -259,18 +259,4 @@ class Test_Utility {
 		->andReturn( $return_value );
 		return $date_time_factory_mock;
 	}
-
-	/**
-	 * Sets create date by time.
-	 * 
-	 * @param MockInterface $date_time_factory_mock Date time factory mock.
-	 * @param string        $return_value           Return value.
-	 * @return MockInterface Date time factory mock.
-	 */
-	public static function set_create_date_by_time( $date_time_factory_mock, $return_value ) {
-		$date_time_factory_mock->shouldReceive( 'create_date_by_time' )
-		->with( 'Y-m-d h:i:s' )
-		->andReturn( $return_value );
-		return $date_time_factory_mock;
-	}
 }

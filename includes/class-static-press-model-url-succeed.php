@@ -45,7 +45,7 @@ class Static_Press_Model_Url_Succeed extends Static_Press_Model_Url {
 			$file_date,
 			$http_code,
 			null,
-			$date_time_factory->create_date_by_time( 'Y-m-d h:i:s' )
+			$date_time_factory->create_date( 'Y-m-d h:i:s' )
 		);
 	}
 

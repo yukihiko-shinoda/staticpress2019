@@ -77,17 +77,17 @@ class Static_Press {
 	 */
 	private $dump_directory;
 	/**
-	 * Database access instance.
-	 * 
-	 * @var Static_Press_Repository
-	 */
-	private $repository;
-	/**
 	 * Date time factory instance.
 	 * 
 	 * @var Static_Press_Date_Time_Factory
 	 */
 	private $date_time_factory;
+	/**
+	 * Database access instance.
+	 * 
+	 * @var Static_Press_Repository
+	 */
+	private $repository;
 	/**
 	 * Directory to dump static files.
 	 * 
@@ -126,8 +126,8 @@ class Static_Press {
 		$this->static_site_url = $this->init_static_site_url( $url_static_home );
 		$this->dump_directory  = $this->init_dump_directory( $dump_directory );
 		Static_Press_File_System_Utility::make_subdirectories( $this->dump_directory );
-		$this->repository        = new Static_Press_Repository();
 		$this->date_time_factory = $date_time_factory ? $date_time_factory : new Static_Press_Date_Time_Factory();
+		$this->repository        = new Static_Press_Repository( $this->date_time_factory );
 		$this->content_filter    = new Static_Press_Content_Filter( $this->date_time_factory );
 		$this->remote_getter     = $remote_getter ? $remote_getter : new Static_Press_Remote_Getter( $remote_get_option );
 		$this->url_filter        = new Static_Press_Url_Filter();

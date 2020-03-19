@@ -95,7 +95,7 @@ class Static_Press_Transient_Service_Test extends \WP_UnitTestCase {
 	 * @throws ReflectionException When fail to create ReflectionClass instance.
 	 */
 	public function test_fetch_start_time() {
-		$date_time_factory = Test_Utility::create_date_time_factory_mock( 'create_date_by_time', 'Y-m-d h:i:s', self::DATE_FOR_TEST );
+		$date_time_factory = Test_Utility::create_date_time_factory_mock( 'create_date', 'Y-m-d h:i:s', self::DATE_FOR_TEST );
 		$transient_service = new Static_Press_Transient_Service( $date_time_factory );
 		$result            = $transient_service->fetch_start_time();
 		$this->assertEquals( self::DATE_FOR_TEST, $result );

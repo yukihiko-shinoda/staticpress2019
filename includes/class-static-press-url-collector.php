@@ -196,7 +196,7 @@ class Static_Press_Url_Collector {
 			$modified = $result->last_modified;
 			$count    = $result->count;
 		} else {
-			$modified = date( 'Y-m-d h:i:s' );
+			$modified = $this->date_time_factory->create_date( 'Y-m-d h:i:s' );
 			$count    = 1;
 		}
 		$page_count = intval( $count / intval( get_option( 'posts_per_page' ) ) ) + 1;
@@ -269,7 +269,7 @@ class Static_Press_Url_Collector {
 		$urls[]   = array(
 			'type'          => Static_Press_Model_Url::TYPE_SEO_FILES,
 			'url'           => $robots,
-			'last_modified' => date( 'Y-m-d h:i:s' ),
+			'last_modified' => $this->date_time_factory->create_date( 'Y-m-d h:i:s' ),
 		);
 		$txt      = $this->remote_get( $robots );
 		if ( $txt && isset( $txt['body'] ) ) {
@@ -296,7 +296,7 @@ class Static_Press_Url_Collector {
 		$urls[]     = array(
 			'type'          => Static_Press_Model_Url::TYPE_SEO_FILES,
 			'url'           => $url,
-			'last_modified' => date( 'Y-m-d h:i:s' ),
+			'last_modified' => $this->date_time_factory->create_date( 'Y-m-d h:i:s' ),
 		);
 		$analyzed[] = $url;
 		$xml        = $this->remote_get( $url );

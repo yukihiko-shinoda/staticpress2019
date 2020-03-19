@@ -42,7 +42,7 @@ class Static_Press_Transient_Service {
 		if ( isset( $param['fetch_start_time'] ) ) {
 			return $param['fetch_start_time'];
 		} else {
-			$start_time                = $this->date_time_factory->create_date_by_time( 'Y-m-d h:i:s' );
+			$start_time                = $this->date_time_factory->create_date( 'Y-m-d h:i:s' );
 			$param['fetch_start_time'] = $start_time;
 			$transient_manager->set_transient( $param );
 			return $start_time;
