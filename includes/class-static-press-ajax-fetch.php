@@ -10,6 +10,9 @@ namespace static_press\includes;
 if ( ! class_exists( 'static_press\includes\Static_Press_Ajax_Processor' ) ) {
 	require dirname( __FILE__ ) . '/class-static-press-ajax-processor.php';
 }
+if ( ! class_exists( 'static_press\includes\Static_Press_Business_Logic_Exception' ) ) {
+	require dirname( __FILE__ ) . '/class-static-press-business-logic-exception.php';
+}
 if ( ! class_exists( 'static_press\includes\Static_Press_Fetch_Result' ) ) {
 	require dirname( __FILE__ ) . '/class-static-press-fetch-result.php';
 }
@@ -19,125 +22,150 @@ if ( ! class_exists( 'static_press\includes\Static_Press_Model_Url_Fetched' ) ) 
 if ( ! class_exists( 'static_press\includes\Static_Press_Response_Processor_404' ) ) {
 	require dirname( __FILE__ ) . '/class-static-press-response-processor-404.php';
 }
-if ( ! class_exists( 'static_press\includes\Static_Press_Transient_Manager' ) ) {
-	require dirname( __FILE__ ) . '/class-static-press-transient-manager.php';
+if ( ! class_exists( 'static_press\includes\Static_Press_Transient_Service' ) ) {
+	require dirname( __FILE__ ) . '/class-static-press-transient-service.php';
 }
 use static_press\includes\Static_Press_Ajax_Processor;
+use static_press\includes\Static_Press_Business_Logic_Exception;
 use static_press\includes\Static_Press_Fetch_Result;
 use static_press\includes\Static_Press_Model_Url_Fetched;
 use static_press\includes\Static_Press_Response_Processor_404;
-use static_press\includes\Static_Press_Transient_Manager;
-
+use static_press\includes\Static_Press_Transient_Service;
 /**
  * Class Static_Press_Ajax_Fetch
  */
 class Static_Press_Ajax_Fetch extends Static_Press_Ajax_Processor {
 	const FETCH_LIMIT        = 5;
 	const FETCH_LIMIT_STATIC = 100;
+
+	/**
+	 * Fetch result.
+	 * 
+	 * @var Static_Press_Fetch_Result $fetch_result
+	 */
+	private $fetch_result;
+
+	/**
+	 * Constructor.
+	 * 
+	 * @param string                         $static_site_url   Absolute URL of static site.
+	 * @param string                         $dump_directory    Directory to dump static files.
+	 * @param Static_Press_Repository        $repository        Database access instance.
+	 * @param Static_Press_Remote_Getter     $remote_getter     Remote getter instance.
+	 * @param Static_Press_Terminator        $terminator        Terminator instance.
+	 * @param Static_Press_Date_Time_Factory $date_time_factory Date time factory instance.
+	 */
+	public function __construct( $static_site_url, $dump_directory, $repository, $remote_getter, $terminator = null, $date_time_factory = null ) {
+		parent::__construct( $static_site_url, $dump_directory, $repository, $remote_getter, $terminator, $date_time_factory );
+		$this->fetch_result = new Static_Press_Fetch_Result();
+	}
+
 	/**
 	 * Fetches URL from database and crate static files.
 	 */
 	protected function process_ajax_request() {
-		$fetch_result = $this->fetch_first_url();
-
-		while ( $url = $this->fetch_url() ) {
-			$static_file_creator = $this->create_static_file_creator_by_factory( $url );
-			$fetch_result->set_fetch_result( $url, $static_file_creator->create( $url->get_url() ) );
-			$limit = $url->is_static_file() ? self::FETCH_LIMIT_STATIC : self::FETCH_LIMIT;
-			if ( $fetch_result->file_count >= $limit ) {
-				break;
-			}
-		}
-
-		$result = array(
-			'result' => true,
-			'files'  => $fetch_result->result,
-			'final'  => ( false === $url ),
-		);
-		$this->json_output( apply_filters( 'StaticPress::ajax_fetch', $result, $url ) );
-	}
-
-	/**
-	 * Fetches first URL.
-	 */
-	private function fetch_first_url() {
-		$url = $this->fetch_url();
-		if ( ! $url ) {
+		try {
+			$url    = $this->fetch();
+			$result = array(
+				'result' => true,
+				'files'  => $this->fetch_result->result,
+				'final'  => ( false === $url ),
+			);
+		} catch ( Static_Press_Business_Logic_Exception $exception ) {
+			$url    = false;
 			$result = array(
 				'result' => false,
 				'final'  => true,
 			);
-			$this->json_output( apply_filters( 'StaticPress::ajax_fetch', $result, false ) );
+		}
+		$this->json_output( apply_filters( 'StaticPress::ajax_fetch', $result, $url ) );
+	}
+
+	/**
+	 * Fetches.
+	 * 
+	 * @return Static_Press_Model_Url_Fetched $url URL.
+	 * @throws Static_Press_Business_Logic_Exception Case when fail to fetch first URL.
+	 */
+	private function fetch() {
+		$url_first = $this->fetch_url();
+		$this->create_static_file( $url_first );
+
+		if ( $url_first->has_multiple_page() ) {
+			$this->create_static_file_for_pages( $url_first );
 		}
 
-		$static_file_creator = $this->create_static_file_creator_by_factory( $url );
-		$fetch_result        = new Static_Press_Fetch_Result();
-		$fetch_result->set_fetch_result( $url, $static_file_creator->create( $url->get_url() ) );
-		if ( ! $url->has_multiple_page() ) {
-			return $fetch_result;
+		while ( true ) {
+			try {
+				$url = $this->fetch_url();
+			} catch ( Static_Press_Business_Logic_Exception $exception ) {
+				return false;
+			}
+			$this->create_static_file( $url );
+			$limit = $url->is_static_file() ? self::FETCH_LIMIT_STATIC : self::FETCH_LIMIT;
+			if ( $this->fetch_result->file_count >= $limit ) {
+				return $url;
+			}
 		}
+	}
+
+	/**
+	 * Fetches first URL.
+	 * 
+	 * @param Static_Press_Model_Url_Fetched $url URL.
+	 */
+	private function create_static_file( $url ) {
+		$static_file_creator = $this->create_static_file_creator_by_factory( $url );
+		try {
+			$static_file = $static_file_creator->create( $url->get_url() );
+		} catch ( Static_Press_Business_Logic_Exception $exception ) {
+			$static_file = false;
+		}
+		$this->fetch_result->set_fetch_result( $url, $static_file );
+	}
+
+	/**
+	 * Cretes static file for pages.
+	 * 
+	 * @param Static_Press_Model_Url_Fetched $url URL.
+	 */
+	private function create_static_file_for_pages( $url ) {
 		$static_file_creator = $this->create_static_file_creator_remote(
 			$this->create_response_porcessor_200_crawl(),
 			new Static_Press_Response_Processor_404()
 		);
 		$pages               = $url->get_pages_fetched();
 		for ( $page = 2; $page <= $pages; $page++ ) {
-			$page_url    = untrailingslashit( trim( $url->get_url() ) );
-			$static_file = false;
-			switch ( $url->get_type_fetched() ) {
-				case Static_Press_Model_Url::TYPE_TERM_ARCHIVE:
-				case Static_Press_Model_Url::TYPE_AUTHOR_ARCHIVE:
-				case Static_Press_Model_Url::TYPE_OTHER_PAGE:
-					$page_url    = sprintf( '%s/page/%d', $page_url, $page );
-					$static_file = $static_file_creator->create( $page_url );
-					break;
-				case Static_Press_Model_Url::TYPE_SINGLE:
-					$page_url    = sprintf( '%s/%d', $page_url, $page );
-					$static_file = $static_file_creator->create( $page_url );
-					break;
-			}
-			if ( ! $static_file ) {
+			try {
+				$page_url = $url->create_page_url( $page );
+			} catch ( Static_Press_Business_Logic_Exception $exception ) {
 				break;
 			}
-			$fetch_result->set_page_fetch_result( $url, $page, $page_url, $static_file );
+			try {
+				$static_file = $static_file_creator->create( $page_url );
+			} catch ( Static_Press_Business_Logic_Exception $exception ) {
+				$static_file = false;
+			}
+			$this->fetch_result->set_page_fetch_result( $url, $page, $page_url, $static_file );
 		}
-		return $fetch_result;
 	}
 
 	/**
 	 * Fetches URL.
 	 * 
-	 * @return Static_Press_Model_Url_Fetched|bool Fetched URL when exist in database table, false when not exist in database table.
+	 * @return Static_Press_Model_Url_Fetched Fetched URL when exist in database table, false when not exist in database table.
+	 * @throws Static_Press_Business_Logic_Exception Case when fail to fetch URL.
 	 */
 	private function fetch_url() {
 		$result = $this->repository->get_next_url(
 			$this->fetch_start_time(),
-			$this->fetch_last_id()
+			Static_Press_Transient_Service::fetch_last_id()
 		);
-		if ( ! is_null( $result ) && ! is_wp_error( $result ) && $result->ID ) {
-			$this->fetch_last_id( $result->ID );
-			return new Static_Press_Model_Url_Fetched( $result );
-		} else {
-			Static_Press_Transient_Manager::delete_transient();
-			return false;
+		if ( is_null( $result ) || is_wp_error( $result ) || ! $result->ID ) {
+			Static_Press_Transient_Service::delete();
+			throw new Static_Press_Business_Logic_Exception();
 		}
-	}
-
-	/**
-	 * Fetches last ID.
-	 * 
-	 * @param  int|bool $next_id ID to set next.
-	 * @return int Cached ID when $next_id is 0 or false, $next_id when $next_id is not 0 nor false.
-	 */
-	private function fetch_last_id( $next_id = false ) {
-		$transient_manager = new Static_Press_Transient_Manager();
-		$param             = $transient_manager->get_transient();
-		$last_id           = isset( $param['fetch_last_id'] ) ? intval( $param['fetch_last_id'] ) : 0;
-		if ( $next_id ) {
-			$last_id                = $next_id;
-			$param['fetch_last_id'] = $next_id;
-			$transient_manager->set_transient( $param );
-		}
-		return $last_id;
+		Static_Press_Transient_Service::fetch_last_id( $result->ID );
+		return new Static_Press_Model_Url_Fetched( $result );
 	}
 }

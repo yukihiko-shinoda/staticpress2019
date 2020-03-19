@@ -40,6 +40,32 @@ class Array_Url_Handler {
 	}
 
 	/**
+	 * Asserts that URLs not contains.
+	 * 
+	 * @param PHPUnit_Framework_TestCase $test_case   Test case.
+	 * @param array                      $expect_urls Expect URLs.
+	 * @param array                      $actual_urls Actual URLs.
+	 * @throws Business_Logic_Exception Case when contains.
+	 */
+	public static function assert_not_contains_urls( $test_case, $expect_urls, $actual_urls ) {
+		$copy_expect_urls     = $expect_urls;
+		$copy_actual_urls     = $actual_urls;
+		$expect_url_contained = array();
+		foreach ( $copy_expect_urls as $expect_url ) {
+			try {
+				$copy_actual_urls       = self::assert_contains_url( $expect_url, $copy_actual_urls );
+				$expect_url_contained[] = $expect_url;
+			} catch ( Business_Logic_Exception $exception ) {
+				continue;
+			}
+		}
+		$test_case->assertTrue(
+			empty( $expect_url_contained ),
+			"Actual URLs contains Expect URL. Contained:\n" . self::convert_array_to_string( $expect_url_contained )
+		);
+	}
+
+	/**
 	 * Asserts that URL contains.
 	 * 
 	 * @param array $expect_url  Expect URL.

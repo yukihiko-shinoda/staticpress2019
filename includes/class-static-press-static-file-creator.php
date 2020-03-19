@@ -54,7 +54,7 @@ abstract class Static_Press_Static_File_Creator {
 	 * @param string                         $file_type         File type.
 	 * @param string                         $dump_directory    Dump direcory.
 	 * @param string                         $static_site_url   Static site URL.
-	 * @param string                         $repository        Repository.
+	 * @param Static_Press_Repository        $repository        Repository.
 	 * @param Static_Press_Date_Time_Factory $date_time_factory Date time factory.
 	 */
 	public function __construct( $file_type, $dump_directory, $static_site_url, $repository, $date_time_factory ) {
@@ -70,19 +70,16 @@ abstract class Static_Press_Static_File_Creator {
 	 * 
 	 * @param string $url URL.
 	 * @return string File path to created file.
+	 * @throws Static_Press_Business_Logic_Exception Case when static file does not exist, or (when local and when source file doesn't exist).
 	 */
 	public function create( $url ) {
 		$model_static_file = new Static_Press_Model_Static_File( $url, $this->dump_directory );
-		try {
-			$this->get_file( $model_static_file );
-		} catch ( Static_Press_Business_Logic_Exception $exception ) {
-			return false;
-		}
+		$this->get_file( $model_static_file );
 		$model_static_file->do_file_put_action( $this->static_site_url );
 
 		$this->update_url( array( $model_static_file->check_file_existance_and_create_array_url( $this->file_type, $this->date_time_factory )->to_array() ) );
 
-		return $model_static_file->file_dest;
+		return $model_static_file->check_file_existance();
 	}
 
 	/**
@@ -99,6 +96,7 @@ abstract class Static_Press_Static_File_Creator {
 	 * Gets file.
 	 * 
 	 * @param Static_Press_Model_Static_File $model_static_file Model of static file.
+	 * @throws Static_Press_Business_Logic_Exception When source file doesn't exist.
 	 */
 	abstract protected function get_file( $model_static_file );
 }

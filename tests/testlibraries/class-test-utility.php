@@ -10,6 +10,7 @@ namespace static_press\tests\testlibraries;
 require_once dirname( __FILE__ ) . '/../testlibraries/class-expect-urls-static-files.php';
 require_once dirname( __FILE__ ) . '/../testlibraries/class-model-url.php';
 use Mockery;
+use static_press\tests\testlibraries\Die_Exception;
 use static_press\tests\testlibraries\Expect_Urls_Static_Files;
 use static_press\tests\testlibraries\Model_Url;
 
@@ -230,7 +231,7 @@ class Test_Utility {
 	 */
 	public static function create_terminator_mock() {
 		$terminator_mock = Mockery::mock( 'alias:Terminator_Mock' );
-		$terminator_mock->shouldReceive( 'terminate' )->andThrow( new \Exception( 'Dead!' ) );
+		$terminator_mock->shouldReceive( 'terminate' )->andThrow( new Die_Exception( 'Dead!' ) );
 		return $terminator_mock;
 	}
 
@@ -256,20 +257,6 @@ class Test_Utility {
 		$date_time_factory_mock = Mockery::mock( 'alias:Date_Time_Factory_Mock' );
 		$date_time_factory_mock->shouldReceive( $function_name )
 		->with( $parameter )
-		->andReturn( $return_value );
-		return $date_time_factory_mock;
-	}
-
-	/**
-	 * Sets create date by time.
-	 * 
-	 * @param MockInterface $date_time_factory_mock Date time factory mock.
-	 * @param string        $return_value           Return value.
-	 * @return MockInterface Date time factory mock.
-	 */
-	public static function set_create_date_by_time( $date_time_factory_mock, $return_value ) {
-		$date_time_factory_mock->shouldReceive( 'create_date_by_time' )
-		->with( 'Y-m-d h:i:s' )
 		->andReturn( $return_value );
 		return $date_time_factory_mock;
 	}

@@ -7,6 +7,9 @@
 
 namespace static_press\includes;
 
+if ( ! class_exists( 'static_press\includes\Static_Press_Business_Logic_Exception' ) ) {
+	require dirname( __FILE__ ) . '/class-static-press-business-logic-exception.php';
+}
 if ( ! class_exists( 'static_press\includes\Static_Press_Model_Url_Failed' ) ) {
 	require dirname( __FILE__ ) . '/class-static-press-model-url-failed.php';
 }
@@ -14,6 +17,7 @@ if ( ! class_exists( 'static_press\includes\Static_Press_Model_Url_Succeed' ) ) 
 	require dirname( __FILE__ ) . '/class-static-press-model-url-succeed.php';
 }
 
+use static_press\includes\Static_Press_Business_Logic_Exception;
 use static_press\includes\Static_Press_Model_Url_Failed;
 use static_press\includes\Static_Press_Model_Url_Succeed;
 
@@ -143,12 +147,24 @@ class Static_Press_Model_Static_File {
 	 * @return Static_Press_Model_Url URL model.
 	 */
 	public function check_file_existance_and_create_array_url( $file_type, $date_time_factory ) {
-		if ( file_exists( $this->file_dest ) ) {
-			return new Static_Press_Model_Url_Succeed( $file_type, $this->url, $this->file_dest, $this->file_date, $this->http_code, $date_time_factory );
-		} else {
-			$this->file_dest = false;
+		try {
+			return new Static_Press_Model_Url_Succeed( $file_type, $this->url, $this->check_file_existance(), $this->file_date, $this->http_code, $date_time_factory );
+		} catch ( Static_Press_Business_Logic_Exception $exception ) {
 			return new Static_Press_Model_Url_Failed( $file_type, $this->url, $date_time_factory );
 		}
+	}
+
+	/**
+	 * Checks file existance.
+	 * 
+	 * @return string Local file path to static file.
+	 * @throws Static_Press_Business_Logic_Exception Case when static file does not exist.
+	 */
+	public function check_file_existance() {
+		if ( ! file_exists( $this->file_dest ) ) {
+			throw new Static_Press_Business_Logic_Exception();
+		}
+		return $this->file_dest;
 	}
 
 	/**

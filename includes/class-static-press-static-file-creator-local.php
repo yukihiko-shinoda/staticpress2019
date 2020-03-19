@@ -24,6 +24,7 @@ class Static_Press_Static_File_Creator_Local extends Static_Press_Static_File_Cr
 	 * Gets file.
 	 * 
 	 * @param Static_Press_Model_Static_File $model_static_file Model of static file.
+	 * @throws Static_Press_Business_Logic_Exception When source file doesn't exist.
 	 */
 	protected function get_file( $model_static_file ) {
 		$this->get_static_file( $model_static_file );

@@ -11,6 +11,7 @@ require_once dirname( __FILE__ ) . '/../testlibraries/class-model-url.php';
 require_once dirname( __FILE__ ) . '/../testlibraries/class-repository-for-test.php';
 require_once dirname( __FILE__ ) . '/../testlibraries/class-test-utility.php';
 use static_press\includes\Static_Press_Ajax_Fetch;
+use static_press\includes\Static_Press_Business_Logic_Exception;
 use static_press\includes\Static_Press_Repository;
 use static_press\tests\testlibraries\Expect_Url;
 use static_press\tests\testlibraries\Model_Url;
@@ -23,82 +24,14 @@ use static_press\tests\testlibraries\Test_Utility;
  */
 class Static_Press_Ajax_Fetch_Test extends \WP_UnitTestCase {
 	/**
-	 * Function fetch_last_id() should return 0 when parameter is not set.
-	 */
-	public function test_fetch_last_id_without_parameter_with_transient() {
-		set_transient( 'static static', array( 'fetch_last_id' => 2 ), 3600 );
-		$result = $this->create_accessable_method( 'fetch_last_id', array() );
-		$this->assertEquals( $result, 2 );
-	}
-
-	/**
-	 * Function fetch_last_id() should return 0 when parameter is not set.
-	 */
-	public function test_fetch_last_id_without_parameter_without_transient() {
-		$result = $this->create_accessable_method( 'fetch_last_id', array() );
-		$this->assertEquals( $result, 0 );
-	}
-
-	/**
-	 * Test steps for constructor.
-	 * 
-	 * @dataProvider provider_fetch_last_id_with_paramter_with_transient
-	 * 
-	 * @param string $next_id ID to set next.
-	 * @param string $expect  Expect return value.
-	 */
-	public function test_fetch_last_id_with_paramter_with_transient( $next_id, $expect ) {
-		set_transient( 'static static', array( 'fetch_last_id' => 2 ), 3600 );
-		$result = $this->create_accessable_method( 'fetch_last_id', array( $next_id ) );
-		$this->assertEquals( $result, $expect );
-	}
-
-	/**
-	 * Function fetch_last_id() should return Cached ID when $next_id is 0
-	 * Function fetch_last_id() should return Cached ID when $next_id is false,
-	 * Function fetch_last_id() should return  $next_id when $next_id is not 0 nor false.
-	 */
-	public function provider_fetch_last_id_with_paramter_with_transient() {
-		return array(
-			array( 0, 2 ),
-			array( false, 2 ),
-			array( 1, 1 ),
-		);
-	}
-
-	/**
-	 * Test steps for constructor.
-	 * 
-	 * @dataProvider provider_fetch_last_id_with_paramter_without_transient
-	 * 
-	 * @param string $next_id ID to set next.
-	 * @param string $expect  Expect return value.
-	 */
-	public function test_fetch_last_id_with_paramter_without_transient( $next_id, $expect ) {
-		$result = $this->create_accessable_method( 'fetch_last_id', array( $next_id ) );
-		$this->assertEquals( $result, $expect );
-	}
-
-	/**
-	 * Function fetch_last_id() should return Cached ID when $next_id is 0
-	 * Function fetch_last_id() should return Cached ID when $next_id is false,
-	 * Function fetch_last_id() should return  $next_id when $next_id is not 0 nor false.
-	 */
-	public function provider_fetch_last_id_with_paramter_without_transient() {
-		return array(
-			array( 0, 0 ),
-			array( false, 0 ),
-			array( 1, 1 ),
-		);
-	}
-
-	/**
 	 * Function fetch_url() should return false when URLs do not exist in database table.
 	 *
 	 * @throws ReflectionException When fail to create ReflectionClass instance.
 	 */
 	public function test_fetch_url_url_not_exists() {
-		$this->assertFalse( $this->create_accessable_method( 'fetch_url', array() ) );
+		// Reason: This project no longer support PHP 5.5 nor lower.
+		$this->expectException( Static_Press_Business_Logic_Exception::class ); // phpcs:ignore
+		$this->create_accessable_method( 'fetch_url', array() );
 	}
 
 	/**

@@ -40,6 +40,25 @@ class Static_Press_Url_Collector_Test extends \WP_UnitTestCase {
 	private $blog_id_another_blog;
 
 	/**
+	 * Function collect() should return urls of front page, static files, and SEO.
+	 * 
+	 * @runInSeparateProcess
+	 */
+	public function test_collect() {
+		$expect_urls   = array_merge(
+			Test_Utility::get_expect_urls_front_page( self::DATE_FOR_TEST ),
+			Test_Utility::get_expect_urls_static_files( self::DATE_FOR_TEST ),
+			Test_Utility::get_expect_urls_seo( self::DATE_FOR_TEST )
+		);
+		$url_collector = new Static_Press_Url_Collector(
+			self::crete_remote_getter_mock(),
+			Test_Utility::create_date_time_factory_mock( 'create_date', 'Y-m-d h:i:s', self::DATE_FOR_TEST )
+		);
+		$actual        = $url_collector->collect();
+		Array_Url_Handler::assert_contains_urls( $this, $expect_urls, $actual );
+	}
+
+	/**
 	 * Function front_page_url() should return appropriate URLs.
 	 */
 	public function test_front_page_url() {

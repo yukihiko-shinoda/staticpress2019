@@ -16,14 +16,14 @@ if ( ! class_exists( 'static_press\includes\Static_Press_Response_Processor_200'
 if ( ! class_exists( 'static_press\includes\Static_Press_Response_Processor_404_Dump' ) ) {
 	require dirname( __FILE__ ) . '/class-static-press-response-processor-404-dump.php';
 }
-if ( ! class_exists( 'static_press\includes\Static_Press_Transient_Manager' ) ) {
-	require dirname( __FILE__ ) . '/class-static-press-transient-manager.php';
+if ( ! class_exists( 'static_press\includes\Static_Press_Transient_Service' ) ) {
+	require dirname( __FILE__ ) . '/class-static-press-transient-service.php';
 }
 
 use static_press\includes\Static_Press_Ajax_Processor;
 use static_press\includes\Static_Press_Response_Processor_200;
 use static_press\includes\Static_Press_Response_Processor_404_Dump;
-use static_press\includes\Static_Press_Transient_Manager;
+use static_press\includes\Static_Press_Transient_Service;
 
 /**
  * Class Static_Press_Ajax_Init
@@ -37,8 +37,13 @@ class Static_Press_Ajax_Finalyze extends Static_Press_Ajax_Processor {
 			new Static_Press_Response_Processor_200(),
 			new Static_Press_Response_Processor_404_Dump()
 		);
-		$static_file_creator->create( Static_Press_Url_Collector::get_site_url() . '404.html' );
-		Static_Press_Transient_Manager::delete_transient();
+		try {
+			$static_file_creator->create( Static_Press_Url_Collector::get_site_url() . '404.html' );
+		} catch ( Static_Press_Business_Logic_Exception $exception) {
+			// TODO Original specification, although not good...
+			// Case when static file does not exist.
+		}
+		Static_Press_Transient_Service::delete();
 
 		$result = array( 'result' => true );
 		$this->json_output( apply_filters( 'StaticPress::ajax_finalyze', $result ) );

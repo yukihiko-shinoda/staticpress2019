@@ -11,8 +11,8 @@ require_once dirname( __FILE__ ) . '/../testlibraries/class-expect-url.php';
 require_once dirname( __FILE__ ) . '/../testlibraries/class-model-url.php';
 require_once dirname( __FILE__ ) . '/../testlibraries/class-repository-for-test.php';
 require_once dirname( __FILE__ ) . '/../testlibraries/class-test-utility.php';
-use static_press\includes\Static_Press_Ajax_Init;
 use static_press\includes\Static_Press_Repository;
+use static_press\includes\Static_Press_Transient_Service;
 use static_press\includes\Static_Press_Static_File_Creator_Local;
 use static_press\tests\testlibraries\Expect_Url;
 use static_press\tests\testlibraries\Model_Url;
@@ -115,25 +115,17 @@ class Static_Press_Static_File_Creator_Local_Test extends \WP_UnitTestCase {
 			self::OUTPUT_DIRECTORY,
 			null,
 			new Static_Press_Repository(),
-			Test_Utility::create_date_time_factory_mock( 'create_date_by_time', 'Y-m-d h:i:s', '2019-12-23 12:34:56' )
+			Test_Utility::create_date_time_factory_mock( 'create_date', 'Y-m-d h:i:s', '2019-12-23 12:34:56' )
 		);
 		$reflection   = new \ReflectionClass( get_class( $static_press ) );
 		$method       = $reflection->getMethod( 'delete_url' );
 		$method->setAccessible( true );
 		$actual = $method->invokeArgs( $static_press, array( $parameter ) );
 		$this->assertEquals( $parameter, $actual );
-		$static_press = new Static_Press_Ajax_Init(
-			null,
-			null,
-			new Static_Press_Repository(),
-			null
-		);
-		$reflection   = new \ReflectionClass( get_class( $static_press ) );
-		$method       = $reflection->getMethod( 'fetch_start_time' );
-		$method->setAccessible( true );
-		$start_time = $method->invokeArgs( $static_press, array() );
-		$repository = new Static_Press_Repository();
-		$results    = $repository->get_all_url( $start_time );
+		$transient_service = new Static_Press_Transient_Service();
+		$start_time        = $transient_service->fetch_start_time();
+		$repository        = new Static_Press_Repository();
+		$results           = $repository->get_all_url( $start_time );
 		Expect_Url::assert_url( $this, $expect_urls_in_database, $results );
 	}
 }
