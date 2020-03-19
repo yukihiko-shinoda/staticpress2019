@@ -10,6 +10,9 @@ namespace static_press\includes;
 if ( ! class_exists( 'static_press\includes\Static_Press_Ajax_Processor' ) ) {
 	require dirname( __FILE__ ) . '/class-static-press-ajax-processor.php';
 }
+if ( ! class_exists( 'static_press\includes\Static_Press_Business_Logic_Exception' ) ) {
+	require dirname( __FILE__ ) . '/class-static-press-business-logic-exception.php';
+}
 if ( ! class_exists( 'static_press\includes\Static_Press_Fetch_Result' ) ) {
 	require dirname( __FILE__ ) . '/class-static-press-fetch-result.php';
 }
@@ -23,6 +26,7 @@ if ( ! class_exists( 'static_press\includes\Static_Press_Transient_Service' ) ) 
 	require dirname( __FILE__ ) . '/class-static-press-transient-service.php';
 }
 use static_press\includes\Static_Press_Ajax_Processor;
+use static_press\includes\Static_Press_Business_Logic_Exception;
 use static_press\includes\Static_Press_Fetch_Result;
 use static_press\includes\Static_Press_Model_Url_Fetched;
 use static_press\includes\Static_Press_Response_Processor_404;
@@ -33,74 +37,107 @@ use static_press\includes\Static_Press_Transient_Service;
 class Static_Press_Ajax_Fetch extends Static_Press_Ajax_Processor {
 	const FETCH_LIMIT        = 5;
 	const FETCH_LIMIT_STATIC = 100;
+
+	/**
+	 * Fetch result.
+	 * 
+	 * @var Static_Press_Fetch_Result $fetch_result
+	 */
+	private $fetch_result;
+
+	/**
+	 * Constructor.
+	 * 
+	 * @param string                         $static_site_url   Absolute URL of static site.
+	 * @param string                         $dump_directory    Directory to dump static files.
+	 * @param Static_Press_Repository        $repository        Database access instance.
+	 * @param Static_Press_Remote_Getter     $remote_getter     Remote getter instance.
+	 * @param Static_Press_Terminator        $terminator        Terminator instance.
+	 * @param Static_Press_Date_Time_Factory $date_time_factory Date time factory instance.
+	 */
+	public function __construct( $static_site_url, $dump_directory, $repository, $remote_getter, $terminator = null, $date_time_factory = null ) {
+		parent::__construct( $static_site_url, $dump_directory, $repository, $remote_getter, $terminator, $date_time_factory );
+		$this->fetch_result = new Static_Press_Fetch_Result();
+	}
+
 	/**
 	 * Fetches URL from database and crate static files.
 	 */
 	protected function process_ajax_request() {
-		$fetch_result = $this->fetch_first_url();
-
-		while ( $url = $this->fetch_url() ) {
-			$static_file_creator = $this->create_static_file_creator_by_factory( $url );
-			$fetch_result->set_fetch_result( $url, $static_file_creator->create( $url->get_url() ) );
-			$limit = $url->is_static_file() ? self::FETCH_LIMIT_STATIC : self::FETCH_LIMIT;
-			if ( $fetch_result->file_count >= $limit ) {
-				break;
-			}
-		}
-
-		$result = array(
-			'result' => true,
-			'files'  => $fetch_result->result,
-			'final'  => ( false === $url ),
-		);
-		$this->json_output( apply_filters( 'StaticPress::ajax_fetch', $result, $url ) );
-	}
-
-	/**
-	 * Fetches first URL.
-	 */
-	private function fetch_first_url() {
-		$url = $this->fetch_url();
-		if ( ! $url ) {
+		try {
+			$url    = $this->fetch();
+			$result = array(
+				'result' => true,
+				'files'  => $this->fetch_result->result,
+				'final'  => ( false === $url ),
+			);
+		} catch ( Static_Press_Business_Logic_Exception $exception ) {
+			$url    = false;
 			$result = array(
 				'result' => false,
 				'final'  => true,
 			);
-			$this->json_output( apply_filters( 'StaticPress::ajax_fetch', $result, false ) );
+		}
+		$this->json_output( apply_filters( 'StaticPress::ajax_fetch', $result, $url ) );
+	}
+
+	/**
+	 * Fetches.
+	 * 
+	 * @return Static_Press_Model_Url_Fetched $url URL.
+	 * @throws Static_Press_Business_Logic_Exception Case when first fetched URL is not exist.
+	 */
+	private function fetch() {
+		$url_first = $this->fetch_url();
+		if ( ! $url_first ) {
+			throw new Static_Press_Business_Logic_Exception();
+		}
+		$this->create_static_file( $url_first );
+
+		if ( $url_first->has_multiple_page() ) {
+			$this->create_static_file_for_pages( $url_first );
 		}
 
-		$static_file_creator = $this->create_static_file_creator_by_factory( $url );
-		$fetch_result        = new Static_Press_Fetch_Result();
-		$fetch_result->set_fetch_result( $url, $static_file_creator->create( $url->get_url() ) );
-		if ( ! $url->has_multiple_page() ) {
-			return $fetch_result;
+		while ( $url = $this->fetch_url() ) {
+			$this->create_static_file( $url );
+			$limit = $url->is_static_file() ? self::FETCH_LIMIT_STATIC : self::FETCH_LIMIT;
+			if ( $this->fetch_result->file_count >= $limit ) {
+				break;
+			}
 		}
+		return $url;
+	}
+
+	/**
+	 * Fetches first URL.
+	 * 
+	 * @param Static_Press_Model_Url_Fetched $url URL.
+	 */
+	private function create_static_file( $url ) {
+		$static_file_creator = $this->create_static_file_creator_by_factory( $url );
+		$this->fetch_result->set_fetch_result( $url, $static_file_creator->create( $url->get_url() ) );
+	}
+
+	/**
+	 * Cretes static file for pages.
+	 * 
+	 * @param Static_Press_Model_Url_Fetched $url URL.
+	 */
+	private function create_static_file_for_pages( $url ) {
 		$static_file_creator = $this->create_static_file_creator_remote(
 			$this->create_response_porcessor_200_crawl(),
 			new Static_Press_Response_Processor_404()
 		);
 		$pages               = $url->get_pages_fetched();
 		for ( $page = 2; $page <= $pages; $page++ ) {
-			$page_url    = untrailingslashit( trim( $url->get_url() ) );
-			$static_file = false;
-			switch ( $url->get_type_fetched() ) {
-				case Static_Press_Model_Url::TYPE_TERM_ARCHIVE:
-				case Static_Press_Model_Url::TYPE_AUTHOR_ARCHIVE:
-				case Static_Press_Model_Url::TYPE_OTHER_PAGE:
-					$page_url    = sprintf( '%s/page/%d', $page_url, $page );
-					$static_file = $static_file_creator->create( $page_url );
-					break;
-				case Static_Press_Model_Url::TYPE_SINGLE:
-					$page_url    = sprintf( '%s/%d', $page_url, $page );
-					$static_file = $static_file_creator->create( $page_url );
-					break;
-			}
-			if ( ! $static_file ) {
+			try {
+				$page_url    = $url->create_page_url( $page );
+				$static_file = $static_file_creator->create( $page_url );
+			} catch ( Static_Press_Business_Logic_Exception $exception ) {
 				break;
 			}
-			$fetch_result->set_page_fetch_result( $url, $page, $page_url, $static_file );
+			$this->fetch_result->set_page_fetch_result( $url, $page, $page_url, $static_file );
 		}
-		return $fetch_result;
 	}
 
 	/**

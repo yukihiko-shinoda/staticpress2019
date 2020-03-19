@@ -14,6 +14,7 @@ require_once dirname( __FILE__ ) . '/../testlibraries/class-repository-for-test.
 require_once dirname( __FILE__ ) . '/../testlibraries/class-test-utility.php';
 use Mockery;
 use static_press\includes\Static_Press_Ajax_Init;
+use static_press\includes\Static_Press_Business_Logic_Exception;
 use static_press\includes\Static_Press_Repository;
 use static_press\tests\testlibraries\Model_Url;
 use static_press\tests\testlibraries\Model_Url_Handler;
@@ -80,12 +81,10 @@ class Static_Press_Ajax_Processor_Test extends \WP_UnitTestCase {
 		$static_file_creator = $this->create_accessable_method( 'create_static_file_creator_by_factory', array( $url_fetched ), $remote_getter_mock );
 		$result              = $static_file_creator->create( $url );
 		$this->assertEquals( $expect, $result );
-		if ( false !== $expect ) {
-			$path_to_expect_file = self::OUTPUT_DIRECTORY . $expect_file;
-			$files               = glob( self::OUTPUT_DIRECTORY . '/*', GLOB_MARK );
-			$message             = 'File ' . $path_to_expect_file . "doesn't exist.\nExisting file list:\n" . implode( "\n", $files );
-			$this->assertFileExists( $path_to_expect_file, $message );
-		}
+		$path_to_expect_file = self::OUTPUT_DIRECTORY . $expect_file;
+		$files               = glob( self::OUTPUT_DIRECTORY . '/*', GLOB_MARK );
+		$message             = 'File ' . $path_to_expect_file . "doesn't exist.\nExisting file list:\n" . implode( "\n", $files );
+		$this->assertFileExists( $path_to_expect_file, $message );
 	}
 
 	/**
@@ -97,10 +96,42 @@ class Static_Press_Ajax_Processor_Test extends \WP_UnitTestCase {
 	public function provider_create_static_file() {
 		return array(
 			array( 200, '/', Model_Url::TYPE_FRONT_PAGE, '/tmp/static/index.html', '/index.html' ),
-			array( 500, '/?author=1/', Model_Url::TYPE_AUTHOR_ARCHIVE, false, null ),
-			array( 200, '/wp-content/uploads/2020/03/test.png', Model_Url::TYPE_STATIC_FILE, false, null ),
 			array( 200, '/wp-content/uploads/2020/03/test.txt', Model_Url::TYPE_STATIC_FILE, '/tmp/static/wp-content/uploads/2020/03/test.txt', '/wp-content/uploads/2020/03/test.txt' ),
 			array( 200, '/sitemap.xml', Model_Url::TYPE_SEO_FILES, '/tmp/static/sitemap.xml', '/sitemap.xml' ),
+		);
+	}
+
+	/**
+	 * Test steps for create_static_file().
+	 *
+	 * @dataProvider provider_create_static_file_exception
+	 *
+	 * @param string $http_status_code Argument.
+	 * @param string $url              Argument.
+	 * @param string $file_type        Argument.
+	 *
+	 * @throws ReflectionException When fail to create ReflectionClass instance.
+	 */
+	public function test_create_static_file_exception( $http_status_code, $url, $file_type ) {
+		file_put_contents( ABSPATH . 'wp-content/uploads/2020/03/test.txt', '' );
+		$remote_getter_mock = Mockery::mock( 'alias:Remote_Getter_Mock' );
+		$remote_getter_mock->shouldReceive( 'remote_get' )->andReturn( Test_Utility::create_response( '/', 'index-example.html', $http_status_code ) );
+		$url_fetched         = Model_Url_Handler::create_model_url_fetched( 1, $file_type, $url, 1 );
+		$static_file_creator = $this->create_accessable_method( 'create_static_file_creator_by_factory', array( $url_fetched ), $remote_getter_mock );
+		$this->expectException( Static_Press_Business_Logic_Exception::class );
+		$static_file_creator->create( $url );
+	}
+
+	/**
+	 * Function create_static_file() should create home page.
+	 * Function create_static_file() should create seo files.
+	 * 
+	 * @return array[]
+	 */
+	public function provider_create_static_file_exception() {
+		return array(
+			array( 500, '/?author=1/', Model_Url::TYPE_AUTHOR_ARCHIVE ),
+			array( 200, '/wp-content/uploads/2020/03/test.png', Model_Url::TYPE_STATIC_FILE ),
 		);
 	}
 

@@ -70,19 +70,16 @@ abstract class Static_Press_Static_File_Creator {
 	 * 
 	 * @param string $url URL.
 	 * @return string File path to created file.
+	 * @throws Static_Press_Business_Logic_Exception Unexpected URL type.
 	 */
 	public function create( $url ) {
 		$model_static_file = new Static_Press_Model_Static_File( $url, $this->dump_directory );
-		try {
-			$this->get_file( $model_static_file );
-		} catch ( Static_Press_Business_Logic_Exception $exception ) {
-			return false;
-		}
+		$this->get_file( $model_static_file );
 		$model_static_file->do_file_put_action( $this->static_site_url );
 
 		$this->update_url( array( $model_static_file->check_file_existance_and_create_array_url( $this->file_type, $this->date_time_factory )->to_array() ) );
 
-		return $model_static_file->file_dest;
+		return $model_static_file->check_file_existance();
 	}
 
 	/**

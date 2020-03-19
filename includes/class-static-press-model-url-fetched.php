@@ -68,6 +68,28 @@ class Static_Press_Model_Url_Fetched extends Static_Press_Model_Url {
 	public function is_static_file() {
 		return self::TYPE_STATIC_FILE === $this->get_type();
 	}
+
+	/**
+	 * Creates static file.
+	 * 
+	 * @param int $page Page.
+	 * @return string Local file path to static file.
+	 * @throws Static_Press_Business_Logic_Exception Unexpected URL type.
+	 */
+	public function create_page_url( $page ) {
+		$page_url = untrailingslashit( trim( $this->get_url() ) );
+		switch ( $this->get_type_fetched() ) {
+			case self::TYPE_TERM_ARCHIVE:
+			case self::TYPE_AUTHOR_ARCHIVE:
+			case self::TYPE_OTHER_PAGE:
+				return sprintf( '%s/page/%d', $page_url, $page );
+			case self::TYPE_SINGLE:
+				return sprintf( '%s/%d', $page_url, $page );
+			default:
+				throw new Static_Press_Business_Logic_Exception();
+		}
+	}
+
 	/**
 	 * Converts to array.
 	 * 
