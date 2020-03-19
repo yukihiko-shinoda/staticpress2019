@@ -29,11 +29,13 @@ function time() {
 
 namespace static_press\tests\includes;
 
+require_once dirname( __FILE__ ) . '/../testlibraries/class-die-exception.php';
 require_once dirname( __FILE__ ) . '/../testlibraries/class-model-url.php';
 require_once dirname( __FILE__ ) . '/../testlibraries/class-repository-for-test.php';
 require_once dirname( __FILE__ ) . '/../testlibraries/class-test-utility.php';
 use Mockery;
 use static_press\includes\Static_Press;
+use static_press\tests\testlibraries\Die_Exception;
 use static_press\tests\testlibraries\Model_Url;
 use static_press\tests\testlibraries\Repository_For_Test;
 use static_press\tests\testlibraries\Test_Utility;
@@ -308,7 +310,7 @@ class Static_Press_Test extends \WP_UnitTestCase {
 		ob_start();
 		try {
 			$static_press->ajax_init( Test_Utility::create_terminator_mock() );
-		} catch ( \Exception $exception ) {
+		} catch ( Die_Exception $exception ) {
 			$output = ob_get_clean();
 			$this->assertEquals( 'Dead!', $exception->getMessage() );
 			$this->assertEquals( $expect, $output );
@@ -330,7 +332,7 @@ class Static_Press_Test extends \WP_UnitTestCase {
 		ob_start();
 		try {
 			$static_press->ajax_fetch( Test_Utility::create_terminator_mock() );
-		} catch ( \Exception $exception ) {
+		} catch ( Die_Exception $exception ) {
 			$output = ob_get_clean();
 			$this->assertEquals( 'Dead!', $exception->getMessage() );
 			$this->assertEquals( $expect, $output );
@@ -360,7 +362,7 @@ class Static_Press_Test extends \WP_UnitTestCase {
 		ob_start();
 		try {
 			$static_press->ajax_fetch( Test_Utility::create_terminator_mock() );
-		} catch ( \Exception $exception ) {
+		} catch ( Die_Exception $exception ) {
 			$output = ob_get_clean();
 			$this->assertEquals( 'Dead!', $exception->getMessage() );
 			$this->assertEquals( $expect, json_decode( $output, true ) );
@@ -523,7 +525,7 @@ class Static_Press_Test extends \WP_UnitTestCase {
 		ob_start();
 		try {
 			$static_press->ajax_finalyze( Test_Utility::create_terminator_mock() );
-		} catch ( \Exception $exception ) {
+		} catch ( Die_Exception $exception ) {
 			$output = ob_get_clean();
 			$this->assertEquals( 'Dead!', $exception->getMessage() );
 			$this->assertEquals( $expect, $output );

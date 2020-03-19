@@ -10,6 +10,7 @@ namespace static_press\tests\testlibraries;
 require_once dirname( __FILE__ ) . '/../testlibraries/class-expect-urls-static-files.php';
 require_once dirname( __FILE__ ) . '/../testlibraries/class-model-url.php';
 use Mockery;
+use static_press\tests\testlibraries\Die_Exception;
 use static_press\tests\testlibraries\Expect_Urls_Static_Files;
 use static_press\tests\testlibraries\Model_Url;
 
@@ -230,7 +231,7 @@ class Test_Utility {
 	 */
 	public static function create_terminator_mock() {
 		$terminator_mock = Mockery::mock( 'alias:Terminator_Mock' );
-		$terminator_mock->shouldReceive( 'terminate' )->andThrow( new \Exception( 'Dead!' ) );
+		$terminator_mock->shouldReceive( 'terminate' )->andThrow( new Die_Exception( 'Dead!' ) );
 		return $terminator_mock;
 	}
 

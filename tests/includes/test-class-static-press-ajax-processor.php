@@ -8,6 +8,7 @@
 namespace static_press\tests\includes;
 
 require_once dirname( __FILE__ ) . '/../testlibraries/class-expect-url.php';
+require_once dirname( __FILE__ ) . '/../testlibraries/class-die-exception.php';
 require_once dirname( __FILE__ ) . '/../testlibraries/class-model-url.php';
 require_once dirname( __FILE__ ) . '/../testlibraries/class-model-url-handler.php';
 require_once dirname( __FILE__ ) . '/../testlibraries/class-repository-for-test.php';
@@ -16,6 +17,7 @@ use Mockery;
 use static_press\includes\Static_Press_Ajax_Init;
 use static_press\includes\Static_Press_Business_Logic_Exception;
 use static_press\includes\Static_Press_Repository;
+use static_press\tests\testlibraries\Die_Exception;
 use static_press\tests\testlibraries\Model_Url;
 use static_press\tests\testlibraries\Model_Url_Handler;
 use static_press\tests\testlibraries\Test_Utility;
@@ -51,8 +53,7 @@ class Static_Press_Ajax_Processor_Test extends \WP_UnitTestCase {
 		ob_start();
 		try {
 			$method->invokeArgs( $static_press, array( $argument ) );
-			// Reason: No need to execute any task.
-		} catch ( \Exception $exception ) { // phpcs:ignore
+		} catch ( Die_Exception $exception ) {
 			$output = ob_get_clean();
 			$this->assertEquals( $expect, $output );
 			return;
