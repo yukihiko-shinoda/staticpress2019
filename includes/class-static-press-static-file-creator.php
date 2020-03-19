@@ -70,7 +70,7 @@ abstract class Static_Press_Static_File_Creator {
 	 * 
 	 * @param string $url URL.
 	 * @return string File path to created file.
-	 * @throws Static_Press_Business_Logic_Exception Unexpected URL type.
+	 * @throws Static_Press_Business_Logic_Exception Case when static file does not exist, or (when local and when source file doesn't exist).
 	 */
 	public function create( $url ) {
 		$model_static_file = new Static_Press_Model_Static_File( $url, $this->dump_directory );
@@ -96,6 +96,7 @@ abstract class Static_Press_Static_File_Creator {
 	 * Gets file.
 	 * 
 	 * @param Static_Press_Model_Static_File $model_static_file Model of static file.
+	 * @throws Static_Press_Business_Logic_Exception When source file doesn't exist.
 	 */
 	abstract protected function get_file( $model_static_file );
 }

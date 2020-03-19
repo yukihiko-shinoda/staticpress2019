@@ -119,7 +119,8 @@ class Static_Press_Ajax_Processor_Test extends \WP_UnitTestCase {
 		$remote_getter_mock->shouldReceive( 'remote_get' )->andReturn( Test_Utility::create_response( '/', 'index-example.html', $http_status_code ) );
 		$url_fetched         = Model_Url_Handler::create_model_url_fetched( 1, $file_type, $url, 1 );
 		$static_file_creator = $this->create_accessable_method( 'create_static_file_creator_by_factory', array( $url_fetched ), $remote_getter_mock );
-		$this->expectException( Static_Press_Business_Logic_Exception::class );
+		// Reason: This project no longer support PHP 5.5 nor lower.
+		$this->expectException( Static_Press_Business_Logic_Exception::class ); // phpcs:ignore
 		$static_file_creator->create( $url );
 	}
 

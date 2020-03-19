@@ -11,6 +11,7 @@ require_once dirname( __FILE__ ) . '/../testlibraries/class-model-url.php';
 require_once dirname( __FILE__ ) . '/../testlibraries/class-repository-for-test.php';
 require_once dirname( __FILE__ ) . '/../testlibraries/class-test-utility.php';
 use static_press\includes\Static_Press_Ajax_Fetch;
+use static_press\includes\Static_Press_Business_Logic_Exception;
 use static_press\includes\Static_Press_Repository;
 use static_press\tests\testlibraries\Expect_Url;
 use static_press\tests\testlibraries\Model_Url;
@@ -28,7 +29,9 @@ class Static_Press_Ajax_Fetch_Test extends \WP_UnitTestCase {
 	 * @throws ReflectionException When fail to create ReflectionClass instance.
 	 */
 	public function test_fetch_url_url_not_exists() {
-		$this->assertFalse( $this->create_accessable_method( 'fetch_url', array() ) );
+		// Reason: This project no longer support PHP 5.5 nor lower.
+		$this->expectException( Static_Press_Business_Logic_Exception::class ); // phpcs:ignore
+		$this->create_accessable_method( 'fetch_url', array() );
 	}
 
 	/**

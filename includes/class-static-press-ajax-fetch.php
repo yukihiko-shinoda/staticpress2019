@@ -85,27 +85,28 @@ class Static_Press_Ajax_Fetch extends Static_Press_Ajax_Processor {
 	 * Fetches.
 	 * 
 	 * @return Static_Press_Model_Url_Fetched $url URL.
-	 * @throws Static_Press_Business_Logic_Exception Case when first fetched URL is not exist.
+	 * @throws Static_Press_Business_Logic_Exception Case when fail to fetch first URL.
 	 */
 	private function fetch() {
 		$url_first = $this->fetch_url();
-		if ( ! $url_first ) {
-			throw new Static_Press_Business_Logic_Exception();
-		}
 		$this->create_static_file( $url_first );
 
 		if ( $url_first->has_multiple_page() ) {
 			$this->create_static_file_for_pages( $url_first );
 		}
 
-		while ( $url = $this->fetch_url() ) {
+		while ( true ) {
+			try {
+				$url = $this->fetch_url();
+			} catch ( Static_Press_Business_Logic_Exception $exception ) {
+				return false;
+			}
 			$this->create_static_file( $url );
 			$limit = $url->is_static_file() ? self::FETCH_LIMIT_STATIC : self::FETCH_LIMIT;
 			if ( $this->fetch_result->file_count >= $limit ) {
-				break;
+				return $url;
 			}
 		}
-		return $url;
 	}
 
 	/**
@@ -115,7 +116,12 @@ class Static_Press_Ajax_Fetch extends Static_Press_Ajax_Processor {
 	 */
 	private function create_static_file( $url ) {
 		$static_file_creator = $this->create_static_file_creator_by_factory( $url );
-		$this->fetch_result->set_fetch_result( $url, $static_file_creator->create( $url->get_url() ) );
+		try {
+			$static_file = $static_file_creator->create( $url->get_url() );
+		} catch ( Static_Press_Business_Logic_Exception $exception ) {
+			$static_file = false;
+		}
+		$this->fetch_result->set_fetch_result( $url, $static_file );
 	}
 
 	/**
@@ -131,10 +137,14 @@ class Static_Press_Ajax_Fetch extends Static_Press_Ajax_Processor {
 		$pages               = $url->get_pages_fetched();
 		for ( $page = 2; $page <= $pages; $page++ ) {
 			try {
-				$page_url    = $url->create_page_url( $page );
-				$static_file = $static_file_creator->create( $page_url );
+				$page_url = $url->create_page_url( $page );
 			} catch ( Static_Press_Business_Logic_Exception $exception ) {
 				break;
+			}
+			try {
+				$static_file = $static_file_creator->create( $page_url );
+			} catch ( Static_Press_Business_Logic_Exception $exception ) {
+				$static_file = false;
 			}
 			$this->fetch_result->set_page_fetch_result( $url, $page, $page_url, $static_file );
 		}
@@ -143,19 +153,19 @@ class Static_Press_Ajax_Fetch extends Static_Press_Ajax_Processor {
 	/**
 	 * Fetches URL.
 	 * 
-	 * @return Static_Press_Model_Url_Fetched|bool Fetched URL when exist in database table, false when not exist in database table.
+	 * @return Static_Press_Model_Url_Fetched Fetched URL when exist in database table, false when not exist in database table.
+	 * @throws Static_Press_Business_Logic_Exception Case when fail to fetch URL.
 	 */
 	private function fetch_url() {
 		$result = $this->repository->get_next_url(
 			$this->fetch_start_time(),
 			Static_Press_Transient_Service::fetch_last_id()
 		);
-		if ( ! is_null( $result ) && ! is_wp_error( $result ) && $result->ID ) {
-			Static_Press_Transient_Service::fetch_last_id( $result->ID );
-			return new Static_Press_Model_Url_Fetched( $result );
-		} else {
+		if ( is_null( $result ) || is_wp_error( $result ) || ! $result->ID ) {
 			Static_Press_Transient_Service::delete();
-			return false;
+			throw new Static_Press_Business_Logic_Exception();
 		}
+		Static_Press_Transient_Service::fetch_last_id( $result->ID );
+		return new Static_Press_Model_Url_Fetched( $result );
 	}
 }
