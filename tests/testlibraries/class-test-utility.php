@@ -10,14 +10,17 @@ namespace static_press\tests\testlibraries;
 require_once dirname( __FILE__ ) . '/../testlibraries/class-expect-urls-static-files.php';
 require_once dirname( __FILE__ ) . '/../testlibraries/class-model-url.php';
 use Mockery;
+use static_press\includes\Static_Press_Model_Url_Front_Page;
+use static_press\includes\Static_Press_Model_Url_Seo;
+use static_press\includes\Static_Press_Model_Url_Static_File;
 use static_press\tests\testlibraries\Die_Exception;
 use static_press\tests\testlibraries\Expect_Urls_Static_Files;
-use static_press\tests\testlibraries\Model_Url;
 
 /**
  * URL Collector.
  */
 class Test_Utility {
+	const DATE_FOR_TEST = '2019-12-23 12:34:56';
 	/**
 	 * Sets up for testing seo_url().
 	 * 
@@ -108,31 +111,45 @@ class Test_Utility {
 	 * 
 	 * @param string $last_modified Last modified time.
 	 */
-	public static function get_expect_urls_front_page( $last_modified ) {
+	public static function get_expect_urls_front_page() {
 		return array(
-			array(
-				'type'          => Model_Url::TYPE_FRONT_PAGE,
-				'url'           => '/',
-				'last_modified' => $last_modified,
-			),
+			new Static_Press_Model_Url_Front_Page( self::create_date_time_factory_mock( 'create_date', 'Y-m-d h:i:s' ) ),
 		);
 	}
 
 	/**
 	 * Gets expect URLs.
 	 * 
-	 * @param string $last_modified Last modified time.
+	 * @return Static_Press_Model_Url_Static_File[] Array of model URL of static file.
 	 */
-	public static function get_expect_urls_static_files( $last_modified ) {
+	public static function get_expect_urls_static_files() {
 		$expect = array();
 		foreach ( Expect_Urls_Static_Files::EXPECT_URLS as $expect_url ) {
-			$expect[] = array(
-				'type'          => Model_Url::TYPE_STATIC_FILE,
-				'url'           => $expect_url,
-				'last_modified' => $last_modified,
-			);
+			$expect[] = new Static_Press_Model_Url_Static_File( ABSPATH . ltrim( $expect_url, '/' ) );
 		}
 		return $expect;
+	}
+
+	/**
+	 * Asserts URLs.
+	 * 
+	 * @param PHPUnit_Framework_TestCase $test_case Test case.
+	 * @param Static_Press_Model_Url[]   $expect    Expect URLs.
+	 * @param Static_Press_Model_Url[]   $actual    Actual URLs.
+	 */
+	public static function assert_array_model_url( $test_case, $expect, $actual ) {
+		$length_expect = count( $expect );
+		$length_actual = count( $actual );
+		$test_case->assertEquals(
+			$length_expect,
+			$length_actual,
+			"Failed asserting that {$length_actual} matches expected {$length_expect}."
+		);
+		for ( $index = 0; $index < $length_expect; $index ++ ) {
+			$expect_url = $expect[ $index ];
+			$actual_url = $actual[ $index ];
+			$test_case->assertEquals( $expect_url, $actual_url );
+		}
 	}
 
 	/**
@@ -192,35 +209,16 @@ class Test_Utility {
 	/**
 	 * Gets expect URLs of seo_url().
 	 * 
-	 * @param string $last_modified Last modified.
+	 * @return Static_Press_Model_Url_Seo[] Array of model URL of SEO.
 	 */
-	public static function get_expect_urls_seo( $last_modified ) {
+	public static function get_expect_urls_seo() {
+		$date_time_factory = self::create_date_time_factory_mock( 'create_date', 'Y-m-d h:i:s', self::DATE_FOR_TEST );
 		return array(
-			array(
-				'type'          => Model_Url::TYPE_SEO_FILES,
-				'url'           => '/robots.txt',
-				'last_modified' => $last_modified,
-			),
-			array(
-				'type'          => Model_Url::TYPE_SEO_FILES,
-				'url'           => '/sitemap.xml',
-				'last_modified' => $last_modified,
-			),
-			array(
-				'type'          => Model_Url::TYPE_SEO_FILES,
-				'url'           => '/sitemap-misc.xml',
-				'last_modified' => $last_modified,
-			),
-			array(
-				'type'          => Model_Url::TYPE_SEO_FILES,
-				'url'           => '/sitemap-tax-category.xml',
-				'last_modified' => $last_modified,
-			),
-			array(
-				'type'          => Model_Url::TYPE_SEO_FILES,
-				'url'           => '/sitemap-pt-post-2020-02.xml',
-				'last_modified' => $last_modified,
-			),
+			new Static_Press_Model_Url_Seo( '/robots.txt', $date_time_factory ),
+			new Static_Press_Model_Url_Seo( '/sitemap.xml', $date_time_factory ),
+			new Static_Press_Model_Url_Seo( '/sitemap-misc.xml', $date_time_factory ),
+			new Static_Press_Model_Url_Seo( '/sitemap-tax-category.xml', $date_time_factory ),
+			new Static_Press_Model_Url_Seo( '/sitemap-pt-post-2020-02.xml', $date_time_factory ),
 		);
 	}
 
@@ -253,7 +251,7 @@ class Test_Utility {
 	 * @param string $parameter     Parameter.
 	 * @param mixed  $return_value  Return value.
 	 */
-	public static function create_date_time_factory_mock( $function_name, $parameter, $return_value ) {
+	public static function create_date_time_factory_mock( $function_name, $parameter, $return_value = self::DATE_FOR_TEST ) {
 		$date_time_factory_mock = Mockery::mock( 'alias:Date_Time_Factory_Mock' );
 		$date_time_factory_mock->shouldReceive( $function_name )
 		->with( $parameter )

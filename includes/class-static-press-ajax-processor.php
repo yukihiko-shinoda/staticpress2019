@@ -25,12 +25,15 @@ if ( ! class_exists( 'static_press\includes\Static_Press_Url_Updater' ) ) {
 if ( ! class_exists( 'static_press\includes\Static_Press_Transient_Service' ) ) {
 	require dirname( __FILE__ ) . '/class-static-press-transient-service.php';
 }
+if ( ! class_exists( 'static_press\includes\Static_Press_Url_Collector' ) ) {
+	require dirname( __FILE__ ) . '/class-static-press-url-collector.php';
+}
 use static_press\includes\Static_Press_Date_Time_Factory;
 use static_press\includes\Static_Press_Factory_Static_File_Creator;
 use static_press\includes\Static_Press_Response_Processor_200_Crawl;
 use static_press\includes\Static_Press_Static_File_Creator_Remote;
 use static_press\includes\Static_Press_Transient_Service;
-
+use static_press\includes\Static_Press_Url_Collector;
 /**
  * Class Static_Press_Ajax_Processor
  */

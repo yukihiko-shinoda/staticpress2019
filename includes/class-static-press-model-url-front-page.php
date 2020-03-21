@@ -1,6 +1,6 @@
 <?php
 /**
- * Class Static_Press_Model_Url_Site
+ * Class Static_Press_Model_Url_Front_Page
  *
  * @package static_press\includes
  */
@@ -12,9 +12,9 @@ if ( ! class_exists( 'static_press\includes\Static_Press_Site_Dependency' ) ) {
 }
 use static_press\includes\Static_Press_Site_Dependency;
 /**
- * Model URL site.
+ * Model URL front page.
  */
-class Static_Press_Model_Url_Site extends Static_Press_Model_Url {
+class Static_Press_Model_Url_Front_Page extends Static_Press_Model_Url {
 	/**
 	 * Constructor.
 	 * 

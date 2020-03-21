@@ -13,8 +13,12 @@ if ( ! class_exists( 'static_press\includes\Static_Press_Model_Url_Other' ) ) {
 if ( ! class_exists( 'static_press\includes\Static_Press_Response_Processor_200' ) ) {
 	require dirname( __FILE__ ) . '/class-static-press-response-processor-200.php';
 }
+if ( ! class_exists( 'static_press\includes\Static_Press_Site_Dependency' ) ) {
+	require dirname( __FILE__ ) . '/class-static-press-site-dependency.php';
+}
 use static_press\includes\Static_Press_Model_Url_Other;
 use static_press\includes\Static_Press_Response_Processor_200;
+use static_press\includes\Static_Press_Site_Dependency;
 
 /**
  * Class Static_Press_Response_Processor_200_Crawl
@@ -77,7 +81,7 @@ class Static_Press_Response_Processor_200_Crawl extends Static_Press_Response_Pr
 			}
 		}
 
-		$pattern = '#href=[\'"](' . preg_quote( Static_Press_Url_Collector::get_site_url() ) . '[^\'"\?\#]+)[^\'"]*[\'"]#i';
+		$pattern = '#href=[\'"](' . preg_quote( Static_Press_Site_Dependency::get_site_url() ) . '[^\'"\?\#]+)[^\'"]*[\'"]#i';
 		if ( preg_match_all( $pattern, $content, $matches ) ) {
 			$matches = array_unique( $matches[1] );
 			foreach ( $matches as $link ) {
@@ -88,14 +92,14 @@ class Static_Press_Response_Processor_200_Crawl extends Static_Press_Response_Pr
 		}
 		unset( $matches );
 
+		if ( count( $urls ) > 0 ) {
+			$this->update_url( $urls );
+		}
+
 		$array_array_url = array();
 		foreach ( $urls as $url ) {
 			$array_array_url[] = $url->to_array();
 		}
-		if ( count( $array_array_url ) > 0 ) {
-			$this->update_url( $array_array_url );
-		}
-
 		return $array_array_url;
 	}
 

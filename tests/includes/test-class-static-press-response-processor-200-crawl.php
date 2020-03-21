@@ -10,6 +10,7 @@ namespace static_press\tests\includes;
 require_once dirname( __FILE__ ) . '/../testlibraries/class-expect-url.php';
 require_once dirname( __FILE__ ) . '/../testlibraries/class-model-url.php';
 require_once dirname( __FILE__ ) . '/../testlibraries/class-test-utility.php';
+use static_press\includes\Static_Press_Model_Url_Other;
 use static_press\includes\Static_Press_Repository;
 use static_press\includes\Static_Press_Response_Processor_200_Crawl;
 use static_press\includes\Static_Press_Transient_Service;
@@ -35,15 +36,11 @@ class Static_Press_Response_Processor_200_Crawl_Test extends \WP_UnitTestCase {
 	 * @throws ReflectionException     When fail to create ReflectionClass instance.
 	 */
 	public function test_other_url( $content, $url, $expect, $expect_urls_in_database ) {
+		$date_time_factoy_mock = Test_Utility::create_date_time_factory_mock( 'create_date', 'Y-m-d h:i:s' );
 		$urls                  = array(
-			array(
-				'url' => '/',
-			),
-			array(
-				'url' => '/test/',
-			),
+			new Static_Press_Model_Url_Other( '/', $date_time_factoy_mock ),
+			new Static_Press_Model_Url_Other( '/test/', $date_time_factoy_mock ),
 		);
-		$date_time_factoy_mock = Test_Utility::create_date_time_factory_mock( 'create_date', 'Y-m-d h:i:s', self::DATE_FOR_TEST );
 		$static_press          = new Static_Press_Response_Processor_200_Crawl(
 			null,
 			new Static_Press_Repository(),
@@ -53,9 +50,9 @@ class Static_Press_Response_Processor_200_Crawl_Test extends \WP_UnitTestCase {
 		$method                = $reflection->getMethod( 'update_url' );
 		$method->setAccessible( true );
 		$method->invokeArgs( $static_press, array( $urls ) );
+
 		$method = $reflection->getMethod( 'other_url' );
 		$method->setAccessible( true );
-
 		$result = $method->invokeArgs( $static_press, array( $content, $url ) );
 		$this->assertEquals( $expect, $result );
 		$transient_service = new Static_Press_Transient_Service( $date_time_factoy_mock );
@@ -219,10 +216,9 @@ class Static_Press_Response_Processor_200_Crawl_Test extends \WP_UnitTestCase {
 	 * @throws ReflectionException When fail to create ReflectionClass instance.
 	 */
 	public function test_url_exists( $link, $expect ) {
-		$urls = array(
-			array(
-				'url' => '/',
-			),
+		$date_time_factoy_mock = Test_Utility::create_date_time_factory_mock( 'create_date', 'Y-m-d h:i:s' );
+		$urls                  = array(
+			new Static_Press_Model_Url_Other( '/', $date_time_factoy_mock ),
 		);
 
 		$static_press = new Static_Press_Response_Processor_200_Crawl(
@@ -234,9 +230,9 @@ class Static_Press_Response_Processor_200_Crawl_Test extends \WP_UnitTestCase {
 		$method       = $reflection->getMethod( 'update_url' );
 		$method->setAccessible( true );
 		$method->invokeArgs( $static_press, array( $urls ) );
+
 		$method = $reflection->getMethod( 'url_exists' );
 		$method->setAccessible( true );
-
 		$result = $method->invokeArgs( $static_press, array( $link ) );
 		$this->assertEquals( $expect, $result );
 	}

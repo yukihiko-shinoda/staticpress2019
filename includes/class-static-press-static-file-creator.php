@@ -77,19 +77,10 @@ abstract class Static_Press_Static_File_Creator {
 		$this->get_file( $model_static_file );
 		$model_static_file->do_file_put_action( $this->static_site_url );
 
-		$this->update_url( array( $model_static_file->check_file_existance_and_create_array_url( $this->file_type, $this->date_time_factory )->to_array() ) );
+		$url_updater = new Static_Press_Url_Updater( $this->repository, $this->dump_directory );
+		$url_updater->update( array( $model_static_file->check_file_existance_and_create_array_url( $this->file_type, $this->date_time_factory ) ) );
 
 		return $model_static_file->check_file_existance();
-	}
-
-	/**
-	 * Updates URL.
-	 * 
-	 * @param  array $urls URLs.
-	 */
-	protected function update_url( $urls ) {
-		$url_updater = new Static_Press_Url_Updater( $this->repository, $this->dump_directory );
-		$url_updater->update( $urls );
 	}
 
 	/**

@@ -43,10 +43,14 @@ class Static_Press_Url_Updater {
 	/**
 	 * Updates URL.
 	 * 
-	 * @param  array $urls URLs.
+	 * @param  Static_Press_Model_Url[] $urls URLs.
 	 */
 	public function update( $urls ) {
-		foreach ( (array) $urls as $url ) {
+		$array_array_url = array();
+		foreach ( $urls as $url ) {
+			$array_array_url[] = $url->to_array();
+		}
+		foreach ( (array) $array_array_url as $url ) {
 			if ( ! isset( $url['url'] ) || ! $url['url'] ) {
 				continue;
 			}
