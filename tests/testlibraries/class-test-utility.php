@@ -7,8 +7,8 @@
 
 namespace static_press\tests\testlibraries;
 
+require_once dirname( __FILE__ ) . '/../testlibraries/class-die-exception.php';
 require_once dirname( __FILE__ ) . '/../testlibraries/class-expect-urls-static-files.php';
-require_once dirname( __FILE__ ) . '/../testlibraries/class-model-url.php';
 use Mockery;
 use static_press\includes\Static_Press_Model_Url_Front_Page;
 use static_press\includes\Static_Press_Model_Url_Seo;
@@ -108,8 +108,6 @@ class Test_Utility {
 
 	/**
 	 * Gets expect URLs of front_page_url().
-	 * 
-	 * @param string $last_modified Last modified time.
 	 */
 	public static function get_expect_urls_front_page() {
 		return array(

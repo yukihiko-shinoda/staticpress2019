@@ -45,6 +45,7 @@ class Static_Press_Url_Collector_Test extends \WP_UnitTestCase {
 	 * @runInSeparateProcess
 	 */
 	public function test_collect() {
+		file_put_contents( ABSPATH . 'test.txt', '' );
 		$expect_urls            = array_merge(
 			Test_Utility::get_expect_urls_front_page(),
 			Test_Utility::get_expect_urls_static_files( self::DATE_FOR_TEST ),
@@ -249,6 +250,7 @@ class Static_Press_Url_Collector_Test extends \WP_UnitTestCase {
 	 * Function static_files_url() should return URLs of authors.
 	 */
 	public function test_static_files_url() {
+		file_put_contents( ABSPATH . 'test.txt', '' );
 		$expect = Test_Utility::get_expect_urls_static_files( self::DATE_FOR_TEST );
 		wp_insert_post(
 			array(
