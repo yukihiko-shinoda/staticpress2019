@@ -121,9 +121,36 @@ class Test_Utility {
 	 * @return Static_Press_Model_Url_Static_File[] Array of model URL of static file.
 	 */
 	public static function get_expect_urls_static_files() {
-		$expect = array();
+		/**
+		 * To convert E_WARNING of filemtime(): stat failed to LogicException.
+		 * 
+		 * @see https://stackoverflow.com/questions/1241728/can-i-try-catch-a-warning/1241751#1241751
+		 */
+		set_error_handler(
+			function( $errno, $errstr, $errfile, $errline, $errcontext ) {
+				// error was suppressed with the @-operator.
+				if ( 0 === error_reporting() ) {
+					return false;
+				}
+				throw new \LogicException( $errstr, $errno );
+			}
+		);
+		$expect                = array();
+		$array_logic_exception = array();
 		foreach ( Expect_Urls_Static_Files::EXPECT_URLS as $expect_url ) {
-			$expect[] = new Static_Press_Model_Url_Static_File( ABSPATH . ltrim( $expect_url, '/' ) );
+			try {
+				$expect[] = new Static_Press_Model_Url_Static_File( ABSPATH . ltrim( $expect_url, '/' ) );
+			} catch ( \LogicException $exception ) {
+				$array_logic_exception[] = $exception;
+			}
+		}
+		restore_error_handler();
+		if ( ! empty( $array_logic_exception ) ) {
+			$message = "filemtime(): stat failed\n";
+			foreach ( $array_logic_exception as $logic_exception ) {
+				$message .= "{$logic_exception->getMessage()}\n";
+			}
+			throw new \LogicException( $message );
 		}
 		return $expect;
 	}
