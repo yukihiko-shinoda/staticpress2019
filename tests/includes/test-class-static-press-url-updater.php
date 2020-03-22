@@ -64,9 +64,11 @@ class Static_Press_Url_Updater_Test extends \WP_UnitTestCase {
 		);
 		global $wp_version;
 		if ( version_compare( $wp_version, '5.3.0', '<' ) ) {
-			$theme_to_activate = 'twentyfifteen';
+			$theme_to_not_activate = 'twentyfourteen';
+			$theme_to_activate     = 'twentyfifteen';
 		} else {
-			$theme_to_activate = 'twentytwenty';
+			$theme_to_not_activate = 'twentynineteen';
+			$theme_to_activate     = 'twentytwenty';
 		}
 		activate_plugin( 'akismet/akismet.php' );
 		switch_theme( $theme_to_activate );
@@ -82,7 +84,7 @@ class Static_Press_Url_Updater_Test extends \WP_UnitTestCase {
 			new Static_Press_Model_Url_Static_File( ABSPATH . 'readme.txt' ),
 			new Static_Press_Model_Url_Static_File( ABSPATH . 'test.png' ),
 			new Static_Press_Model_Url_Static_File( ABSPATH . 'wp-content/plugins/akismet/_inc/akismet.css' ),
-			new Static_Press_Model_Url_Static_File( ABSPATH . 'wp-content/themes/twentynineteen/style.css' ),
+			new Static_Press_Model_Url_Static_File( ABSPATH . "wp-content/themes/{$theme_to_not_activate}/style.css" ),
 			new Static_Press_Model_Url_Static_File( ABSPATH . "wp-content/themes/{$theme_to_activate}/style.css" ),
 		);
 		unlink( ABSPATH . 'test.png' );
