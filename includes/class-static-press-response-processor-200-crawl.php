@@ -25,11 +25,11 @@ use static_press\includes\Static_Press_Site_Dependency;
  */
 class Static_Press_Response_Processor_200_Crawl extends Static_Press_Response_Processor_200 {
 	/**
-	 * Directory to dump static files.
+	 * URL updater.
 	 * 
-	 * @var string
+	 * @var Static_Press_Url_Updater
 	 */
-	private $dump_directory;
+	private $url_updater;
 	/**
 	 * Repository.
 	 * 
@@ -50,7 +50,7 @@ class Static_Press_Response_Processor_200_Crawl extends Static_Press_Response_Pr
 	 * @param Static_Press_Date_Time_Factory $date_time_factory Date time factory.
 	 */
 	public function __construct( $dump_directory, $repository, $date_time_factory ) {
-		$this->dump_directory    = $dump_directory;
+		$this->url_updater       = new Static_Press_Url_Updater( $repository, $dump_directory );
 		$this->repository        = $repository;
 		$this->date_time_factory = $date_time_factory;
 	}
@@ -61,55 +61,49 @@ class Static_Press_Response_Processor_200_Crawl extends Static_Press_Response_Pr
 	 * @param Static_Press_Model_Static_File $model_static_file Static file.
 	 */
 	public function process( $content, $model_static_file ) {
-		$this->other_url( $content['body'], $model_static_file->url, $model_static_file->http_code );
+		$this->crawl_url( $model_static_file->url );
+		$this->crawl_body( $content['body'] );
 		parent::process( $content, $model_static_file );
 	}
 
 	/**
-	 * Checks other URL.
+	 * Crawls other URL.
 	 * 
-	 * @param string $content Content.
-	 * @param string $url     URL.
-	 * @return array
+	 * @param string $url URL.
 	 */
-	private function other_url( $content, $url ) {
-		$urls = array();
-
+	private function crawl_url( $url ) {
 		while ( ( $url = dirname( $url ) ) && '/' != $url ) {
-			if ( ! $this->url_exists( $url ) ) {
-				$urls[] = new Static_Press_Model_Url_Other( $url, $this->date_time_factory );
+			if ( ! $this->has_listed( $url ) ) {
+				$this->url_updater->update( array( new Static_Press_Model_Url_Other( $url, $this->date_time_factory ) ) );
 			}
 		}
+	}
 
+	/**
+	 * Crawls other URL.
+	 * 
+	 * @param string $content Content.
+	 */
+	private function crawl_body( $content ) {
 		$pattern = '#href=[\'"](' . preg_quote( Static_Press_Site_Dependency::get_site_url() ) . '[^\'"\?\#]+)[^\'"]*[\'"]#i';
 		if ( preg_match_all( $pattern, $content, $matches ) ) {
 			$matches = array_unique( $matches[1] );
 			foreach ( $matches as $link ) {
-				if ( ! $this->url_exists( $link ) ) {
-					$urls[] = new Static_Press_Model_Url_Other( $link, $this->date_time_factory );
+				if ( ! $this->has_listed( $link ) ) {
+					$this->url_updater->update( array( new Static_Press_Model_Url_Other( $link, $this->date_time_factory ) ) );
 				}
 			}
 		}
 		unset( $matches );
-
-		if ( count( $urls ) > 0 ) {
-			$this->update_url( $urls );
-		}
-
-		$array_array_url = array();
-		foreach ( $urls as $url ) {
-			$array_array_url[] = $url->to_array();
-		}
-		return $array_array_url;
 	}
 
 	/**
-	 * Check whether URL exists or not.
+	 * Check whether URL is already list or not.
 	 * 
 	 * @param  string $url URL.
 	 * @return bool
 	 */
-	private function url_exists( $url ) {
+	private function has_listed( $url ) {
 		$url   = apply_filters( 'StaticPress::get_url', $url );
 		$count = intval( wp_cache_get( 'StaticPress::' . $url, 'static_press' ) );
 		if ( $count > 0 ) {
@@ -120,15 +114,5 @@ class Static_Press_Response_Processor_200_Crawl extends Static_Press_Response_Pr
 		wp_cache_set( 'StaticPress::' . $url, $count, 'static_press' );
 		
 		return $count > 0;
-	}
-
-	/**
-	 * Updates URL.
-	 * 
-	 * @param  array $urls URLs.
-	 */
-	private function update_url( $urls ) {
-		$url_updater = new Static_Press_Url_Updater( $this->repository, $this->dump_directory );
-		$url_updater->update( $urls );
 	}
 }

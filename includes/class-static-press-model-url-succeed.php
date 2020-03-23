@@ -55,13 +55,15 @@ class Static_Press_Model_Url_Succeed extends Static_Press_Model_Url {
 	 * @return array
 	 */
 	public function to_array() {
-		return array(
-			Static_Press_Repository::FIELD_NAME_TYPE      => $this->get_type(),
-			Static_Press_Repository::FIELD_NAME_URL       => $this->get_url(),
-			Static_Press_Repository::FIELD_NAME_FILE_NAME => $this->get_file_name(),
-			Static_Press_Repository::FIELD_NAME_FILE_DATE => $this->get_file_date(),
-			Static_Press_Repository::FIELD_NAME_LAST_STATUS_CODE => $this->get_last_status_code(),
-			Static_Press_Repository::FIELD_NAME_LAST_UPLOAD => $this->get_last_upload(),
+		return array_merge(
+			$this->to_array_common(),
+			array(
+				Static_Press_Repository::FIELD_NAME_TYPE => $this->get_type(),
+				Static_Press_Repository::FIELD_NAME_FILE_NAME => $this->get_file_name(),
+				Static_Press_Repository::FIELD_NAME_FILE_DATE => $this->get_file_date(),
+				Static_Press_Repository::FIELD_NAME_LAST_STATUS_CODE => $this->get_last_status_code(),
+				Static_Press_Repository::FIELD_NAME_LAST_UPLOAD => $this->get_last_upload(),
+			)
 		);
 	}
 }

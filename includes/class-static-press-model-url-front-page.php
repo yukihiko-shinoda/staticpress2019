@@ -43,10 +43,12 @@ class Static_Press_Model_Url_Front_Page extends Static_Press_Model_Url {
 	 * @return array
 	 */
 	public function to_array() {
-		return array(
-			Static_Press_Repository::FIELD_NAME_TYPE => $this->get_type(),
-			Static_Press_Repository::FIELD_NAME_URL  => $this->get_url(),
-			Static_Press_Repository::FIELD_NAME_LAST_MODIFIED => $this->get_last_modified(),
+		return array_merge(
+			$this->to_array_common(),
+			array(
+				Static_Press_Repository::FIELD_NAME_TYPE => $this->get_type(),
+				Static_Press_Repository::FIELD_NAME_LAST_MODIFIED => $this->get_last_modified(),
+			)
 		);
 	}
 }

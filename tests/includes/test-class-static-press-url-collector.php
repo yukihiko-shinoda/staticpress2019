@@ -97,6 +97,7 @@ class Static_Press_Url_Collector_Test extends \WP_UnitTestCase {
 					'object_type'   => 'attachment',
 					'pages'         => 1,
 					'last_modified' => self::DATE_FOR_TEST,
+					'enable'        => null,
 				),
 				array(
 					'type'          => Model_Url::TYPE_SINGLE,
@@ -105,6 +106,7 @@ class Static_Press_Url_Collector_Test extends \WP_UnitTestCase {
 					'object_type'   => 'attachment',
 					'pages'         => 3,
 					'last_modified' => self::DATE_FOR_TEST,
+					'enable'        => null,
 				),
 			);
 		} else {
@@ -116,6 +118,7 @@ class Static_Press_Url_Collector_Test extends \WP_UnitTestCase {
 					'object_type'   => 'attachment',
 					'pages'         => 1,
 					'last_modified' => self::DATE_FOR_TEST,
+					'enable'        => null,
 				),
 				array(
 					'type'          => Model_Url::TYPE_SINGLE,
@@ -124,6 +127,7 @@ class Static_Press_Url_Collector_Test extends \WP_UnitTestCase {
 					'object_type'   => 'attachment',
 					'pages'         => 3,
 					'last_modified' => self::DATE_FOR_TEST,
+					'enable'        => null,
 				),
 			);
 		}
@@ -188,6 +192,7 @@ class Static_Press_Url_Collector_Test extends \WP_UnitTestCase {
 				'pages'         => 1,
 				'parent'        => 2,
 				'last_modified' => self::DATE_FOR_TEST,
+				'enable'        => null,
 			),
 			array(
 				'type'          => Model_Url::TYPE_TERM_ARCHIVE,
@@ -197,6 +202,7 @@ class Static_Press_Url_Collector_Test extends \WP_UnitTestCase {
 				'pages'         => 1,
 				'parent'        => 0,
 				'last_modified' => self::DATE_FOR_TEST,
+				'enable'        => null,
 			),
 			array(
 				'type'          => Model_Url::TYPE_TERM_ARCHIVE,
@@ -206,6 +212,7 @@ class Static_Press_Url_Collector_Test extends \WP_UnitTestCase {
 				'pages'         => 1,
 				'parent'        => 2,
 				'last_modified' => self::DATE_FOR_TEST,
+				'enable'        => null,
 			),
 		);
 		$actual          = $this->create_accessable_method( null, 'terms_url', array() );
@@ -227,6 +234,7 @@ class Static_Press_Url_Collector_Test extends \WP_UnitTestCase {
 				'object_id'     => 1,
 				'pages'         => 1,
 				'last_modified' => self::DATE_FOR_TEST,
+				'enable'        => null,
 			),
 		);
 		wp_insert_post(

@@ -20,6 +20,7 @@ class Static_Press_Model_Url_Front_Page_Test extends \WP_UnitTestCase {
 			'type'          => Model_Url::TYPE_FRONT_PAGE,
 			'url'           => '/',
 			'last_modified' => Test_Utility::DATE_FOR_TEST,
+			'enable'        => null,
 		);
 		$url_front_page = new Static_Press_Model_Url_Front_Page(
 			Test_Utility::create_date_time_factory_mock( 'create_date', 'Y-m-d h:i:s' )

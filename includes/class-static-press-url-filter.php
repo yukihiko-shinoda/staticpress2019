@@ -34,8 +34,10 @@ class Static_Press_Url_Filter {
 		$static_files_filter = Static_Press_Model_Static_File::get_filtered_array_extension();
 		$this->regex         = '#[^/]+\.' . implode( '|', array_merge( $static_files_filter, array( 'php' ) ) ) . '$#i';
 	}
+
 	/**
-	 * Replaces URL.
+	 * Replaces URL to relative URL if URL is absolute URL of dynamic site,
+	 * and be end with '/' if URL is not end with extension of static file or '.php'.
 	 * 
 	 * @param  string $url URL.
 	 * @return string Replaced URL.
