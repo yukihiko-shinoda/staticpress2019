@@ -194,12 +194,7 @@ class Static_Press_Url_Collector {
 			$file_scanner->scan( trailingslashit( ABSPATH ) . 'wp-includes/', true ),
 			$file_scanner->scan( trailingslashit( WP_CONTENT_DIR ), true )
 		);
-
-		$urls = array();
-		foreach ( $static_files as $static_file ) {
-			$urls[] = new Static_Press_Model_Url_Static_File( $static_file );
-		}
-		return $urls;
+		return $static_files;
 	}
 
 	/**

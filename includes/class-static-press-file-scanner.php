@@ -7,6 +7,10 @@
 
 namespace static_press\includes;
 
+if ( ! class_exists( 'static_press\includes\Static_Press_Model_Url_Static_File' ) ) {
+	require dirname( __FILE__ ) . '/class-static-press-model-url-static-file.php';
+}
+use static_press\includes\Static_Press_Model_Url_Static_File;
 /**
  * File scanner.
  * This class should be instantiated before entering loop since constructor includes loop process.
@@ -37,23 +41,22 @@ class Static_Press_File_Scanner {
 	 * 
 	 * @param string $dir       Directory.
 	 * @param bool   $recursive Whether scan recursive or not.
+	 * @return Static_Press_Model_Url_Static_File[] Array of path.
 	 */
 	public function scan( $dir, $recursive = true ) {
 		$list = array();
-		if ( $recursive ) {
-			$tmp = array();
-			foreach ( glob( $dir . '*/', GLOB_ONLYDIR ) as $child_dir ) {
-				$tmp = $this->scan( $child_dir, $recursive );
-				if ( $tmp ) {
-					$list = array_merge( $list, $tmp );
-				}
+		foreach ( glob( $dir . $this->concatenated_extension_static_file, GLOB_BRACE ) as $path ) {
+			$list[] = new Static_Press_Model_Url_Static_File( $path );
+		}
+		if ( ! $recursive ) {
+			return $list;
+		}
+		foreach ( glob( $dir . '*/', GLOB_ONLYDIR ) as $child_dir ) {
+			$tmp = $this->scan( $child_dir );
+			if ( $tmp ) {
+				$list = array_merge( $list, $tmp );
 			}
 		}
-
-		foreach ( glob( $dir . $this->concatenated_extension_static_file, GLOB_BRACE ) as $image ) {
-			$list[] = $image;
-		}
-
 		return $list;
 	}
 }
