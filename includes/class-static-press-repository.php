@@ -13,6 +13,11 @@ namespace static_press\includes;
 class Static_Press_Repository {
 	const FIELD_NAME_TYPE             = 'type';
 	const FIELD_NAME_URL              = 'url';
+	const FIELD_NAME_OBJECT_ID        = 'object_id';
+	const FIELD_NAME_OBJECT_TYPE      = 'object_type';
+	const FIELD_NAME_PARENT           = 'parent';
+	const FIELD_NAME_PAGES            = 'pages';
+	const FIELD_NAME_ENABLE           = 'enable';
 	const FIELD_NAME_FILE_NAME        = 'file_name';
 	const FIELD_NAME_FILE_DATE        = 'file_date';
 	const FIELD_NAME_LAST_STATUS_CODE = 'last_statuscode';
@@ -277,14 +282,24 @@ class Static_Press_Repository {
 	 * Inserts URL.
 	 * This function sets only defined field and create_date.
 	 * 
-	 * @param array $url URL.
+	 * @param Static_Press_Model_Url[] $url URL.
 	 */
 	public function insert_url( $url ) {
+		$this->insert( $this->url_table, $url->to_array() );
+	}
+
+	/**
+	 * Updates.
+	 * 
+	 * @param string $table_name      Table name.
+	 * @param array  $map_field_value Array. Key: Field name, Value: Value for update.
+	 */
+	private function insert( $table_name, $map_field_value ) {
 		global $wpdb;
-		$sql        = "INSERT INTO {$this->url_table}";
-		$sql       .= ' (`' . implode( '`,`', array_keys( $url ) ) . '`,`create_date`)';
+		$sql        = "INSERT INTO {$table_name}";
+		$sql       .= ' (`' . implode( '`,`', array_keys( $map_field_value ) ) . '`,`create_date`)';
 		$insert_val = array();
-		foreach ( $url as $val ) {
+		foreach ( $map_field_value as $val ) {
 			$insert_val[] = $wpdb->prepare( '%s', $val );
 		}
 		$insert_val[] = $wpdb->prepare( '%s', $this->date_time_factory->create_date( 'Y-m-d h:i:s' ) );
@@ -296,14 +311,25 @@ class Static_Press_Repository {
 	 * Updates URL.
 	 * This function updates only defined field.
 	 * 
-	 * @param string $id  ID.
-	 * @param array  $url URL.
+	 * @param string                   $id  ID.
+	 * @param Static_Press_Model_Url[] $url URL.
 	 */
 	public function update_url( $id, $url ) {
+		$this->update( $id, $this->url_table, $url->to_array() );
+	}
+
+	/**
+	 * Updates.
+	 * 
+	 * @param string $id              ID.
+	 * @param string $table_name      Table name.
+	 * @param array  $map_field_value Array. Key: Field name, Value: Value for update.
+	 */
+	private function update( $id, $table_name, $map_field_value ) {
 		global $wpdb;
-		$sql        = "UPDATE {$this->url_table}";
+		$sql        = "UPDATE {$table_name}";
 		$update_sql = array();
-		foreach ( $url as $key => $val ) {
+		foreach ( $map_field_value as $key => $val ) {
 			$update_sql[] = $wpdb->prepare( "{$key} = %s", $val );
 		}
 		$sql .= ' SET ' . implode( ',', $update_sql );

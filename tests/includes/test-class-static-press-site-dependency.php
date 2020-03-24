@@ -46,11 +46,14 @@ class Static_Press_Site_Dependency_Test extends \WP_UnitTestCase {
 		parent::setUp();
 		global $wp_version;
 		if ( defined( 'MULTISITE' ) && MULTISITE === true && version_compare( $wp_version, '5.0.0', '>=' ) ) {
-			// In WordPress 4.3, wpmu_create_blog() breaks MySQL connection from separate process.
-			// mysqli_errno(): Couldn't fetch mysqli
-			// To fix, PHPUnit 6 is required, however, WordPress plugin test are only supported by PHPUnit 5.*...
-			// @see https://stackoverflow.com/questions/45989601/wordpress-develop-unit-testing-couldnt-fetch-mysqli/51098542#51098542
-			// @see https://make.wordpress.org/cli/handbook/plugin-unit-tests/#running-tests-locally
+			/**
+			 *  In WordPress 4.3, wpmu_create_blog() breaks MySQL connection from separate process.
+			 *  mysqli_errno(): Couldn't fetch mysqli
+			 *  To fix, PHPUnit 6 is required, however, WordPress plugin test are only supported by PHPUnit 5.*...
+			 * 
+			 *  @see https://stackoverflow.com/questions/45989601/wordpress-develop-unit-testing-couldnt-fetch-mysqli/51098542#51098542
+			 *  @see https://make.wordpress.org/cli/handbook/plugin-unit-tests/#running-tests-locally
+			 */
 			remove_filter( 'query', array( $this, '_create_temporary_tables' ) );
 			remove_filter( 'query', array( $this, '_drop_temporary_tables' ) );
 			wpmu_delete_blog( domain_exists( self::DOMAIN_ANOTHER_BLOG, self::PATH_ANOTHER_BLOG, 1 ), true );
@@ -59,9 +62,9 @@ class Static_Press_Site_Dependency_Test extends \WP_UnitTestCase {
 			 * /tmp/wordpress/wp-includes/ms-functions.php:1809
 			 */
 			global $_SERVER;
-			$_SERVER['REMOTE_ADDR'] = '0.0.0.0';
-			$title  = 'Look at my awesome site';
-			$this->blog_id_previous = get_current_blog_id();
+			$_SERVER['REMOTE_ADDR']     = '0.0.0.0';
+			$title                      = 'Look at my awesome site';
+			$this->blog_id_previous     = get_current_blog_id();
 			$this->blog_id_another_blog = wpmu_create_blog( self::DOMAIN_ANOTHER_BLOG, self::PATH_ANOTHER_BLOG, $title, 1 );
 			switch_to_blog( $this->blog_id_another_blog );
 			$this->url          = 'https://' . self::DOMAIN_ANOTHER_BLOG . '/sub/';
@@ -93,7 +96,8 @@ class Static_Press_Site_Dependency_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Function get_site_url() should return site URL.
+	 * Function get_site_url() should get site home URL.
+	 * Function get_site_url() should get appropriate blog's home URL when multisite.
 	 */
 	public function test_get_site_url() {
 		$result = Static_Press_Site_Dependency::get_site_url();

@@ -17,7 +17,7 @@ use static_press\tests\testlibraries\Test_Utility;
  * @noinspection PhpUndefinedClassInspection
  */
 class Static_Press_Transient_Service_Test extends \WP_UnitTestCase {
-	const DATE_FOR_TEST    = '2019-12-23 12:34:56';
+	const DATE_FOR_TEST = '2019-12-23 12:34:56';
 	/**
 	 * Function fetch_last_id() should return 0 when parameter is not set.
 	 */

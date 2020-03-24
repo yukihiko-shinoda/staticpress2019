@@ -37,11 +37,11 @@ if ( ! class_exists( 'static_press\includes\Static_Press_Remote_Getter' ) ) {
 if ( ! class_exists( 'static_press\includes\Static_Press_Terminator' ) ) {
 	require dirname( __FILE__ ) . '/class-static-press-terminator.php';
 }
-if ( ! class_exists( 'static_press\includes\Static_Press_Url_Collector' ) ) {
-	require dirname( __FILE__ ) . '/class-static-press-url-collector.php';
-}
 if ( ! class_exists( 'static_press\includes\Static_Press_Url_Filter' ) ) {
 	require dirname( __FILE__ ) . '/class-static-press-url-filter.php';
+}
+if ( ! class_exists( 'static_press\includes\Static_Press_Site_Dependency' ) ) {
+	require dirname( __FILE__ ) . '/class-static-press-site-dependency.php';
 }
 if ( ! class_exists( 'static_press\includes\Static_Press_Repository' ) ) {
 	require dirname( __FILE__ ) . '/class-static-press-repository.php';
@@ -55,11 +55,10 @@ use static_press\includes\Static_Press_Date_Time_Factory;
 use static_press\includes\Static_Press_File_System_Utility;
 use static_press\includes\Static_Press_Model_Static_File;
 use static_press\includes\Static_Press_Remote_Getter;
-use static_press\includes\Static_Press_Url_Collector;
 use static_press\includes\Static_Press_Url_Filter;
 use static_press\includes\Static_Press_Repository;
+use static_press\includes\Static_Press_Site_Dependency;
 use static_press\includes\Static_Press_Terminator;
-
 /**
  * StaticPress.
  */
@@ -151,7 +150,7 @@ class Static_Press {
 		if ( preg_match( '#^https?://#i', $url_static_home ) ) {
 			return $url_static_home;
 		}
-		$parsed = parse_url( Static_Press_Url_Collector::get_site_url() );
+		$parsed = parse_url( Static_Press_Site_Dependency::get_site_url() );
 		$scheme =
 			isset( $parsed['scheme'] )
 			? $parsed['scheme']

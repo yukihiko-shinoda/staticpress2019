@@ -7,6 +7,12 @@
 
 namespace static_press\includes;
 
+if ( ! class_exists( 'static_press\includes\Static_Press_Business_Logic_Exception' ) ) {
+	require dirname( __FILE__ ) . '/class-static-press-business-logic-exception.php';
+}
+
+use static_press\includes\Static_Press_Business_Logic_Exception;
+
 /**
  * Model URL.
  */
@@ -32,6 +38,7 @@ abstract class Static_Press_Model_Url {
 	private $type;
 	/**
 	 * URL.
+	 * This URL should be related URL from home URL.
 	 * 
 	 * @var string
 	 */
@@ -165,8 +172,36 @@ abstract class Static_Press_Model_Url {
 	/**
 	 * Getter.
 	 */
+	protected function get_object_id() {
+		return $this->object_id;
+	}
+
+	/**
+	 * Getter.
+	 */
+	protected function get_object_type() {
+		return $this->object_type;
+	}
+
+	/**
+	 * Getter.
+	 */
+	protected function get_parent() {
+		return $this->parent;
+	}
+
+	/**
+	 * Getter.
+	 */
 	protected function get_pages() {
 		return $this->pages;
+	}
+
+	/**
+	 * Getter.
+	 */
+	private function get_enable() {
+		return $this->enable;
 	}
 
 	/**
@@ -205,11 +240,60 @@ abstract class Static_Press_Model_Url {
 	}
 
 	/**
+	 * Judges whether this URL should dump or not.
+	 * 
+	 * @throws Static_Press_Business_Logic_Exception Case when this URL type is static file.
+	 */
+	public function judge_to_dump() {
+		$this->enable = $this->classify();
+	}
+
+	/**
+	 * Classifies URL whether should dump or not.
+	 * 
+	 * @return int should not dump: 0, should dump: 1
+	 * @throws Static_Press_Business_Logic_Exception Case when this URL type is static file.
+	 */
+	public function classify() {
+		switch ( true ) {
+			case preg_match( '#\.php$#i', $this->get_url() ):      // Seems to intend PHP file.
+			case preg_match( '#\?[^=]+[=]?#i', $this->get_url() ): // Seems to intend get request with parameter.
+			case preg_match( '#/wp-admin/$#i', $this->get_url() ): // Seems to intend WordPress admin home page.
+				return 0;
+			case null === $this->get_type():
+			case self::TYPE_STATIC_FILE != $this->get_type():
+				return 1;
+			default:
+				throw new Static_Press_Business_Logic_Exception();
+		}
+	}
+
+	/**
+	 * Judges whether this URL should dump or not.
+	 * 
+	 * @param Static_Press_Static_File_Judger $static_file_judger Static file judger.
+	 */
+	public function judge_to_dump_for_static_file( $static_file_judger ) {
+		$this->enable = $static_file_judger->classify( $this->get_url() );
+	}
+	/**
 	 * Converts to array.
 	 * 
 	 * @return array
 	 */
 	abstract public function to_array();
+
+	/**
+	 * Converts to array.
+	 * 
+	 * @return array
+	 */
+	protected function to_array_common() {
+		return array(
+			Static_Press_Repository::FIELD_NAME_URL    => $this->get_url(),
+			Static_Press_Repository::FIELD_NAME_ENABLE => $this->get_enable(),
+		);
+	}
 
 	/**
 	 * Compares.

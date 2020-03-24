@@ -22,13 +22,13 @@ class Repository_For_Test {
 	public static function insert_url( $url ) {
 		global $wpdb;
 		$array_url  = $url->to_array();
-		$sql        = 'insert into ' . self::url_table();
+		$sql        = 'INSERT INTO ' . self::url_table();
 		$sql       .= ' (`' . implode( '`,`', array_keys( $array_url ) ) . '`)';
 		$insert_val = array();
 		foreach ( $array_url as $val ) {
 			$insert_val[] = $wpdb->prepare( '%s', $val );
 		}
-		$sql .= ' values (' . implode( ',', $insert_val ) . ')';
+		$sql .= ' VALUES (' . implode( ',', $insert_val ) . ')';
 		$wpdb->query( $sql );
 	}
 

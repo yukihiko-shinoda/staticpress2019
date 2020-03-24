@@ -13,17 +13,36 @@ if ( ! class_exists( 'static_press\includes\Static_Press_Content_Filter' ) ) {
 if ( ! class_exists( 'static_press\includes\Static_Press_File_Scanner' ) ) {
 	require dirname( __FILE__ ) . '/class-static-press-file-scanner.php';
 }
-if ( ! class_exists( 'static_press\includes\Static_Press_Model_Url' ) ) {
-	require dirname( __FILE__ ) . '/class-static-press-model-url.php';
+if ( ! class_exists( 'static_press\includes\Static_Press_Model_Url_Author' ) ) {
+	require dirname( __FILE__ ) . '/class-static-press-model-url-author.php';
+}
+if ( ! class_exists( 'static_press\includes\Static_Press_Model_Url_Front_Page' ) ) {
+	require dirname( __FILE__ ) . '/class-static-press-model-url-front-page.php';
+}
+if ( ! class_exists( 'static_press\includes\Static_Press_Model_Url_Seo' ) ) {
+	require dirname( __FILE__ ) . '/class-static-press-model-url-seo.php';
+}
+if ( ! class_exists( 'static_press\includes\Static_Press_Model_Url_Single' ) ) {
+	require dirname( __FILE__ ) . '/class-static-press-model-url-single.php';
+}
+if ( ! class_exists( 'static_press\includes\Static_Press_Model_Url_Static_File' ) ) {
+	require dirname( __FILE__ ) . '/class-static-press-model-url-static-file.php';
+}
+if ( ! class_exists( 'static_press\includes\Static_Press_Model_Url_Term' ) ) {
+	require dirname( __FILE__ ) . '/class-static-press-model-url-term.php';
 }
 if ( ! class_exists( 'static_press\includes\Static_Press_Site_Dependency' ) ) {
 	require dirname( __FILE__ ) . '/class-static-press-site-dependency.php';
 }
 use static_press\includes\Static_Press_Content_Filter;
 use static_press\includes\Static_Press_File_Scanner;
-use static_press\includes\Static_Press_Model_Url;
+use static_press\includes\Static_Press_Model_Url_Author;
+use static_press\includes\Static_Press_Model_Url_Front_Page;
+use static_press\includes\Static_Press_Model_Url_Seo;
+use static_press\includes\Static_Press_Model_Url_Single;
+use static_press\includes\Static_Press_Model_Url_Static_File;
+use static_press\includes\Static_Press_Model_Url_Term;
 use static_press\includes\Static_Press_Site_Dependency;
-
 /**
  * URL Collector.
  */
@@ -52,15 +71,6 @@ class Static_Press_Url_Collector {
 	}
 
 	/**
-	 * Gets site URL.
-	 * 
-	 * @return string Site URL.
-	 */
-	public static function get_site_url() {
-		return Static_Press_Site_Dependency::get_site_url();
-	}
-
-	/**
 	 * Collects URLs.
 	 * 
 	 * @return array Collected URLs.
@@ -79,21 +89,16 @@ class Static_Press_Url_Collector {
 	/**
 	 * Gets front page URL.
 	 * 
-	 * @return array Front page URL.
+	 * @return Static_Press_Model_Url_Front_Page[] Front page URL.
 	 */
 	private function front_page_url() {
-		$urls     = array();
-		$site_url = self::get_site_url();
-		$urls[]   = array(
-			'type'          => Static_Press_Model_Url::TYPE_FRONT_PAGE,
-			'url'           => apply_filters( 'StaticPress::get_url', $site_url ),
-			'last_modified' => $this->date_time_factory->create_date( 'Y-m-d h:i:s' ),
-		);
-		return $urls;
+		return array( new Static_Press_Model_Url_Front_Page( $this->date_time_factory ) );
 	}
 
 	/**
 	 * Gets URLs of posts.
+	 * 
+	 * @return Static_Press_Model_Url_Single[] Single URL.
 	 */
 	private static function single_url() {
 		$post_types = get_post_types( array( 'public' => true ) );
@@ -101,32 +106,20 @@ class Static_Press_Url_Collector {
 		$posts      = $repository->get_posts( $post_types );
 		$urls       = array();
 		foreach ( $posts as $post ) {
-			$post_id   = $post->ID;
-			$modified  = $post->post_modified;
 			$permalink = get_permalink( $post->ID );
 			if ( false === $permalink || is_wp_error( $permalink ) ) {
 				// TODO Is is_wp_error() correct? Commited at 2013-04-22 22:54:05 450c6ce5731b27fc98707d8a881844778ced4763 .
 				continue;
 			}
-			$count  = 1;
-			$splite = preg_split( '#<!--nextpage-->#', $post->post_content );
-			if ( $splite ) {
-				$count = count( $splite );
-			}
-			$urls[] = array(
-				'type'          => Static_Press_Model_Url::TYPE_SINGLE,
-				'url'           => apply_filters( 'StaticPress::get_url', $permalink ),
-				'object_id'     => intval( $post_id ),
-				'object_type'   => $post->post_type,
-				'pages'         => $count,
-				'last_modified' => $modified,
-			);
+			$urls[] = new Static_Press_Model_Url_Single( $post );
 		}
 		return $urls;
 	}
 
 	/**
 	 * Gets URLs of terms.
+	 * 
+	 * @return Static_Press_Model_Url_Term[] Term URL.
 	 */
 	private function terms_url() {
 		$repository = new Static_Press_Repository();
@@ -138,29 +131,18 @@ class Static_Press_Url_Collector {
 				continue;
 			}
 			foreach ( $terms as $term ) {
-				$term_id  = $term->term_id;
 				$termlink = get_term_link( $term->slug, $taxonomy );
 				if ( is_wp_error( $termlink ) ) {
 					continue;
 				}
-				list( $modified, $page_count ) = $this->get_term_info( $term_id, $repository );
-				$urls[]                        = array(
-					'type'          => Static_Press_Model_Url::TYPE_TERM_ARCHIVE,
-					'url'           => apply_filters( 'StaticPress::get_url', $termlink ),
-					'object_id'     => intval( $term_id ),
-					'object_type'   => $term->taxonomy,
-					'parent'        => $term->parent,
-					'pages'         => $page_count,
-					'last_modified' => $modified,
-				);
+				$urls[] = new Static_Press_Model_Url_Term( $term, $taxonomy, $repository, $this->date_time_factory );
 
 				$termchildren = get_term_children( $term->term_id, $taxonomy );
 				if ( is_wp_error( $termchildren ) ) {
 					continue;
 				}
 				foreach ( $termchildren as $child ) {
-					$term    = get_term_by( 'id', $child, $taxonomy );
-					$term_id = $term->term_id;
+					$term = get_term_by( 'id', $child, $taxonomy );
 					if ( is_wp_error( $term ) ) {
 						continue;
 					}
@@ -168,16 +150,7 @@ class Static_Press_Url_Collector {
 					if ( is_wp_error( $termlink ) ) {
 						continue;
 					}
-					list( $modified, $page_count ) = $this->get_term_info( $term_id, $repository );
-					$urls[]                        = array(
-						'type'          => Static_Press_Model_Url::TYPE_TERM_ARCHIVE,
-						'url'           => apply_filters( 'StaticPress::get_url', $termlink ),
-						'object_id'     => intval( $term_id ),
-						'object_type'   => $term->taxonomy,
-						'parent'        => $term->parent,
-						'pages'         => $page_count,
-						'last_modified' => $modified,
-					);
+					$urls[] = new Static_Press_Model_Url_Term( $term, $taxonomy, $repository, $this->date_time_factory );
 				}
 			}
 		}
@@ -185,26 +158,9 @@ class Static_Press_Url_Collector {
 	}
 
 	/**
-	 * Gets term information.
-	 * 
-	 * @param int                     $term_id    Term ID.
-	 * @param Static_Press_Repository $repository Repository.
-	 */
-	private function get_term_info( $term_id, $repository ) {
-		$result = $repository->get_term_info( $term_id, get_post_types( array( 'public' => true ) ) );
-		if ( ! is_wp_error( $result ) ) {
-			$modified = $result->last_modified;
-			$count    = $result->count;
-		} else {
-			$modified = $this->date_time_factory->create_date( 'Y-m-d h:i:s' );
-			$count    = 1;
-		}
-		$page_count = intval( $count / intval( get_option( 'posts_per_page' ) ) ) + 1;
-		return array( $modified, $page_count );
-	}
-
-	/**
 	 * Gets URLs of authors.
+	 * 
+	 * @return Static_Press_Model_Url_Author[] Author URL.
 	 */
 	private static function author_url() {
 		$post_types = get_post_types( array( 'public' => true ) );
@@ -212,30 +168,23 @@ class Static_Press_Url_Collector {
 		$authors    = $repository->get_post_authors( $post_types );
 		$urls       = array();
 		foreach ( $authors as $author ) {
-			$author_id  = $author->post_author;
-			$page_count = intval( $author->count / intval( get_option( 'posts_per_page' ) ) ) + 1;
-			$modified   = $author->modified;
-			$author     = get_userdata( $author_id );
-			if ( is_wp_error( $author ) ) {
+			$author_data = get_userdata( $author->post_author );
+			if ( is_wp_error( $author_data ) ) {
 				continue;
 			}
-			$authorlink = get_author_posts_url( $author->ID, $author->user_nicename );
+			$authorlink = get_author_posts_url( $author_data->ID, $author_data->user_nicename );
 			if ( is_wp_error( $authorlink ) ) {
 				continue;
 			}
-			$urls[] = array(
-				'type'          => Static_Press_Model_Url::TYPE_AUTHOR_ARCHIVE,
-				'url'           => apply_filters( 'StaticPress::get_url', $authorlink ),
-				'object_id'     => intval( $author_id ),
-				'pages'         => $page_count,
-				'last_modified' => $modified,
-			);
+			$urls[] = new Static_Press_Model_Url_Author( $author, $author_data );
 		}
 		return $urls;
 	}
 
 	/**
 	 * Gets URLs of static files.
+	 * 
+	 * @return Static_Press_Model_Url_Static_File[] Static file URL.
 	 */
 	private function static_files_url() {
 		$file_scanner = new Static_Press_File_Scanner( Static_Press_Model_Static_File::get_filtered_array_extension() );
@@ -248,29 +197,22 @@ class Static_Press_Url_Collector {
 
 		$urls = array();
 		foreach ( $static_files as $static_file ) {
-			$static_file_url = str_replace( trailingslashit( ABSPATH ), trailingslashit( $this->get_site_url() ), $static_file );
-			$urls[]          = array(
-				'type'          => Static_Press_Model_Url::TYPE_STATIC_FILE,
-				'url'           => apply_filters( 'StaticPress::get_url', $static_file_url ),
-				'last_modified' => date( 'Y-m-d h:i:s', filemtime( $static_file ) ),
-			);
+			$urls[] = new Static_Press_Model_Url_Static_File( $static_file );
 		}
 		return $urls;
 	}
 
 	/**
 	 * Checks correct sitemap URL by robots.txt.
+	 * 
+	 * @return Static_Press_Model_Url_Seo[] SEO URL.
 	 */
 	private function seo_url() {
 		$urls     = array();
 		$analyzed = array();
 		$sitemap  = '/sitemap.xml';
 		$robots   = '/robots.txt';
-		$urls[]   = array(
-			'type'          => Static_Press_Model_Url::TYPE_SEO_FILES,
-			'url'           => $robots,
-			'last_modified' => $this->date_time_factory->create_date( 'Y-m-d h:i:s' ),
-		);
+		$urls[]   = new Static_Press_Model_Url_Seo( $robots, $this->date_time_factory );
 		$txt      = $this->remote_get( $robots );
 		if ( $txt && isset( $txt['body'] ) ) {
 			$http_code = intval( $txt['code'] );
@@ -288,16 +230,12 @@ class Static_Press_Url_Collector {
 	/**
 	 * Crawls sitemap XML files.
 	 * 
-	 * @param array  $analyzed Analyzed.
-	 * @param array  $urls     URLs.
-	 * @param string $url      URL.
+	 * @param string[]                     $analyzed Analyzed.
+	 * @param Static_Press_Model_Url_Seo[] $urls     URLs.
+	 * @param string                       $url      URL.
 	 */
 	private function sitemap_analyzer( &$analyzed, &$urls, $url ) {
-		$urls[]     = array(
-			'type'          => Static_Press_Model_Url::TYPE_SEO_FILES,
-			'url'           => $url,
-			'last_modified' => $this->date_time_factory->create_date( 'Y-m-d h:i:s' ),
-		);
+		$urls[]     = new Static_Press_Model_Url_Seo( $url, $this->date_time_factory );
 		$analyzed[] = $url;
 		$xml        = $this->remote_get( $url );
 		if ( $xml && isset( $xml['body'] ) ) {
@@ -324,7 +262,7 @@ class Static_Press_Url_Collector {
 	 */
 	public function remote_get( $url ) {
 		if ( ! preg_match( '#^https://#i', $url ) ) {
-			$url = untrailingslashit( self::get_site_url() ) . ( preg_match( '#^/#i', $url ) ? $url : "/{$url}" );
+			$url = untrailingslashit( Static_Press_Site_Dependency::get_site_url() ) . ( preg_match( '#^/#i', $url ) ? $url : "/{$url}" );
 		}
 		$response = $this->remote_getter->remote_get( $url );
 		if ( is_wp_error( $response ) ) {

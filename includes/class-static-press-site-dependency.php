@@ -12,9 +12,10 @@ namespace static_press\includes;
  */
 class Static_Press_Site_Dependency {
 	/**
-	 * Gets site URL.
+	 * Gets site home URL.
+	 * Case when multisite, get appropriate blog's home URL.
 	 * 
-	 * @return string Site URL.
+	 * @return string Site home URL.
 	 */
 	public static function get_site_url() {
 		global $current_blog;

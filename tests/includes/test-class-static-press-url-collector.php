@@ -45,37 +45,40 @@ class Static_Press_Url_Collector_Test extends \WP_UnitTestCase {
 	 * @runInSeparateProcess
 	 */
 	public function test_collect() {
-		$expect_urls   = array_merge(
-			Test_Utility::get_expect_urls_front_page( self::DATE_FOR_TEST ),
+		file_put_contents( ABSPATH . 'test.txt', '' );
+		$expect_urls            = array_merge(
+			Test_Utility::get_expect_urls_front_page(),
 			Test_Utility::get_expect_urls_static_files( self::DATE_FOR_TEST ),
 			Test_Utility::get_expect_urls_seo( self::DATE_FOR_TEST )
 		);
-		$url_collector = new Static_Press_Url_Collector(
+		$url_collector          = new Static_Press_Url_Collector(
 			self::crete_remote_getter_mock(),
 			Test_Utility::create_date_time_factory_mock( 'create_date', 'Y-m-d h:i:s', self::DATE_FOR_TEST )
 		);
-		$actual        = $url_collector->collect();
-		Array_Url_Handler::assert_contains_urls( $this, $expect_urls, $actual );
+		$actual                 = $url_collector->collect();
+		$array_array_url_expect = array();
+		foreach ( $expect_urls as $url ) {
+			$array_array_url_expect[] = $url->to_array();
+		}
+		$array_array_url_actual = array();
+		foreach ( $actual as $url ) {
+			$array_array_url_actual[] = $url->to_array();
+		}
+		Array_Url_Handler::assert_contains_urls( $this, $array_array_url_expect, $array_array_url_actual );
 	}
 
 	/**
 	 * Function front_page_url() should return appropriate URLs.
 	 */
 	public function test_front_page_url() {
-		$expect        = Test_Utility::get_expect_urls_front_page( self::DATE_FOR_TEST );
-		$actual        = $this->create_accessable_method(
+		$expect = Test_Utility::get_expect_urls_front_page();
+		$actual = $this->create_accessable_method(
 			self::crete_remote_getter_mock(),
 			'front_page_url',
 			array(),
 			Test_Utility::create_date_time_factory_mock( 'create_date', 'Y-m-d h:i:s', self::DATE_FOR_TEST )
 		);
-		$length_expect = count( $expect );
-		$this->assertEquals( $length_expect, count( $actual ) );
-		for ( $index = 0; $index < $length_expect; $index ++ ) {
-			$expect_url = $expect[ $index ];
-			$actual_url = $actual[ $index ];
-			$this->assertEquals( $expect_url, $actual_url );
-		}
+		Test_Utility::assert_array_model_url( $this, $expect, $actual );
 	}
 
 	/**
@@ -94,6 +97,7 @@ class Static_Press_Url_Collector_Test extends \WP_UnitTestCase {
 					'object_type'   => 'attachment',
 					'pages'         => 1,
 					'last_modified' => self::DATE_FOR_TEST,
+					'enable'        => null,
 				),
 				array(
 					'type'          => Model_Url::TYPE_SINGLE,
@@ -102,6 +106,7 @@ class Static_Press_Url_Collector_Test extends \WP_UnitTestCase {
 					'object_type'   => 'attachment',
 					'pages'         => 3,
 					'last_modified' => self::DATE_FOR_TEST,
+					'enable'        => null,
 				),
 			);
 		} else {
@@ -113,6 +118,7 @@ class Static_Press_Url_Collector_Test extends \WP_UnitTestCase {
 					'object_type'   => 'attachment',
 					'pages'         => 1,
 					'last_modified' => self::DATE_FOR_TEST,
+					'enable'        => null,
 				),
 				array(
 					'type'          => Model_Url::TYPE_SINGLE,
@@ -121,6 +127,7 @@ class Static_Press_Url_Collector_Test extends \WP_UnitTestCase {
 					'object_type'   => 'attachment',
 					'pages'         => 3,
 					'last_modified' => self::DATE_FOR_TEST,
+					'enable'        => null,
 				),
 			);
 		}
@@ -140,8 +147,12 @@ class Static_Press_Url_Collector_Test extends \WP_UnitTestCase {
 				'post_type'    => 'attachment',
 			)
 		);
-		$actual = $this->create_accessable_method( null, 'single_url', array() );
-		Test_Utility::assert_urls( $this, $expect, $actual );
+		$actual          = $this->create_accessable_method( null, 'single_url', array() );
+		$array_array_url = array();
+		foreach ( $actual as $url ) {
+			$array_array_url[] = $url->to_array();
+		}
+		Test_Utility::assert_urls( $this, $expect, $array_array_url );
 	}
 
 	/**
@@ -172,7 +183,7 @@ class Static_Press_Url_Collector_Test extends \WP_UnitTestCase {
 				),
 			)
 		);
-		$expect = array(
+		$expect          = array(
 			array(
 				'type'          => Model_Url::TYPE_TERM_ARCHIVE,
 				'url'           => '/?cat=3/',
@@ -181,6 +192,7 @@ class Static_Press_Url_Collector_Test extends \WP_UnitTestCase {
 				'pages'         => 1,
 				'parent'        => 2,
 				'last_modified' => self::DATE_FOR_TEST,
+				'enable'        => null,
 			),
 			array(
 				'type'          => Model_Url::TYPE_TERM_ARCHIVE,
@@ -190,6 +202,7 @@ class Static_Press_Url_Collector_Test extends \WP_UnitTestCase {
 				'pages'         => 1,
 				'parent'        => 0,
 				'last_modified' => self::DATE_FOR_TEST,
+				'enable'        => null,
 			),
 			array(
 				'type'          => Model_Url::TYPE_TERM_ARCHIVE,
@@ -199,10 +212,15 @@ class Static_Press_Url_Collector_Test extends \WP_UnitTestCase {
 				'pages'         => 1,
 				'parent'        => 2,
 				'last_modified' => self::DATE_FOR_TEST,
+				'enable'        => null,
 			),
 		);
-		$actual = $this->create_accessable_method( null, 'terms_url', array() );
-		Test_Utility::assert_urls( $this, $expect, $actual );
+		$actual          = $this->create_accessable_method( null, 'terms_url', array() );
+		$array_array_url = array();
+		foreach ( $actual as $url ) {
+			$array_array_url[] = $url->to_array();
+		}
+		Test_Utility::assert_urls( $this, $expect, $array_array_url );
 	}
 
 	/**
@@ -216,6 +234,7 @@ class Static_Press_Url_Collector_Test extends \WP_UnitTestCase {
 				'object_id'     => 1,
 				'pages'         => 1,
 				'last_modified' => self::DATE_FOR_TEST,
+				'enable'        => null,
 			),
 		);
 		wp_insert_post(
@@ -227,14 +246,19 @@ class Static_Press_Url_Collector_Test extends \WP_UnitTestCase {
 				'post_author'  => 1,
 			)
 		);
-		$actual = $this->create_accessable_method( null, 'author_url', array() );
-		Test_Utility::assert_urls( $this, $expect, $actual );
+		$actual          = $this->create_accessable_method( null, 'author_url', array() );
+		$array_array_url = array();
+		foreach ( $actual as $url ) {
+			$array_array_url[] = $url->to_array();
+		}
+		Test_Utility::assert_urls( $this, $expect, $array_array_url );
 	}
 
 	/**
 	 * Function static_files_url() should return URLs of authors.
 	 */
 	public function test_static_files_url() {
+		file_put_contents( ABSPATH . 'test.txt', '' );
 		$expect = Test_Utility::get_expect_urls_static_files( self::DATE_FOR_TEST );
 		wp_insert_post(
 			array(
@@ -245,17 +269,29 @@ class Static_Press_Url_Collector_Test extends \WP_UnitTestCase {
 				'post_author'  => 1,
 			)
 		);
-		$actual = $this->create_accessable_method( null, 'static_files_url', array() );
-		Array_Url_Handler::assert_contains_urls( $this, $expect, $actual );
+		$actual                 = $this->create_accessable_method( null, 'static_files_url', array() );
+		$array_array_url_expect = array();
+		foreach ( $expect as $url ) {
+			$array_array_url_expect[] = $url->to_array();
+		}
+		$array_array_url_actual = array();
+		foreach ( $actual as $url ) {
+			$array_array_url_actual[] = $url->to_array();
+		}
+		Array_Url_Handler::assert_contains_urls( $this, $array_array_url_expect, $array_array_url_actual );
 	}
 
 	/**
 	 * Function seo_url() should trancate database table for list URL.
 	 */
 	public function test_seo_url() {
-		$expect_urls = Test_Utility::get_expect_urls_seo( self::DATE_FOR_TEST );
-		$actual      = $this->create_accessable_method( Test_Utility::set_up_seo_url( 'http://example.org/' ), 'seo_url', array() );
-		Test_Utility::assert_urls( $this, $expect_urls, $actual );
+		$expect_urls     = Test_Utility::get_expect_urls_seo( self::DATE_FOR_TEST );
+		$actual          = $this->create_accessable_method( Test_Utility::set_up_seo_url( 'http://example.org/' ), 'seo_url', array() );
+		$array_array_url = array();
+		foreach ( $actual as $url ) {
+			$array_array_url[] = $url->to_array();
+		}
+		Test_Utility::assert_array_model_url( $this, $expect_urls, $actual );
 	}
 
 	/**

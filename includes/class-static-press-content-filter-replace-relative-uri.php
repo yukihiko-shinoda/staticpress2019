@@ -7,6 +7,11 @@
 
 namespace static_press\includes;
 
+if ( ! class_exists( 'static_press\includes\Static_Press_Site_Dependency' ) ) {
+	require dirname( __FILE__ ) . '/class-static-press-site-dependency.php';
+}
+use static_press\includes\Static_Press_Site_Dependency;
+
 /**
  * Content filter.
  */
@@ -42,7 +47,7 @@ class Static_Press_Content_Filter_Replace_Relative_Uri {
 	 * @param string $url_static Absolute URL of static site.
 	 */
 	public function __construct( $url_static ) {
-		$this->url_dynamic      = trailingslashit( Static_Press_Url_Collector::get_site_url() );
+		$this->url_dynamic      = trailingslashit( Static_Press_Site_Dependency::get_site_url() );
 		$this->url_dynamic_home = $this->get_home_url( $this->url_dynamic );
 		$this->url_static       = $url_static;
 		$this->url_static_home  = $this->get_home_url( $this->url_static );

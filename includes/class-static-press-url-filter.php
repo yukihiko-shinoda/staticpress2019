@@ -10,7 +10,11 @@ namespace static_press\includes;
 if ( ! class_exists( 'static_press\includes\Static_Press_Model_Static_File' ) ) {
 	require dirname( __FILE__ ) . '/class-static-press-model-static-file.php';
 }
+if ( ! class_exists( 'static_press\includes\Static_Press_Site_Dependency' ) ) {
+	require dirname( __FILE__ ) . '/class-static-press-site-dependency.php';
+}
 use static_press\includes\Static_Press_Model_Static_File;
+use static_press\includes\Static_Press_Site_Dependency;
 
 /**
  * URL filter.
@@ -30,14 +34,16 @@ class Static_Press_Url_Filter {
 		$static_files_filter = Static_Press_Model_Static_File::get_filtered_array_extension();
 		$this->regex         = '#[^/]+\.' . implode( '|', array_merge( $static_files_filter, array( 'php' ) ) ) . '$#i';
 	}
+
 	/**
-	 * Replaces URL.
+	 * Replaces URL to relative URL if URL is absolute URL of dynamic site,
+	 * and be end with '/' if URL is not end with extension of static file or '.php'.
 	 * 
 	 * @param  string $url URL.
 	 * @return string Replaced URL.
 	 */
 	public function replace_url( $url ) {
-		$url_dynamic = trailingslashit( Static_Press_Url_Collector::get_site_url() );
+		$url_dynamic = trailingslashit( Static_Press_Site_Dependency::get_site_url() );
 		$url         = trim( str_replace( $url_dynamic, '/', $url ) );
 		if ( ! preg_match( $this->regex, $url ) ) {
 			$url = trailingslashit( $url );

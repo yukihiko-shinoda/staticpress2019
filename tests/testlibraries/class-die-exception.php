@@ -8,7 +8,7 @@
 
 namespace static_press\tests\testlibraries;
 
-require_once dirname( __FILE__ ) . '/../testlibraries/class-die-exception.php';
+require_once dirname( __FILE__ ) . '/../testlibraries/class-business-logic-exception.php';
 use static_press\tests\testlibraries\Business_Logic_Exception;
 /**
  * Class Die_Exception
