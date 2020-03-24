@@ -7,10 +7,17 @@
 
 namespace static_press\includes;
 
+if ( ! class_exists( 'static_press\includes\Static_Press_Business_Logic_Exception' ) ) {
+	require dirname( __FILE__ ) . '/class-static-press-business-logic-exception.php';
+}
+if ( ! class_exists( 'static_press\includes\Static_Press_Static_FIle_Judger' ) ) {
+	require dirname( __FILE__ ) . '/class-static-press-static-file-judger.php';
+}
 if ( ! class_exists( 'static_press\includes\Static_Press_Model_Url' ) ) {
 	require dirname( __FILE__ ) . '/class-static-press-model-url.php';
 }
-
+use static_press\includes\Static_Press_Business_Logic_Exception;
+use static_press\includes\Static_Press_Static_FIle_Judger;
 use static_press\includes\Static_Press_Model_Url;
 
 /**
@@ -43,19 +50,28 @@ class Static_Press_Url_Updater {
 	/**
 	 * Updates URL.
 	 * This function is called in 3 situations:
-	 * - When initialize
-	 * - When find other URL when crawl URL and response body when createing static file of remote page
-	 * - When create static file
+	 * - (Insert) When initialize
+	 * - (Insert) When find other URL when crawl URL and response body when createing static file of remote page
+	 * - (Update) When create static file
 	 * 
 	 * @param  Static_Press_Model_Url[] $urls URLs.
 	 */
 	public function update( $urls ) {
+		$static_file_judger = new Static_Press_Static_FIle_Judger( $this->dump_directory );
 		foreach ( (array) $urls as $url ) {
+			/**
+			 * URL.
+			 * 
+			 * @var Static_Press_Model_Url $url
+			 */
 			if ( null === $url->get_url() || ! $url->get_url() ) {
 				continue;
 			}
-			$url->judge_to_dump( $this->dump_directory );
-
+			try {
+				$url->judge_to_dump();
+			} catch ( Static_Press_Business_Logic_Exception $exception ) {
+				$url->judge_to_dump_for_static_file( $static_file_judger );
+			}
 			$id = $this->repository->get_id( $url->get_url() );
 			if ( $id ) {
 				$this->repository->update_url( $id, $url );

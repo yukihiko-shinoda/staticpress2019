@@ -119,6 +119,7 @@ class Test_Utility {
 	 * Gets expect URLs.
 	 * 
 	 * @return Static_Press_Model_Url_Static_File[] Array of model URL of static file.
+	 * @throws \LogicException When fail to stat any file.
 	 */
 	public static function get_expect_urls_static_files() {
 		/**

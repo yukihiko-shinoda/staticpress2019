@@ -15,6 +15,9 @@ use static_press\tests\testlibraries\Model_Url;
  * Reposistory test case.
  */
 class Static_Press_Model_Url_Front_Page_Test extends \WP_UnitTestCase {
+	/**
+	 * Constructor should sets appropriate values to properties.
+	 */
 	public function test() {
 		$expect         = array(
 			'type'          => Model_Url::TYPE_FRONT_PAGE,

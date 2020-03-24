@@ -217,7 +217,7 @@ class Static_Press_Response_Processor_200_Crawl_Test extends \WP_UnitTestCase {
 	 * Invokes private method.
 	 * 
 	 * @param string $method_name Method name.
-	 * @param array $arguments   Arguments.
+	 * @param array  $arguments   Arguments.
 	 */
 	private function invoke_private_method( $method_name, $arguments ) {
 		$date_time_factoy_mock = Test_Utility::create_date_time_factory_mock( 'create_date', 'Y-m-d h:i:s' );

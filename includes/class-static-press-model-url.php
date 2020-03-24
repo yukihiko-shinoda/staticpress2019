@@ -7,6 +7,12 @@
 
 namespace static_press\includes;
 
+if ( ! class_exists( 'static_press\includes\Static_Press_Business_Logic_Exception' ) ) {
+	require dirname( __FILE__ ) . '/class-static-press-business-logic-exception.php';
+}
+
+use static_press\includes\Static_Press_Business_Logic_Exception;
+
 /**
  * Model URL.
  */
@@ -32,6 +38,7 @@ abstract class Static_Press_Model_Url {
 	private $type;
 	/**
 	 * URL.
+	 * This URL should be related URL from home URL.
 	 * 
 	 * @var string
 	 */
@@ -234,17 +241,20 @@ abstract class Static_Press_Model_Url {
 
 	/**
 	 * Judges whether this URL should dump or not.
+	 * 
+	 * @throws Static_Press_Business_Logic_Exception Case when this URL type is static file.
 	 */
-	public function judge_to_dump( $dump_directory ) {
-		$this->enable = $this->classify( $dump_directory );
+	public function judge_to_dump() {
+		$this->enable = $this->classify();
 	}
 
 	/**
 	 * Classifies URL whether should dump or not.
 	 * 
 	 * @return int should not dump: 0, should dump: 1
+	 * @throws Static_Press_Business_Logic_Exception Case when this URL type is static file.
 	 */
-	public function classify( $dump_directory ) {
+	public function classify() {
 		switch ( true ) {
 			case preg_match( '#\.php$#i', $this->get_url() ):      // Seems to intend PHP file.
 			case preg_match( '#\?[^=]+[=]?#i', $this->get_url() ): // Seems to intend get request with parameter.
@@ -254,86 +264,18 @@ abstract class Static_Press_Model_Url {
 			case self::TYPE_STATIC_FILE != $this->get_type():
 				return 1;
 			default:
-				return $this->classify_static_file( $this->get_url(), $dump_directory );
+				throw new Static_Press_Business_Logic_Exception();
 		}
 	}
 
 	/**
-	 * Classifies URL of static file.
+	 * Judges whether this URL should dump or not.
 	 * 
-	 * @param string $url URL.
-	 * @return int should not dump: 0, should dump: 1
+	 * @param Static_Press_Static_File_Judger $static_file_judger Static file judger.
 	 */
-	private function classify_static_file( $url, $dump_directory ) {
-		$plugin_dir  = trailingslashit( str_replace( ABSPATH, '/', WP_PLUGIN_DIR ) );
-		$theme_dir   = trailingslashit( str_replace( ABSPATH, '/', WP_CONTENT_DIR ) . '/themes' );
-		$file_source = untrailingslashit( ABSPATH ) . $url;
-		$file_dest   = untrailingslashit( $dump_directory ) . $url;
-		$pattern     = '#^(/(readme|readme-[^\.]+|license)\.(txt|html?)|(' . preg_quote( $plugin_dir ) . '|' . preg_quote( $theme_dir ) . ').*/((readme|changelog|license)\.(txt|html?)|(screenshot|screenshot-[0-9]+)\.(png|jpe?g|gif)))$#i';
-		if ( $file_source === $file_dest ) {
-			// Seems to intend to prevent from being duplicate dump process for already dumped files.
-			return 0;
-		}
-		if ( preg_match( $pattern, $url ) ) {
-			// Seems to intend readme, license, changelog, screenshot in plugin directory or theme directory.
-			return 0;
-		}
-		if ( ! file_exists( $file_source ) ) {
-			// Seems to intend to prevent from processing non exist files.
-			return 0;
-		}
-		if ( file_exists( $file_dest ) && filemtime( $file_source ) <= filemtime( $file_dest ) ) {
-			// Seems to intend to skip non update files after last dump.
-			return 0;
-		}
-		if ( preg_match( '#^' . preg_quote( $plugin_dir ) . '#i', $url ) ) {
-			return $this->classify_static_file_plugin( $url, $plugin_dir );
-		}
-		if ( preg_match( '#^' . preg_quote( $theme_dir ) . '#i', $url ) ) {
-			return $this->classify_static_file_theme( $url, $theme_dir );
-		}
-		return 1;
+	public function judge_to_dump_for_static_file( $static_file_judger ) {
+		$this->enable = $static_file_judger->classify( $this->get_url() );
 	}
-
-	/**
-	 * Classifies URL of plugin's static file.
-	 * Original specification seems to intend to dump only active plugin.
-	 * 
-	 * @param string $url        URL.
-	 * @param string $plugin_dir Plugin directory.
-	 * @return int should not dump: 0, should dump: 1
-	 */
-	private function classify_static_file_plugin( $url, $plugin_dir ) {
-		$active_plugins = get_option( 'active_plugins' );
-		foreach ( $active_plugins as $active_plugin ) {
-			$active_plugin = trailingslashit( $plugin_dir . dirname( $active_plugin ) );
-			if ( trailingslashit( $plugin_dir . '.' ) == $active_plugin ) {
-				// TODO What is the intension? Commited at 2013-04-23 11:50:42 5a470855fe94ef754b156cc062ab86eab452446d .
-				continue;
-			}
-			if ( preg_match( '#^' . preg_quote( $active_plugin ) . '#i', $url ) ) {
-				return 1;
-			}
-		}
-		return 0;
-	}
-
-	/**
-	 * Classifies URL of theme's static file.
-	 * Original specification seems to intend to dump only current theme.
-	 * 
-	 * @param string $url       URL.
-	 * @param string $theme_dir Theme directory.
-	 * @return int should not dump: 0, should dump: 1
-	 */
-	private function classify_static_file_theme( $url, $theme_dir ) {
-		$current_theme = trailingslashit( $theme_dir . get_stylesheet() );
-		if ( preg_match( '#^' . preg_quote( $current_theme ) . '#i', $url ) ) {
-			return 1;
-		}
-		return 0;
-	}
-
 	/**
 	 * Converts to array.
 	 * 
