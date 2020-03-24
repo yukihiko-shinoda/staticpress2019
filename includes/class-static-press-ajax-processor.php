@@ -157,6 +157,7 @@ abstract class Static_Press_Ajax_Processor {
 	 * 
 	 * @param Static_Press_Model_Url_Fetched $url URL.
 	 * @return Static_Press_Static_File_Creator Static file creator.
+	 * @throws \LogicException URL has Inbalid file type.
 	 */
 	protected function create_static_file_creator_by_factory( $url ) {
 		return Static_Press_Factory_Static_File_Creator::create(

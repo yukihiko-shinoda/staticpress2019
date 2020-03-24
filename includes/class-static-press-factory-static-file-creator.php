@@ -30,6 +30,7 @@ class Static_Press_Factory_Static_File_Creator {
 	 * @param Static_Press_Date_Time_Factory $date_time_factory Date time factory.
 	 * @param Static_Press_Url_Collector     $url_collector     URL collector.
 	 * @return Static_Press_Static_File_Creator Static file creator.
+	 * @throws \LogicException Inbalid file type.
 	 */
 	public static function create( $file_type, $dump_directory, $static_site_url, $repository, $date_time_factory, $url_collector ) {
 		switch ( $file_type ) {
@@ -51,6 +52,8 @@ class Static_Press_Factory_Static_File_Creator {
 				);
 			case Static_Press_Model_Url::TYPE_STATIC_FILE:
 				return new Static_Press_Static_File_Creator_local( $file_type, $dump_directory, $static_site_url, $repository, $date_time_factory );
+			default:
+				throw new \LogicException( "Invalid file type. File type = {$file_type}" );
 		}
 	}
 }

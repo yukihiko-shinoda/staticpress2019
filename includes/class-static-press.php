@@ -210,6 +210,7 @@ class Static_Press {
 	 * Fetches URL from database and crate static files.
 	 * 
 	 * @param Static_Press_terminator $terminator Terminator.
+	 * @throws \LogicException Fetched URL has Inbalid file type.
 	 */
 	public function ajax_fetch( $terminator = null ) {
 		$ajax_processor = new Static_Press_Ajax_Fetch(

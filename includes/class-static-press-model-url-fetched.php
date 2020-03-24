@@ -10,12 +10,7 @@ namespace static_press\includes;
 if ( ! class_exists( 'static_press\includes\Static_Press_Model_Url' ) ) {
 	require dirname( __FILE__ ) . '/class-static-press-model-url.php';
 }
-if ( ! class_exists( 'static_press\includes\Static_Press_Repository' ) ) {
-	require dirname( __FILE__ ) . '/class-static-press-repository.php';
-}
-
 use static_press\includes\Static_Press_Model_Url;
-use static_press\includes\Static_Press_Repository;
 
 /**
  * Model URL other.

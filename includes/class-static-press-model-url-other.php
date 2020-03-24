@@ -30,7 +30,7 @@ class Static_Press_Model_Url_Other extends Static_Press_Model_Url {
 	public function __construct( $url, $date_time_factory ) {
 		parent::__construct(
 			null,
-			null,
+			Static_Press_Model_Url::TYPE_OTHER_PAGE,
 			apply_filters( 'StaticPress::get_url', $url ),
 			null,
 			null,
@@ -53,6 +53,7 @@ class Static_Press_Model_Url_Other extends Static_Press_Model_Url {
 		return array_merge(
 			$this->to_array_common(),
 			array(
+				Static_Press_Repository::FIELD_NAME_TYPE => $this->get_type(),
 				Static_Press_Repository::FIELD_NAME_LAST_MODIFIED => $this->get_last_modified(),
 			)
 		);
