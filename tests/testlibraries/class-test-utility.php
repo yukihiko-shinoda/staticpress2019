@@ -10,6 +10,7 @@ namespace static_press\tests\testlibraries;
 require_once dirname( __FILE__ ) . '/../testlibraries/class-die-exception.php';
 require_once dirname( __FILE__ ) . '/../testlibraries/class-expect-urls-static-files.php';
 use Mockery;
+use static_press\includes\Static_Press_Model_Url;
 use static_press\includes\Static_Press_Model_Url_Front_Page;
 use static_press\includes\Static_Press_Model_Url_Seo;
 use static_press\includes\Static_Press_Model_Url_Static_File;
@@ -140,7 +141,7 @@ class Test_Utility {
 		$array_logic_exception = array();
 		foreach ( Expect_Urls_Static_Files::EXPECT_URLS as $expect_url ) {
 			try {
-				$expect[] = new Static_Press_Model_Url_Static_File( ABSPATH . ltrim( $expect_url, '/' ) );
+				$expect[] = new Static_Press_Model_Url_Static_File( Static_Press_Model_Url::TYPE_STATIC_FILE, ABSPATH, ABSPATH . ltrim( $expect_url, '/' ) );
 			} catch ( \LogicException $exception ) {
 				$array_logic_exception[] = $exception;
 			}

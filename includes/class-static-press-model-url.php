@@ -24,6 +24,7 @@ abstract class Static_Press_Model_Url {
 	const TYPE_SEO_FILES      = 'seo_files';
 	const TYPE_OTHER_PAGE     = 'other_page';
 	const TYPE_STATIC_FILE    = 'static_file';
+	const TYPE_CONTENT_FILE   = 'content_file';
 	/**
 	 * ID.
 	 * 
@@ -261,7 +262,7 @@ abstract class Static_Press_Model_Url {
 			case preg_match( '#/wp-admin/$#i', $this->get_url() ): // Seems to intend WordPress admin home page.
 				return 0;
 			case null === $this->get_type():
-			case self::TYPE_STATIC_FILE != $this->get_type():
+			case self::TYPE_STATIC_FILE != $this->get_type() && self::TYPE_CONTENT_FILE != $this->get_type():
 				return 1;
 			default:
 				throw new Static_Press_Business_Logic_Exception();

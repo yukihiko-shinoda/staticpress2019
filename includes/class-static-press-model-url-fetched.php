@@ -61,7 +61,7 @@ class Static_Press_Model_Url_Fetched extends Static_Press_Model_Url {
 	 * @return bool true: is static file, false: is not static file.
 	 */
 	public function is_static_file() {
-		return self::TYPE_STATIC_FILE === $this->get_type();
+		return self::TYPE_STATIC_FILE === $this->get_type() || self::TYPE_CONTENT_FILE === $this->get_type();
 	}
 
 	/**

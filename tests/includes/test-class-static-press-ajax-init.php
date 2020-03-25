@@ -15,6 +15,7 @@ require_once dirname( __FILE__ ) . '/../testlibraries/class-model-url-handler.ph
 require_once dirname( __FILE__ ) . '/../testlibraries/class-repository-for-test.php';
 require_once dirname( __FILE__ ) . '/../testlibraries/class-test-utility.php';
 use static_press\includes\Static_Press_Ajax_Init;
+use static_press\includes\Static_Press_Model_Url;
 use static_press\includes\Static_Press_Repository;
 use static_press\tests\testlibraries\Die_Exception;
 use static_press\tests\testlibraries\Model_Url;
@@ -38,7 +39,7 @@ class Static_Press_Ajax_Init_Test extends \WP_UnitTestCase {
 		Repository_For_Test::insert_url(
 			new Model_Url(
 				1,
-				Model_Url::TYPE_OTHER_PAGE,
+				Static_Press_Model_Url::TYPE_OTHER_PAGE,
 				'/test/',
 				0,
 				'',
@@ -54,7 +55,7 @@ class Static_Press_Ajax_Init_Test extends \WP_UnitTestCase {
 			)
 		);
 		$expect_database = array(
-			Model_Url_Handler::create_model_url_fetched( 1, Model_Url::TYPE_OTHER_PAGE, '/test/', 1 ),
+			Model_Url_Handler::create_model_url_fetched( 1, Static_Press_Model_Url::TYPE_OTHER_PAGE, '/test/', 1 ),
 		);
 		$this->assertEquals( $expect_database, Repository_For_Test::get_all_url() );
 		ob_start();

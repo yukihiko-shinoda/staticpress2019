@@ -11,12 +11,12 @@ require_once dirname( __FILE__ ) . '/../testlibraries/class-expect-url.php';
 require_once dirname( __FILE__ ) . '/../testlibraries/class-model-url.php';
 require_once dirname( __FILE__ ) . '/../testlibraries/class-repository-for-test.php';
 require_once dirname( __FILE__ ) . '/../testlibraries/class-test-utility.php';
+use static_press\includes\Static_Press_Model_Url;
 use static_press\includes\Static_Press_Model_Url_Other;
 use static_press\includes\Static_Press_Repository;
 use static_press\includes\Static_Press_Response_Processor_200_Crawl;
 use static_press\includes\Static_Press_Transient_Service;
 use static_press\tests\testlibraries\Expect_Url;
-use static_press\tests\testlibraries\Model_Url;
 use static_press\tests\testlibraries\Repository_For_Test;
 use static_press\tests\testlibraries\Test_Utility;
 
@@ -66,32 +66,32 @@ class Static_Press_Response_Processor_200_Crawl_Test extends \WP_UnitTestCase {
 			array(
 				'',
 				array(
-					new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/', '1' ),
-					new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/test/', '1' ),
+					new Expect_Url( Static_Press_Model_Url::TYPE_OTHER_PAGE, '/', '1' ),
+					new Expect_Url( Static_Press_Model_Url::TYPE_OTHER_PAGE, '/test/', '1' ),
 				),
 			),
 			array(
 				'href="http://example.org/test"',
 				array(
-					new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/', '1' ),
-					new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/test/', '1' ),
+					new Expect_Url( Static_Press_Model_Url::TYPE_OTHER_PAGE, '/', '1' ),
+					new Expect_Url( Static_Press_Model_Url::TYPE_OTHER_PAGE, '/test/', '1' ),
 				),
 			),
 			array(
 				'href="http://example.org/test/test"',
 				array(
-					new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/', '1' ),
-					new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/test/', '1' ),
-					new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/test/test/', '1' ),
+					new Expect_Url( Static_Press_Model_Url::TYPE_OTHER_PAGE, '/', '1' ),
+					new Expect_Url( Static_Press_Model_Url::TYPE_OTHER_PAGE, '/test/', '1' ),
+					new Expect_Url( Static_Press_Model_Url::TYPE_OTHER_PAGE, '/test/test/', '1' ),
 				),
 			),
 			array(
 				'href="http://example.org/test/test/index.html"' . "\n" . 'href="http://example.org/test/test2/index.html"',
 				array(
-					new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/', '1' ),
-					new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/test/', '1' ),
-					new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/test/test/index.html', '1' ),
-					new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/test/test2/index.html', '1' ),
+					new Expect_Url( Static_Press_Model_Url::TYPE_OTHER_PAGE, '/', '1' ),
+					new Expect_Url( Static_Press_Model_Url::TYPE_OTHER_PAGE, '/test/', '1' ),
+					new Expect_Url( Static_Press_Model_Url::TYPE_OTHER_PAGE, '/test/test/index.html', '1' ),
+					new Expect_Url( Static_Press_Model_Url::TYPE_OTHER_PAGE, '/test/test2/index.html', '1' ),
 				),
 			),
 		);
@@ -140,30 +140,30 @@ class Static_Press_Response_Processor_200_Crawl_Test extends \WP_UnitTestCase {
 			array(
 				'/',
 				array(
-					new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/', '1' ),
-					new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/test/', '1' ),
+					new Expect_Url( Static_Press_Model_Url::TYPE_OTHER_PAGE, '/', '1' ),
+					new Expect_Url( Static_Press_Model_Url::TYPE_OTHER_PAGE, '/test/', '1' ),
 				),
 			),
 			array(
 				'/test/',
 				array(
-					new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/', '1' ),
-					new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/test/', '1' ),
+					new Expect_Url( Static_Press_Model_Url::TYPE_OTHER_PAGE, '/', '1' ),
+					new Expect_Url( Static_Press_Model_Url::TYPE_OTHER_PAGE, '/test/', '1' ),
 				),
 			),
 			array(
 				'/test/index.html',
 				array(
-					new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/', '1' ),
-					new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/test/', '1' ),
+					new Expect_Url( Static_Press_Model_Url::TYPE_OTHER_PAGE, '/', '1' ),
+					new Expect_Url( Static_Press_Model_Url::TYPE_OTHER_PAGE, '/test/', '1' ),
 				),
 			),
 			array(
 				'/test/test/index.html',
 				array(
-					new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/', '1' ),
-					new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/test/', '1' ),
-					new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/test/test/', '1' ),
+					new Expect_Url( Static_Press_Model_Url::TYPE_OTHER_PAGE, '/', '1' ),
+					new Expect_Url( Static_Press_Model_Url::TYPE_OTHER_PAGE, '/test/', '1' ),
+					new Expect_Url( Static_Press_Model_Url::TYPE_OTHER_PAGE, '/test/test/', '1' ),
 				),
 			),
 		);

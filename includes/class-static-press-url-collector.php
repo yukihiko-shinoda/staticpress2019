@@ -187,12 +187,13 @@ class Static_Press_Url_Collector {
 	 * @return Static_Press_Model_Url_Static_File[] Static file URL.
 	 */
 	private function static_files_url() {
-		$file_scanner = new Static_Press_File_Scanner( Static_Press_Model_Static_File::get_filtered_array_extension() );
-		$static_files = array_merge(
-			$file_scanner->scan( trailingslashit( ABSPATH ), false ),
-			$file_scanner->scan( trailingslashit( ABSPATH ) . 'wp-admin/', true ),
-			$file_scanner->scan( trailingslashit( ABSPATH ) . 'wp-includes/', true ),
-			$file_scanner->scan( trailingslashit( WP_CONTENT_DIR ), true )
+		$file_scanner_abspath = new Static_Press_File_Scanner( Static_Press_Model_Static_File::get_filtered_array_extension() );
+		$file_scanner_content = new Static_Press_File_Scanner( Static_Press_Model_Static_File::get_filtered_array_extension(), Static_Press_Model_Url::TYPE_CONTENT_FILE );
+		$static_files         = array_merge(
+			$file_scanner_abspath->scan( '/', false ),
+			$file_scanner_abspath->scan( '/wp-admin/', true ),
+			$file_scanner_abspath->scan( '/wp-includes/', true ),
+			$file_scanner_content->scan( '/', true )
 		);
 		return $static_files;
 	}

@@ -51,6 +51,7 @@ class Static_Press_Factory_Static_File_Creator {
 					$url_collector
 				);
 			case Static_Press_Model_Url::TYPE_STATIC_FILE:
+			case Static_Press_Model_Url::TYPE_CONTENT_FILE:
 				return new Static_Press_Static_File_Creator_local( $file_type, $dump_directory, $static_site_url, $repository, $date_time_factory );
 			default:
 				throw new \LogicException( "Invalid file type. File type = {$file_type}" );

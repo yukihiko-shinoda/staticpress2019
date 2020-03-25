@@ -9,12 +9,12 @@ namespace static_press\tests\includes;
 
 require_once dirname( __FILE__ ) . '/../testlibraries/class-expect-url.php';
 require_once dirname( __FILE__ ) . '/../testlibraries/class-model-url.php';
+use static_press\includes\Static_Press_Model_Url;
 use static_press\includes\Static_Press_Model_Url_Other;
 use static_press\includes\Static_Press_Repository;
 use static_press\includes\Static_Press_Transient_Service;
 use static_press\includes\Static_Press_Url_Updater;
 use static_press\tests\testlibraries\Expect_Url;
-use static_press\tests\testlibraries\Model_Url;
 use static_press\tests\testlibraries\Test_Utility;
 
 /**
@@ -42,8 +42,8 @@ class Static_Press_Repository_Test extends \WP_UnitTestCase {
 		Expect_Url::assert_url(
 			$this,
 			array(
-				new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/', '1' ),
-				new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/test/', '1' ),
+				new Expect_Url( Static_Press_Model_Url::TYPE_OTHER_PAGE, '/', '1' ),
+				new Expect_Url( Static_Press_Model_Url::TYPE_OTHER_PAGE, '/test/', '1' ),
 			),
 			$results
 		);
