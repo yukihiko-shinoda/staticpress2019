@@ -12,6 +12,7 @@ require_once dirname( __FILE__ ) . '/../testlibraries/class-repository-for-test.
 require_once dirname( __FILE__ ) . '/../testlibraries/class-test-utility.php';
 use static_press\includes\Static_Press_Ajax_Fetch;
 use static_press\includes\Static_Press_Business_Logic_Exception;
+use static_press\includes\Static_Press_Model_Url;
 use static_press\includes\Static_Press_Repository;
 use static_press\tests\testlibraries\Expect_Url;
 use static_press\tests\testlibraries\Model_Url;
@@ -43,7 +44,7 @@ class Static_Press_Ajax_Fetch_Test extends \WP_UnitTestCase {
 		Repository_For_Test::insert_url(
 			new Model_Url(
 				1,
-				Model_Url::TYPE_OTHER_PAGE,
+				Static_Press_Model_Url::TYPE_OTHER_PAGE,
 				'/test1/',
 				0,
 				'',
@@ -61,7 +62,7 @@ class Static_Press_Ajax_Fetch_Test extends \WP_UnitTestCase {
 		Repository_For_Test::insert_url(
 			new Model_Url(
 				2,
-				Model_Url::TYPE_OTHER_PAGE,
+				Static_Press_Model_Url::TYPE_OTHER_PAGE,
 				'/test2/',
 				0,
 				'',
@@ -77,7 +78,7 @@ class Static_Press_Ajax_Fetch_Test extends \WP_UnitTestCase {
 			)
 		);
 		$expect = array(
-			new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/test1/', '1' ),
+			new Expect_Url( Static_Press_Model_Url::TYPE_OTHER_PAGE, '/test1/', '1' ),
 		);
 		Expect_Url::assert_url( $this, $expect, array( $this->create_accessable_method( 'fetch_url', array() ) ) );
 	}

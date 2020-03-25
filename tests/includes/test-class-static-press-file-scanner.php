@@ -8,18 +8,18 @@
 namespace static_press\tests\includes;
 
 use static_press\includes\Static_Press_File_Scanner;
+use static_press\includes\Static_Press_Model_Url_Static_File;
 use static_press\includes\Static_Press_Model_Static_File;
-
-require_once dirname( __FILE__ ) . '/../testlibraries/class-test-utility.php';
-use static_press\tests\testlibraries\Test_Utility;
+use static_press\includes\Static_Press_Model_Url;
 
 /**
  * StaticPress test case.
  */
 class Static_Press_File_Scanner_Test extends \WP_UnitTestCase {
-	const DIRECTORY         = '/tmp/test';
-	const DIRECTORY_SUB     = '/tmp/test/sub_directory';
-	const DIRECTORY_SUB_SUB = '/tmp/test/sub_directory/sub_sub_directory';
+	// Reason: This project no longer support PHP 5.5 nor lower.
+	const DIRECTORY         = ABSPATH . 'test';                                 // phpcs:ignore
+	const DIRECTORY_SUB     = ABSPATH . 'test/sub_directory';                   // phpcs:ignore
+	const DIRECTORY_SUB_SUB = ABSPATH . 'test/sub_directory/sub_sub_directory'; // phpcs:ignore
 	/**
 	 * Extensions which is not static file.
 	 */
@@ -30,13 +30,13 @@ class Static_Press_File_Scanner_Test extends \WP_UnitTestCase {
 	/**
 	 * Static files.
 	 * 
-	 * @var array
+	 * @var Static_Press_Model_Url_Static_File[]
 	 */
 	private $array_static_file;
 	/**
 	 * Not static files.
 	 * 
-	 * @var array
+	 * @var Static_Press_Model_Url_Static_File[]
 	 */
 	private $array_not_static_file;
 
@@ -45,12 +45,12 @@ class Static_Press_File_Scanner_Test extends \WP_UnitTestCase {
 	 */
 	public function setUp() {
 		parent::setUp();
-		$this->list_static_and_not_static_files( array( self::DIRECTORY_SUB_SUB, self::DIRECTORY_SUB, self::DIRECTORY ) );
 		if ( ! file_exists( self::DIRECTORY_SUB_SUB ) ) {
 			mkdir( self::DIRECTORY_SUB_SUB, 0755, true );
 		}
-		$this->create_files( $this->array_static_file );
-		$this->create_files( $this->array_not_static_file );
+		$array_directory             = array( self::DIRECTORY, self::DIRECTORY_SUB, self::DIRECTORY_SUB_SUB );
+		$this->array_static_file     = $this->list_files( $array_directory, Static_Press_Model_Static_File::get_filtered_array_extension() );
+		$this->array_not_static_file = $this->list_files( $array_directory, self::EXTENSION_NOT_STATIC_FILE );
 	}
 
 	/**
@@ -62,46 +62,28 @@ class Static_Press_File_Scanner_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Function scan_file should returns list of file.
+	 * Function scan() should returns list of file.
 	 */
-	public function test_scan_file() {
+	public function test_scan() {
 		$static_press_file_scanner = new Static_Press_File_Scanner( Static_Press_Model_Static_File::get_filtered_array_extension() );
-		$actual                    = $static_press_file_scanner->scan( trailingslashit( self::DIRECTORY ), true );
+		$actual                    = $static_press_file_scanner->scan( '/test/', true );
 		$this->assertEquals( $this->array_static_file, $actual );
 	}
 
 	/**
-	 * Creates all files for test.
-	 * 
-	 * @param string $array_file Target directory.
-	 */
-	private function create_files( $array_file ) {
-		foreach ( $array_file as $file ) {
-			file_put_contents( $file, '' );
-		}
-	}
-
-	/**
 	 * Lists files.
 	 * 
 	 * @param string[] $array_directory Array of directories.
-	 */
-	private function list_static_and_not_static_files( $array_directory ) {
-		$this->array_static_file     = $this->list_files( $array_directory, Static_Press_Model_Static_File::get_filtered_array_extension() );
-		$this->array_not_static_file = $this->list_files( $array_directory, self::EXTENSION_NOT_STATIC_FILE );
-	}
-
-	/**
-	 * Lists files.
-	 * 
-	 * @param string[] $array_directory Array of directories.
-	 * @param string[] $array_extension      Array of extension.
+	 * @param string[] $array_extension Array of extension.
+	 * @return Static_Press_Model_Url_Static_File[] Array of model URL static file.
 	 */
 	private function list_files( $array_directory, $array_extension ) {
 		$array_file = array();
 		foreach ( $array_directory as $directory ) {
 			foreach ( $array_extension as $extension ) {
-				$array_file[] = $directory . '/test.' . $extension;
+				$file_path = $directory . '/test.' . $extension;
+				file_put_contents( $file_path, '' );
+				$array_file[] = new Static_Press_Model_Url_Static_File( Static_Press_Model_Url::TYPE_STATIC_FILE, ABSPATH, $file_path );
 			}
 		}
 		return $array_file;

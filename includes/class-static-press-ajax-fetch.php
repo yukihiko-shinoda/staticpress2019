@@ -62,6 +62,8 @@ class Static_Press_Ajax_Fetch extends Static_Press_Ajax_Processor {
 
 	/**
 	 * Fetches URL from database and crate static files.
+	 * 
+	 * @throws \LogicException Fetched URL has Inbalid file type.
 	 */
 	protected function process_ajax_request() {
 		try {
@@ -86,6 +88,7 @@ class Static_Press_Ajax_Fetch extends Static_Press_Ajax_Processor {
 	 * 
 	 * @return Static_Press_Model_Url_Fetched $url URL.
 	 * @throws Static_Press_Business_Logic_Exception Case when fail to fetch first URL.
+	 * @throws \LogicException Fetched URL has Inbalid file type.
 	 */
 	private function fetch() {
 		$url_first = $this->fetch_url();
@@ -113,6 +116,7 @@ class Static_Press_Ajax_Fetch extends Static_Press_Ajax_Processor {
 	 * Fetches first URL.
 	 * 
 	 * @param Static_Press_Model_Url_Fetched $url URL.
+	 * @throws \LogicException URL has Inbalid file type.
 	 */
 	private function create_static_file( $url ) {
 		$static_file_creator = $this->create_static_file_creator_by_factory( $url );

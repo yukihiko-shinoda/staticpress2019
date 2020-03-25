@@ -47,7 +47,7 @@ class Static_Press_Url_Updater_Test extends \WP_UnitTestCase {
 		Repository_For_Test::insert_url(
 			new Model_Url(
 				1,
-				Model_Url::TYPE_OTHER_PAGE,
+				Static_Press_Model_Url::TYPE_OTHER_PAGE,
 				'/test/',
 				0,
 				'',
@@ -81,21 +81,21 @@ class Static_Press_Url_Updater_Test extends \WP_UnitTestCase {
 			new Static_Press_Model_Url_Succeed( Static_Press_Model_Url::TYPE_OTHER_PAGE, '/test.php', null, null, null, $date_time_factory ),
 			new Static_Press_Model_Url_Succeed( Static_Press_Model_Url::TYPE_OTHER_PAGE, '/test?parameter=value', null, null, null, $date_time_factory ),
 			new Static_Press_Model_Url_Succeed( Static_Press_Model_Url::TYPE_OTHER_PAGE, '/wp-admin/', null, null, null, $date_time_factory ),
-			new Static_Press_Model_Url_Static_File( ABSPATH . 'readme.txt' ),
-			new Static_Press_Model_Url_Static_File( ABSPATH . 'test.png' ),
-			new Static_Press_Model_Url_Static_File( ABSPATH . 'wp-content/plugins/akismet/_inc/akismet.css' ),
-			new Static_Press_Model_Url_Static_File( ABSPATH . "wp-content/themes/{$theme_to_not_activate}/style.css" ),
-			new Static_Press_Model_Url_Static_File( ABSPATH . "wp-content/themes/{$theme_to_activate}/style.css" ),
+			new Static_Press_Model_Url_Static_File( Static_Press_Model_Url::TYPE_STATIC_FILE, ABSPATH, ABSPATH . 'readme.txt' ),
+			new Static_Press_Model_Url_Static_File( Static_Press_Model_Url::TYPE_STATIC_FILE, ABSPATH, ABSPATH . 'test.png' ),
+			new Static_Press_Model_Url_Static_File( Static_Press_Model_Url::TYPE_STATIC_FILE, ABSPATH, ABSPATH . 'wp-content/plugins/akismet/_inc/akismet.css' ),
+			new Static_Press_Model_Url_Static_File( Static_Press_Model_Url::TYPE_STATIC_FILE, ABSPATH, ABSPATH . "wp-content/themes/{$theme_to_not_activate}/style.css" ),
+			new Static_Press_Model_Url_Static_File( Static_Press_Model_Url::TYPE_STATIC_FILE, ABSPATH, ABSPATH . "wp-content/themes/{$theme_to_activate}/style.css" ),
 		);
 		unlink( ABSPATH . 'test.png' );
 		$repository  = new Static_Press_Repository();
 		$url_updater = new Static_Press_Url_Updater( $repository, null );
 		$url_updater->update( $urls );
 		$expect_urls_in_database = array(
-			new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/test/', '1' ),
-			new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/', '1' ),
-			new Expect_Url( Model_Url::TYPE_STATIC_FILE, '/wp-content/plugins/akismet/_inc/akismet.css', '1' ),
-			new Expect_Url( Model_Url::TYPE_STATIC_FILE, "/wp-content/themes/{$theme_to_activate}/style.css", '1' ),
+			new Expect_Url( Static_Press_Model_Url::TYPE_OTHER_PAGE, '/test/', '1' ),
+			new Expect_Url( Static_Press_Model_Url::TYPE_OTHER_PAGE, '/', '1' ),
+			new Expect_Url( Static_Press_Model_Url::TYPE_STATIC_FILE, '/wp-content/plugins/akismet/_inc/akismet.css', '1' ),
+			new Expect_Url( Static_Press_Model_Url::TYPE_STATIC_FILE, "/wp-content/themes/{$theme_to_activate}/style.css", '1' ),
 		);
 		$results                 = $repository->get_all_url( '2019-12-23 12:34:57' );
 		Expect_Url::assert_url( $this, $expect_urls_in_database, $results );
@@ -106,7 +106,7 @@ class Static_Press_Url_Updater_Test extends \WP_UnitTestCase {
 	 */
 	public function test_update_case_dump_directory_is_absolute_path() {
 		$urls                    = array(
-			new Static_Press_Model_Url_Static_File( '/' ),
+			new Static_Press_Model_Url_Static_File( Static_Press_Model_Url::TYPE_STATIC_FILE, '/', '/' ),
 		);
 		$expect_urls_in_database = array();
 		$repository              = new Static_Press_Repository();
@@ -128,7 +128,7 @@ class Static_Press_Url_Updater_Test extends \WP_UnitTestCase {
 		file_put_contents( self::OUTPUT_DIRECTORY . 'test.txt', '' );
 		file_put_contents( ABSPATH . 'test.txt', '' );
 		$urls                    = array(
-			new Static_Press_Model_Url_Static_File( ABSPATH . 'test.txt' ),
+			new Static_Press_Model_Url_Static_File( Static_Press_Model_Url::TYPE_STATIC_FILE, ABSPATH, ABSPATH . 'test.txt' ),
 		);
 		$expect_urls_in_database = array();
 		$repository              = new Static_Press_Repository();
@@ -146,7 +146,7 @@ class Static_Press_Url_Updater_Test extends \WP_UnitTestCase {
 	public function test_update_case_non_active_plugin_static_file() {
 		deactivate_plugins( array( 'akismet/akismet.php' ) );
 		$urls                    = array(
-			new Static_Press_Model_Url_Static_File( ABSPATH . 'wp-content/plugins/akismet/_inc/akismet.css' ),
+			new Static_Press_Model_Url_Static_File( Static_Press_Model_Url::TYPE_STATIC_FILE, ABSPATH, ABSPATH . 'wp-content/plugins/akismet/_inc/akismet.css' ),
 		);
 		$expect_urls_in_database = array();
 		$repository              = new Static_Press_Repository();
@@ -164,10 +164,10 @@ class Static_Press_Url_Updater_Test extends \WP_UnitTestCase {
 	public function test_update_case_static_file_not_plugin_nor_theme() {
 		file_put_contents( ABSPATH . 'wp-content/uploads/2020/03/test.txt', '' );
 		$urls                    = array(
-			new Static_Press_Model_Url_Static_File( ABSPATH . 'wp-content/uploads/2020/03/test.txt' ),
+			new Static_Press_Model_Url_Static_File( Static_Press_Model_Url::TYPE_STATIC_FILE, ABSPATH, ABSPATH . 'wp-content/uploads/2020/03/test.txt' ),
 		);
 		$expect_urls_in_database = array(
-			new Expect_Url( Model_Url::TYPE_STATIC_FILE, '/wp-content/uploads/2020/03/test.txt', '1' ),
+			new Expect_Url( Static_Press_Model_Url::TYPE_STATIC_FILE, '/wp-content/uploads/2020/03/test.txt', '1' ),
 		);
 		$repository              = new Static_Press_Repository();
 		$url_updater             = new Static_Press_Url_Updater( $repository, null );

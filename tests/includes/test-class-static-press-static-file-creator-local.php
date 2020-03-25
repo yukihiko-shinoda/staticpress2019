@@ -11,6 +11,7 @@ require_once dirname( __FILE__ ) . '/../testlibraries/class-expect-url.php';
 require_once dirname( __FILE__ ) . '/../testlibraries/class-model-url.php';
 require_once dirname( __FILE__ ) . '/../testlibraries/class-repository-for-test.php';
 require_once dirname( __FILE__ ) . '/../testlibraries/class-test-utility.php';
+use static_press\includes\Static_Press_Model_Url;
 use static_press\includes\Static_Press_Repository;
 use static_press\includes\Static_Press_Transient_Service;
 use static_press\includes\Static_Press_Static_File_Creator_Local;
@@ -31,7 +32,7 @@ class Static_Press_Static_File_Creator_Local_Test extends \WP_UnitTestCase {
 		Repository_For_Test::insert_url(
 			new Model_Url(
 				1,
-				Model_Url::TYPE_OTHER_PAGE,
+				Static_Press_Model_Url::TYPE_OTHER_PAGE,
 				'/test1/',
 				0,
 				'',
@@ -49,7 +50,7 @@ class Static_Press_Static_File_Creator_Local_Test extends \WP_UnitTestCase {
 		Repository_For_Test::insert_url(
 			new Model_Url(
 				2,
-				Model_Url::TYPE_OTHER_PAGE,
+				Static_Press_Model_Url::TYPE_OTHER_PAGE,
 				'/test2/',
 				0,
 				'',
@@ -67,7 +68,7 @@ class Static_Press_Static_File_Creator_Local_Test extends \WP_UnitTestCase {
 		Repository_For_Test::insert_url(
 			new Model_Url(
 				3,
-				Model_Url::TYPE_OTHER_PAGE,
+				Static_Press_Model_Url::TYPE_OTHER_PAGE,
 				'/test3/',
 				0,
 				'',
@@ -85,7 +86,7 @@ class Static_Press_Static_File_Creator_Local_Test extends \WP_UnitTestCase {
 		Repository_For_Test::insert_url(
 			new Model_Url(
 				4,
-				Model_Url::TYPE_OTHER_PAGE,
+				Static_Press_Model_Url::TYPE_OTHER_PAGE,
 				'/test4/',
 				0,
 				'',
@@ -106,12 +107,12 @@ class Static_Press_Static_File_Creator_Local_Test extends \WP_UnitTestCase {
 			array( 'url' => '/test3/' ),
 		);
 		$expect_urls_in_database = array(
-			new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/test2/', '1' ),
-			new Expect_Url( Model_Url::TYPE_OTHER_PAGE, '/test4/', '1' ),
+			new Expect_Url( Static_Press_Model_Url::TYPE_OTHER_PAGE, '/test2/', '1' ),
+			new Expect_Url( Static_Press_Model_Url::TYPE_OTHER_PAGE, '/test4/', '1' ),
 		);
 
 		$static_press = new Static_Press_Static_File_Creator_Local(
-			null,
+			Static_Press_Model_Url::TYPE_STATIC_FILE,
 			self::OUTPUT_DIRECTORY,
 			null,
 			new Static_Press_Repository(),

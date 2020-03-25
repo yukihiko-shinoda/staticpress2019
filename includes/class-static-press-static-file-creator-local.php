@@ -21,6 +21,26 @@ use static_press\includes\Static_Press_Static_File_Creator;
  */
 class Static_Press_Static_File_Creator_Local extends Static_Press_Static_File_Creator {
 	/**
+	 * Base directory.
+	 * 
+	 * @var string
+	 */
+	private $base_directory;
+	/**
+	 * Constructor.
+	 * 
+	 * @param string                         $file_type         File type.
+	 * @param string                         $dump_directory    Dump direcory.
+	 * @param string                         $static_site_url   Static site URL.
+	 * @param Static_Press_Repository        $repository        Repository.
+	 * @param Static_Press_Date_Time_Factory $date_time_factory Date time factory.
+	 */
+	public function __construct( $file_type, $dump_directory, $static_site_url, $repository, $date_time_factory ) {
+		$this->base_directory = trailingslashit( Static_Press_Model_Url_Static_File::get_base_directory( $file_type ) );
+		parent::__construct( $file_type, $dump_directory, $static_site_url, $repository, $date_time_factory );
+	}
+
+	/**
 	 * Gets file.
 	 * 
 	 * @param Static_Press_Model_Static_File $model_static_file Model of static file.
@@ -37,7 +57,7 @@ class Static_Press_Static_File_Creator_Local extends Static_Press_Static_File_Cr
 	 * @throws Static_Press_Business_Logic_Exception When source file doesn't exist.
 	 */
 	private function get_static_file( $model_static_file ) {
-		$file_source = untrailingslashit( ABSPATH ) . $model_static_file->url;
+		$file_source = $this->base_directory . $model_static_file->url;
 		if ( '/' !== $model_static_file->dir_sep ) {
 			$file_source = str_replace( '/', $model_static_file->dir_sep, $file_source );
 		}

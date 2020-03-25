@@ -9,16 +9,15 @@ namespace static_press\tests\includes;
 
 require_once dirname( __FILE__ ) . '/../testlibraries/class-expect-url.php';
 require_once dirname( __FILE__ ) . '/../testlibraries/class-die-exception.php';
-require_once dirname( __FILE__ ) . '/../testlibraries/class-model-url.php';
 require_once dirname( __FILE__ ) . '/../testlibraries/class-model-url-handler.php';
 require_once dirname( __FILE__ ) . '/../testlibraries/class-repository-for-test.php';
 require_once dirname( __FILE__ ) . '/../testlibraries/class-test-utility.php';
 use Mockery;
 use static_press\includes\Static_Press_Ajax_Init;
 use static_press\includes\Static_Press_Business_Logic_Exception;
+use static_press\includes\Static_Press_Model_Url;
 use static_press\includes\Static_Press_Repository;
 use static_press\tests\testlibraries\Die_Exception;
-use static_press\tests\testlibraries\Model_Url;
 use static_press\tests\testlibraries\Model_Url_Handler;
 use static_press\tests\testlibraries\Test_Utility;
 
@@ -96,9 +95,9 @@ class Static_Press_Ajax_Processor_Test extends \WP_UnitTestCase {
 	 */
 	public function provider_create_static_file() {
 		return array(
-			array( 200, '/', Model_Url::TYPE_FRONT_PAGE, '/tmp/static/index.html', '/index.html' ),
-			array( 200, '/wp-content/uploads/2020/03/test.txt', Model_Url::TYPE_STATIC_FILE, '/tmp/static/wp-content/uploads/2020/03/test.txt', '/wp-content/uploads/2020/03/test.txt' ),
-			array( 200, '/sitemap.xml', Model_Url::TYPE_SEO_FILES, '/tmp/static/sitemap.xml', '/sitemap.xml' ),
+			array( 200, '/', Static_Press_Model_Url::TYPE_FRONT_PAGE, '/tmp/static/index.html', '/index.html' ),
+			array( 200, '/wp-content/uploads/2020/03/test.txt', Static_Press_Model_Url::TYPE_STATIC_FILE, '/tmp/static/wp-content/uploads/2020/03/test.txt', '/wp-content/uploads/2020/03/test.txt' ),
+			array( 200, '/sitemap.xml', Static_Press_Model_Url::TYPE_SEO_FILES, '/tmp/static/sitemap.xml', '/sitemap.xml' ),
 		);
 	}
 
@@ -132,8 +131,8 @@ class Static_Press_Ajax_Processor_Test extends \WP_UnitTestCase {
 	 */
 	public function provider_create_static_file_exception() {
 		return array(
-			array( 500, '/?author=1/', Model_Url::TYPE_AUTHOR_ARCHIVE ),
-			array( 200, '/wp-content/uploads/2020/03/test.png', Model_Url::TYPE_STATIC_FILE ),
+			array( 500, '/?author=1/', Static_Press_Model_Url::TYPE_AUTHOR_ARCHIVE ),
+			array( 200, '/wp-content/uploads/2020/03/test.png', Static_Press_Model_Url::TYPE_STATIC_FILE ),
 		);
 	}
 

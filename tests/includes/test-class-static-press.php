@@ -35,6 +35,7 @@ require_once dirname( __FILE__ ) . '/../testlibraries/class-repository-for-test.
 require_once dirname( __FILE__ ) . '/../testlibraries/class-test-utility.php';
 use Mockery;
 use static_press\includes\Static_Press;
+use static_press\includes\Static_Press_Model_Url;
 use static_press\tests\testlibraries\Die_Exception;
 use static_press\tests\testlibraries\Model_Url;
 use static_press\tests\testlibraries\Repository_For_Test;
@@ -380,7 +381,7 @@ class Static_Press_Test extends \WP_UnitTestCase {
 				array(
 					new Model_Url(
 						1,
-						Model_Url::TYPE_OTHER_PAGE,
+						Static_Press_Model_Url::TYPE_OTHER_PAGE,
 						'/test1/',
 						0,
 						'',
@@ -396,7 +397,7 @@ class Static_Press_Test extends \WP_UnitTestCase {
 					),
 					new Model_Url(
 						2,
-						Model_Url::TYPE_OTHER_PAGE,
+						Static_Press_Model_Url::TYPE_OTHER_PAGE,
 						'/test2/',
 						0,
 						'',
@@ -417,28 +418,28 @@ class Static_Press_Test extends \WP_UnitTestCase {
 						'1'   => array(
 							'ID'     => '1',
 							'page'   => 1,
-							'type'   => Model_Url::TYPE_OTHER_PAGE,
+							'type'   => Static_Press_Model_Url::TYPE_OTHER_PAGE,
 							'url'    => '/test1/',
 							'static' => ABSPATH . 'test1/index.html',
 						),
 						'1-2' => array(
 							'ID'     => '1',
 							'page'   => 2,
-							'type'   => Model_Url::TYPE_OTHER_PAGE,
+							'type'   => Static_Press_Model_Url::TYPE_OTHER_PAGE,
 							'url'    => '/test1/page/2',
 							'static' => ABSPATH . 'test1/page/2/index.html',
 						),
 						'2'   => array(
 							'ID'     => '2',
 							'page'   => 1,
-							'type'   => Model_Url::TYPE_OTHER_PAGE,
+							'type'   => Static_Press_Model_Url::TYPE_OTHER_PAGE,
 							'url'    => '/test2/',
 							'static' => ABSPATH . 'test2/index.html',
 						),
 						'3'   => array(
 							'ID'     => '3',
 							'page'   => 1,
-							'type'   => Model_Url::TYPE_OTHER_PAGE,
+							'type'   => Static_Press_Model_Url::TYPE_OTHER_PAGE,
 							'url'    => '/test1/page/',
 							'static' => ABSPATH . 'test1/page/index.html',
 						),
@@ -450,7 +451,7 @@ class Static_Press_Test extends \WP_UnitTestCase {
 				array(
 					new Model_Url(
 						1,
-						Model_Url::TYPE_SINGLE,
+						Static_Press_Model_Url::TYPE_SINGLE,
 						'/?attachment_id=3/',
 						3,
 						'attachment',
@@ -466,7 +467,7 @@ class Static_Press_Test extends \WP_UnitTestCase {
 					),
 					new Model_Url(
 						2,
-						Model_Url::TYPE_SINGLE,
+						Static_Press_Model_Url::TYPE_SINGLE,
 						'/?attachment_id=4/',
 						4,
 						'attachment',
@@ -487,21 +488,21 @@ class Static_Press_Test extends \WP_UnitTestCase {
 						'1'   => array(
 							'ID'     => '1',
 							'page'   => 1,
-							'type'   => Model_Url::TYPE_SINGLE,
+							'type'   => Static_Press_Model_Url::TYPE_SINGLE,
 							'url'    => '/?attachment_id=3/',
 							'static' => ABSPATH . '?attachment_id=3/index.html',
 						),
 						'1-2' => array(
 							'ID'     => '1',
 							'page'   => 2,
-							'type'   => Model_Url::TYPE_SINGLE,
+							'type'   => Static_Press_Model_Url::TYPE_SINGLE,
 							'url'    => '/?attachment_id=3/2',
 							'static' => ABSPATH . '?attachment_id=3/2/index.html',
 						),
 						'2'   => array(
 							'ID'     => '2',
 							'page'   => 1,
-							'type'   => Model_Url::TYPE_SINGLE,
+							'type'   => Static_Press_Model_Url::TYPE_SINGLE,
 							'url'    => '/?attachment_id=4/',
 							'static' => ABSPATH . '?attachment_id=4/index.html',
 						),
