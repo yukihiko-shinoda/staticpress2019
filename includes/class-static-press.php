@@ -28,9 +28,6 @@ if ( ! class_exists( 'static_press\includes\Static_Press_Date_Time_Factory' ) ) 
 if ( ! class_exists( 'static_press\includes\Static_Press_File_System_Utility' ) ) {
 	require dirname( __FILE__ ) . '/class-static-press-file-system-utility.php';
 }
-if ( ! class_exists( 'static_press\includes\Static_Press_Model_Static_File' ) ) {
-	require dirname( __FILE__ ) . '/class-static-press-model-static-file.php';
-}
 if ( ! class_exists( 'static_press\includes\Static_Press_Remote_Getter' ) ) {
 	require dirname( __FILE__ ) . '/class-static-press-remote-getter.php';
 }
@@ -53,7 +50,6 @@ use static_press\includes\Static_Press_Content_Filter;
 use static_press\includes\Static_Press_Content_Filter_Replace_Relative_Uri;
 use static_press\includes\Static_Press_Date_Time_Factory;
 use static_press\includes\Static_Press_File_System_Utility;
-use static_press\includes\Static_Press_Model_Static_File;
 use static_press\includes\Static_Press_Remote_Getter;
 use static_press\includes\Static_Press_Url_Filter;
 use static_press\includes\Static_Press_Repository;
