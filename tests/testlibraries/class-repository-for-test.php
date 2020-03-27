@@ -133,8 +133,17 @@ class Repository_For_Test {
 	public static function ensure_table_is_dropped() {
 		global $wpdb;
 		$url_table = self::url_table();
-		if ( $wpdb->get_var( "show tables like '{$url_table}'" ) == $url_table ) {
+		if ( self::url_table_exists() ) {
 			$wpdb->query( "DROP TABLE `{$url_table}`" );
+		}
+	}
+
+	/**
+	 * Ensures that table is created.
+	 */
+	public static function ensure_table_is_created() {
+		if ( ! self::url_table_exists() ) {
+			self::create_latest_table();
 		}
 	}
 

@@ -5,28 +5,6 @@
  * @package static_press\tests\includes
  */
 
-namespace static_press\includes;
-
-const DATE_FOR_TEST = '2019-12-23 12:34:56';
-const TIME_FOR_TEST = '12:34:56';
-/**
- * Override date() in current namespace for testing
- *
- * @return string
- */
-function date() {
-	return DATE_FOR_TEST;
-}
-
-/**
- * Override time() in current namespace for testing
- *
- * @return int
- */
-function time() {
-	return strtotime( TIME_FOR_TEST );
-}
-
 namespace static_press\tests\includes;
 
 require_once dirname( __FILE__ ) . '/../testlibraries/class-die-exception.php';
@@ -145,85 +123,6 @@ class Static_Press_Test extends \WP_UnitTestCase {
 			array( 'http://domain.com/', '/tmp', '/tmp/' ),
 			array( 'https://domain.com/test', '/tmp/', '/tmp/test/' ),
 		);
-	}
-
-	/**
-	 * Function activate() should ensure that database table which list URL exists.
-	 */
-	public function test_constructor_create_table() {
-		remove_filter( 'query', array( $this, '_create_temporary_tables' ) );
-		remove_filter( 'query', array( $this, '_drop_temporary_tables' ) );
-		Repository_For_Test::ensure_table_is_dropped();
-		$this->assertFalse( Repository_For_Test::url_table_exists() );
-		new Static_Press();
-		$this->assertTrue( Repository_For_Test::url_table_exists() );
-		add_filter( 'query', array( $this, '_create_temporary_tables' ) );
-		add_filter( 'query', array( $this, '_drop_temporary_tables' ) );
-	}
-
-	/**
-	 * Function activate() should ensure that database table which list URL exists.
-	 */
-	public function test_activate() {
-		remove_filter( 'query', array( $this, '_create_temporary_tables' ) );
-		remove_filter( 'query', array( $this, '_drop_temporary_tables' ) );
-		$static_press = new Static_Press();
-		Repository_For_Test::ensure_table_is_dropped();
-		$this->assertFalse( Repository_For_Test::url_table_exists() );
-		$static_press->activate();
-		$this->assertTrue( Repository_For_Test::url_table_exists() );
-		add_filter( 'query', array( $this, '_create_temporary_tables' ) );
-		add_filter( 'query', array( $this, '_drop_temporary_tables' ) );
-	}
-
-	/**
-	 * Function activate() should ensure that database table which list URL has column 'enable'.
-	 */
-	public function test_activate_2() {
-		remove_filter( 'query', array( $this, '_create_temporary_tables' ) );
-		remove_filter( 'query', array( $this, '_drop_temporary_tables' ) );
-		Repository_For_Test::ensure_table_is_dropped();
-		Repository_For_Test::create_legacy_table();
-		$this->assertFalse( Repository_For_Test::column_enable_exists() );
-		$static_press = new Static_Press();
-		$static_press->activate();
-		$this->assertTrue( Repository_For_Test::column_enable_exists() );
-		$column = Repository_For_Test::get_column_enable();
-		$this->assertEquals( 'enable', $column->Field );         // phpcs:ignore
-		$this->assertEquals( 'int(1) unsigned', $column->Type ); // phpcs:ignore
-		$this->assertEquals( 'NO', $column->Null );              // phpcs:ignore
-		$this->assertEquals( '', $column->Key );                 // phpcs:ignore
-		$this->assertEquals( '1', $column->Default );            // phpcs:ignore
-		$this->assertEquals( '', $column->Extra );               // phpcs:ignore
-		add_filter( 'query', array( $this, '_create_temporary_tables' ) );
-		add_filter( 'query', array( $this, '_drop_temporary_tables' ) );
-	}
-
-	/**
-	 * Function activate() should ensure that database table which list URL exists.
-	 */
-	public function test_deactivate() {
-		global $wpdb;
-		remove_filter( 'query', array( $this, '_create_temporary_tables' ) );
-		remove_filter( 'query', array( $this, '_drop_temporary_tables' ) );
-		$static_press = new Static_Press();
-		if ( $wpdb->get_var( "show tables like '{$this->url_table()}'" ) != $this->url_table() ) {
-			Repository_For_Test::create_latest_table();
-		}
-		$this->assertEquals( Repository_For_Test::url_table(), $wpdb->get_var( "show tables like '{$this->url_table()}'" ) );
-		$static_press->deactivate();
-		$this->assertNotEquals( Repository_For_Test::url_table(), $wpdb->get_var( "show tables like '{$this->url_table()}'" ) );
-		Repository_For_Test::create_latest_table();
-		add_filter( 'query', array( $this, '_create_temporary_tables' ) );
-		add_filter( 'query', array( $this, '_drop_temporary_tables' ) );
-	}
-
-	/**
-	 * Returns database table name for URL list.
-	 */
-	private static function url_table() {
-		global $wpdb;
-		return $wpdb->prefix . 'urls';
 	}
 
 	/**
@@ -518,34 +417,6 @@ class Static_Press_Test extends \WP_UnitTestCase {
 			array( 'http://example.org/test', '/test/' ),
 			array( 'http://example.org/test.php', '/test.php' ),
 			array( 'http://example.org/test.xlsx', '/test.xlsx/' ),  // Maybe, not intended.
-		);
-	}
-
-	/**
-	 * Test steps for static_url().
-	 *
-	 * @dataProvider provider_static_url
-	 *
-	 * @param string $permalink argument.
-	 * @param string $expect    Expect return value.
-	 */
-	public function test_static_url( $permalink, $expect ) {
-		$static_press = new Static_Press();
-		$this->assertEquals( $expect, $static_press->static_url( $permalink ) );
-	}
-
-	/**
-	 * Function static_url() should return index.html based on permalink when permalink doesn't end with extension.
-	 * Function static_url() should return argument when permalink ends with extension.
-	 */
-	public function provider_static_url() {
-		return array(
-			array( '/', '/index.html' ),
-			array( '/test', '/test/index.html' ),
-			array( '/test/', '/test/index.html' ),
-			array( '/test/test', '/test/test/index.html' ),
-			array( '/test/test.png', '/test/test.png' ),
-			array( '/sitemap.xml', '/sitemap.xml' ),
 		);
 	}
 

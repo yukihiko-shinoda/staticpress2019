@@ -285,7 +285,7 @@ class Static_Press_Url_Collector_Test extends \WP_UnitTestCase {
 	 */
 	public function test_seo_url() {
 		$expect_urls     = Test_Utility::get_expect_urls_seo( self::DATE_FOR_TEST );
-		$actual          = $this->create_accessable_method( Test_Utility::set_up_seo_url( 'http://example.org/' ), 'seo_url', array() );
+		$actual          = $this->create_accessable_method( Test_Utility::set_up_seo_url( 'http://example.org/' ), 'seo_url', array(), Test_Utility::create_date_time_factory_mock( 'create_date', 'Y-m-d h:i:s' ) );
 		$array_array_url = array();
 		foreach ( $actual as $url ) {
 			$array_array_url[] = $url->to_array();

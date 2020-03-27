@@ -151,7 +151,7 @@ class Static_Press_Ajax_Processor_Test extends \WP_UnitTestCase {
 			new Static_Press_Repository(),
 			$remote_get_mock ? $remote_get_mock : Test_Utility::create_remote_getter_mock(),
 			Test_Utility::create_terminator_mock(),
-			Test_Utility::create_date_time_factory_mock( 'create_date', 'Y-m-d h:i:s', '2019-12-23 12:34:56' )
+			Test_Utility::create_date_time_factory_mock( 'create_date', 'Y-m-d h:i:s' )
 		);
 		$reflection   = new \ReflectionClass( get_class( $static_press ) );
 		$method       = $reflection->getMethod( $method_name );

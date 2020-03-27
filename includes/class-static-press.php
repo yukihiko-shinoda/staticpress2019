@@ -242,17 +242,6 @@ class Static_Press {
 	}
 
 	/**
-	 * Returns index.html based on permalink when permalink doesn't end with extension.
-	 * Otherwise, returns argument.
-	 * 
-	 * @param string $permalink Permalink.
-	 * @return string Static URL.
-	 */
-	public function static_url( $permalink ) {
-		return Static_Press_Model_Static_File::static_url( $permalink );
-	}
-
-	/**
 	 * Replaces URL.
 	 * 
 	 * @param  string $url URL.
