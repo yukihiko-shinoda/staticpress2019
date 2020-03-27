@@ -275,8 +275,18 @@ abstract class Static_Press_Model_Url {
 	 * @param Static_Press_Static_File_Judger $static_file_judger Static file judger.
 	 */
 	public function judge_to_dump_for_static_file( $static_file_judger ) {
-		$this->enable = $static_file_judger->classify( $this->get_url() );
+		$this->enable = $static_file_judger->classify( $this );
 	}
+
+	/**
+	 * Gets directory of source.
+	 * 
+	 * @return string Directory of source.
+	 */
+	public function get_directory_source() {
+		return untrailingslashit( Static_Press_Model_Url_Static_File::get_base_directory( $this->type ) );
+	}
+
 	/**
 	 * Converts to array.
 	 * 
