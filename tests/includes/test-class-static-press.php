@@ -233,8 +233,6 @@ class Static_Press_Test extends \WP_UnitTestCase {
 	 */
 	public function test_ajax_init() {
 		$this->sign_on_to_word_press();
-
-		$expect       = '{"result":true,"urls_count":[{"type":"content_file","count":"94"},{"type":"front_page","count":"1"},{"type":"seo_files","count":"5"}]}';
 		$static_press = new Static_Press( '/', '', array(), null, Test_Utility::set_up_seo_url( 'http://example.org/' ) );
 		ob_start();
 		try {
@@ -242,7 +240,18 @@ class Static_Press_Test extends \WP_UnitTestCase {
 		} catch ( Die_Exception $exception ) {
 			$output = ob_get_clean();
 			$this->assertEquals( 'Dead!', $exception->getMessage() );
-			$this->assertEquals( $expect, $output );
+			$array_json = json_decode( $output, true );
+			$this->assertTrue( $array_json['result'] );
+			$array_urls_count  = $array_json['urls_count'];
+			$url_count_content = $array_urls_count[0];
+			$this->assertEquals( 'content_file', $url_count_content['type'] );
+			$this->assertGreaterThan( 0, $url_count_content['count'] );
+			$url_count_front = $array_urls_count[1];
+			$this->assertEquals( 'front_page', $url_count_front['type'] );
+			$this->assertEquals( 1, $url_count_front['count'] );
+			$url_count_seo = $array_urls_count[2];
+			$this->assertEquals( 'seo_files', $url_count_seo['type'] );
+			$this->assertEquals( 5, $url_count_seo['count'] );
 			return;
 		}
 		$this->fail();

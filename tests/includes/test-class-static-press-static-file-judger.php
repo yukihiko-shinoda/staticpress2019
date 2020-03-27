@@ -38,11 +38,14 @@ class Static_Press_Static_FIle_Jugder_Test extends \WP_UnitTestCase {
 		$this->theme_switcher = new Theme_Switcher();
 	}
 	/**
+	 * Ensure file existance.
 	 * Activbate plugin and theme.
 	 */
 	public function setUp() {
 		parent::setUp();
-		Test_Utility::activate_plugin();
+		Test_Utility::create_static_file_readme();
+		Test_Utility::create_static_file_not_exist();
+		Test_Utility::create_static_file_active_plugin();
 		$this->theme_switcher->switch_theme();
 	}
 

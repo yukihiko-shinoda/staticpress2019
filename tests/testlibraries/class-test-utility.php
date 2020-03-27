@@ -386,7 +386,7 @@ class Test_Utility {
 	 * @return Static_Press_Model_Url_Static_File Static file of active plugin.
 	 */
 	public static function create_content_file_not_plugin_nor_theme() {
-		return self::create_static_file( Static_Press_Model_Url::TYPE_CONTENT_FILE, WP_CONTENT_DIR, WP_CONTENT_DIR . 'app/uploads/2020/03/test.txt' );
+		return self::create_static_file( Static_Press_Model_Url::TYPE_CONTENT_FILE, WP_CONTENT_DIR, WP_CONTENT_DIR . '/app/uploads/2020/03/test.txt' );
 	}
 
 	/**
