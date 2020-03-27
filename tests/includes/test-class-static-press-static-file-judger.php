@@ -10,6 +10,7 @@ namespace static_press\tests\includes;
 require_once dirname( __FILE__ ) . '/../testlibraries/class-test-utility.php';
 require_once dirname( __FILE__ ) . '/../testlibraries/class-theme-switcher.php';
 
+use Mockery;
 use static_press\includes\Static_Press_Model_Url;
 use static_press\includes\Static_Press_Model_Url_Static_File;
 use static_press\includes\Static_Press_Static_FIle_Judger;
@@ -47,6 +48,15 @@ class Static_Press_Static_FIle_Jugder_Test extends \WP_UnitTestCase {
 		Test_Utility::create_static_file_not_exist();
 		Test_Utility::create_static_file_active_plugin();
 		$this->theme_switcher->switch_theme();
+	}
+
+	/**
+	 * Puts up output directory, Mockery.
+	 */
+	public function tearDown() {
+		Test_Utility::delete_files();
+		Mockery::close();
+		parent::tearDown();
 	}
 
 	/**

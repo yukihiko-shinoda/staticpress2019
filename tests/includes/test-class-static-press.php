@@ -21,35 +21,12 @@ use static_press\tests\testlibraries\Test_Utility;
  * @noinspection PhpUndefinedClassInspection
  */
 class Static_Press_Test extends \WP_UnitTestCase {
-	const OUTPUT_DIRECTORY = '/tmp/static/';
 	/**
-	 * Sets administrator as current user.
-	 *
-	 * @see https://wordpress.stackexchange.com/a/207363
+	 * Puts up Mockery.
 	 */
 	public function tearDown() {
-		self::delete_files( self::OUTPUT_DIRECTORY );
 		Mockery::close();
 		parent::tearDown();
-	}
-
-	/**
-	 * PHP delete function that deals with directories recursively.
-	 *
-	 * @see https://paulund.co.uk/php-delete-directory-and-files-in-directory
-	 *
-	 * @param string $target Example: '/path/for/the/directory/' .
-	 */
-	public static function delete_files( $target ) {
-		if ( is_dir( $target ) ) {
-			$files = glob( $target . '*', GLOB_MARK ); // GLOB_MARK adds a slash to directories returned.
-			foreach ( $files as $file ) {
-				self::delete_files( $file );
-			}
-			rmdir( $target );
-		} elseif ( is_file( $target ) ) {
-			unlink( $target );
-		}
 	}
 
 	/**

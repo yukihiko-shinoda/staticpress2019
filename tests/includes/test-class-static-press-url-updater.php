@@ -11,6 +11,8 @@ require_once dirname( __FILE__ ) . '/../testlibraries/class-expect-url.php';
 require_once dirname( __FILE__ ) . '/../testlibraries/class-model-url.php';
 require_once dirname( __FILE__ ) . '/../testlibraries/class-repository-for-test.php';
 require_once dirname( __FILE__ ) . '/../testlibraries/class-test-utility.php';
+
+use Mockery;
 use static_press\includes\Static_Press_Model_Url;
 use static_press\includes\Static_Press_Model_Url_Static_File;
 use static_press\includes\Static_Press_Model_Url_Succeed;
@@ -28,6 +30,15 @@ use static_press\tests\testlibraries\Theme_Switcher;
  */
 class Static_Press_Url_Updater_Test extends \WP_UnitTestCase {
 	const DATE_FOR_TEST = '2019-12-23 12:34:56';
+	/**
+	 * Puts up output directory, Mockery.
+	 */
+	public function tearDown() {
+		Test_Utility::delete_files();
+		Mockery::close();
+		parent::tearDown();
+	}
+
 	/**
 	 * Function update() should update enable when URL exists in database table.
 	 * Function update() should insert URL when URL doesn't exist in database table.

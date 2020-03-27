@@ -405,4 +405,23 @@ class Test_Utility {
 		file_put_contents( $path, '' );
 		return new Static_Press_Model_Url_Static_File( $file_type, $base_directory, $path );
 	}
+
+	/**
+	 * PHP delete function that deals with directories recursively.
+	 *
+	 * @see https://paulund.co.uk/php-delete-directory-and-files-in-directory
+	 *
+	 * @param string $target Example: '/path/for/the/directory/' .
+	 */
+	public static function delete_files( $target = self::OUTPUT_DIRECTORY ) {
+		if ( is_dir( $target ) ) {
+			$files = glob( $target . '*', GLOB_MARK ); // GLOB_MARK adds a slash to directories returned.
+			foreach ( $files as $file ) {
+				self::delete_files( $file );
+			}
+			rmdir( $target );
+		} elseif ( is_file( $target ) ) {
+			unlink( $target );
+		}
+	}
 }
