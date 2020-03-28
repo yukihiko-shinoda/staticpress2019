@@ -7,6 +7,7 @@
 
 namespace static_press\tests\includes;
 
+require_once dirname( __FILE__ ) . '/../testlibraries/class-test-utility.php';
 use static_press\includes\Static_Press_Model_Url;
 use static_press\includes\Static_Press_Model_Url_Static_File;
 use static_press\tests\testlibraries\Test_Utility;
@@ -20,7 +21,7 @@ class Static_Press_Model_Url_Static_File_Test extends \WP_UnitTestCase {
 	 */
 	public function setUp() {
 		parent::setUp();
-		file_put_contents( trailingslashit( ABSPATH ) . 'test.txt', '' );
+		file_put_contents( trailingslashit( Test_Utility::DOCUMENT_ROOT ) . 'test.txt', '' );
 		file_put_contents( trailingslashit( WP_CONTENT_DIR ) . 'test.txt', '' );
 	}
 
@@ -29,7 +30,7 @@ class Static_Press_Model_Url_Static_File_Test extends \WP_UnitTestCase {
 	 */
 	public function tearDown() {
 		unlink( trailingslashit( WP_CONTENT_DIR ) . 'test.txt' );
-		unlink( trailingslashit( ABSPATH ) . 'test.txt' );
+		unlink( trailingslashit( Test_Utility::DOCUMENT_ROOT ) . 'test.txt' );
 	}
 
 	/**
