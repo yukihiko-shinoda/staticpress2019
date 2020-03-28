@@ -11,7 +11,7 @@ require_once dirname( __FILE__ ) . '/../testlibraries/class-expect-url.php';
 require_once dirname( __FILE__ ) . '/../testlibraries/class-model-url.php';
 require_once dirname( __FILE__ ) . '/../testlibraries/class-repository-for-test.php';
 require_once dirname( __FILE__ ) . '/../testlibraries/class-test-utility.php';
-
+require_once dirname( __FILE__ ) . '/../testlibraries/class-theme-switcher.php';
 use Mockery;
 use static_press\includes\Static_Press_Model_Url;
 use static_press\includes\Static_Press_Model_Url_Static_File;
@@ -89,7 +89,7 @@ class Static_Press_Url_Updater_Test extends \WP_UnitTestCase {
 			$theme_switcher->create_static_file_non_active_theme(),
 		);
 		$repository        = new Static_Press_Repository();
-		$url_updater       = new Static_Press_Url_Updater( $repository, null );
+		$url_updater       = new Static_Press_Url_Updater( $repository, null, Test_Utility::create_docuemnt_root_getter_mock() );
 		$url_updater->update( $urls );
 		$expect_urls_in_database = array(
 			new Expect_Url( Static_Press_Model_Url::TYPE_OTHER_PAGE, '/test/', '1' ),
@@ -159,7 +159,7 @@ class Static_Press_Url_Updater_Test extends \WP_UnitTestCase {
 			new Expect_Url( Static_Press_Model_Url::TYPE_STATIC_FILE, '/wp-content/uploads/2020/03/test.txt', '1' ),
 		);
 		$repository              = new Static_Press_Repository();
-		$url_updater             = new Static_Press_Url_Updater( $repository, null );
+		$url_updater             = new Static_Press_Url_Updater( $repository, null, Test_Utility::create_docuemnt_root_getter_mock() );
 		$url_updater->update( $urls );
 		$transient_service = new Static_Press_Transient_Service();
 		$start_time        = $transient_service->fetch_start_time();

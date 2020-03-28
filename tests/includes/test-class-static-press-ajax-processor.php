@@ -7,10 +7,8 @@
 
 namespace static_press\tests\includes;
 
-require_once dirname( __FILE__ ) . '/../testlibraries/class-expect-url.php';
 require_once dirname( __FILE__ ) . '/../testlibraries/class-die-exception.php';
 require_once dirname( __FILE__ ) . '/../testlibraries/class-model-url-handler.php';
-require_once dirname( __FILE__ ) . '/../testlibraries/class-repository-for-test.php';
 require_once dirname( __FILE__ ) . '/../testlibraries/class-test-utility.php';
 use Mockery;
 use static_press\includes\Static_Press_Ajax_Init;
@@ -27,7 +25,17 @@ use static_press\tests\testlibraries\Test_Utility;
  * @noinspection PhpUndefinedClassInspection
  */
 class Static_Press_Ajax_Processor_Test extends \WP_UnitTestCase {
-	const OUTPUT_DIRECTORY = '/tmp/static/';
+	/**
+	 * Deletes files in content directory if exist.
+	 */
+	public function tearDown() {
+		$directory = ABSPATH . 'wp-content/uploads/';
+		if ( file_exists( $directory ) ) {
+			Test_Utility::delete_files( $directory );
+		}
+		parent::tearDown();
+	}
+
 	/**
 	 * Function json_output() should die.
 	 * 
@@ -74,21 +82,22 @@ class Static_Press_Ajax_Processor_Test extends \WP_UnitTestCase {
 	 * @throws ReflectionException When fail to create ReflectionClass instance.
 	 */
 	public function test_create_static_file( $http_status_code, $url, $file_type, $expect, $expect_file ) {
-		file_put_contents( ABSPATH . 'wp-content/uploads/2020/03/test.txt', '' );
+		Test_Utility::create_file_with_directory( ABSPATH . 'wp-content/uploads/2020/03/test.txt' );
 		$remote_getter_mock = Mockery::mock( 'alias:Remote_Getter_Mock' );
 		$remote_getter_mock->shouldReceive( 'remote_get' )->andReturn( Test_Utility::create_response( '/', 'index-example.html', $http_status_code ) );
 		$url_fetched         = Model_Url_Handler::create_model_url_fetched( 1, $file_type, $url, 1 );
 		$static_file_creator = $this->create_accessable_method( 'create_static_file_creator_by_factory', array( $url_fetched ), $remote_getter_mock );
 		$result              = $static_file_creator->create( $url );
 		$this->assertEquals( $expect, $result );
-		$path_to_expect_file = self::OUTPUT_DIRECTORY . $expect_file;
-		$files               = glob( self::OUTPUT_DIRECTORY . '/*', GLOB_MARK );
+		$path_to_expect_file = Test_Utility::OUTPUT_DIRECTORY . $expect_file;
+		$files               = Test_Utility::get_array_file_in_output_directory();
 		$message             = 'File ' . $path_to_expect_file . "doesn't exist.\nExisting file list:\n" . implode( "\n", $files );
 		$this->assertFileExists( $path_to_expect_file, $message );
 	}
 
 	/**
 	 * Function create_static_file() should create home page.
+	 * Function create_static_file() should create static file.
 	 * Function create_static_file() should create seo files.
 	 * 
 	 * @return array[]
@@ -113,7 +122,7 @@ class Static_Press_Ajax_Processor_Test extends \WP_UnitTestCase {
 	 * @throws ReflectionException When fail to create ReflectionClass instance.
 	 */
 	public function test_create_static_file_exception( $http_status_code, $url, $file_type ) {
-		file_put_contents( ABSPATH . 'wp-content/uploads/2020/03/test.txt', '' );
+		Test_Utility::create_file_with_directory( ABSPATH . 'wp-content/uploads/2020/03/test.txt' );
 		$remote_getter_mock = Mockery::mock( 'alias:Remote_Getter_Mock' );
 		$remote_getter_mock->shouldReceive( 'remote_get' )->andReturn( Test_Utility::create_response( '/', 'index-example.html', $http_status_code ) );
 		$url_fetched         = Model_Url_Handler::create_model_url_fetched( 1, $file_type, $url, 1 );
@@ -124,8 +133,8 @@ class Static_Press_Ajax_Processor_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Function create_static_file() should create home page.
-	 * Function create_static_file() should create seo files.
+	 * Function create_static_file() should throw exception when HTTP status code is not 200.
+	 * Function create_static_file() should throw exception when static file doesn't exist.
 	 * 
 	 * @return array[]
 	 */
@@ -147,11 +156,12 @@ class Static_Press_Ajax_Processor_Test extends \WP_UnitTestCase {
 	private function create_accessable_method( $method_name, $array_parameter, $remote_get_mock = null ) {
 		$static_press = new Static_Press_Ajax_Init(
 			null,
-			self::OUTPUT_DIRECTORY,
+			Test_Utility::OUTPUT_DIRECTORY,
 			new Static_Press_Repository(),
 			$remote_get_mock ? $remote_get_mock : Test_Utility::create_remote_getter_mock(),
 			Test_Utility::create_terminator_mock(),
-			Test_Utility::create_date_time_factory_mock( 'create_date', 'Y-m-d h:i:s' )
+			Test_Utility::create_date_time_factory_mock( 'create_date', 'Y-m-d h:i:s' ),
+			Test_Utility::create_docuemnt_root_getter_mock()
 		);
 		$reflection   = new \ReflectionClass( get_class( $static_press ) );
 		$method       = $reflection->getMethod( $method_name );

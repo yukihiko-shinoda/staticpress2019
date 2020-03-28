@@ -302,7 +302,7 @@ class Static_Press_Url_Collector_Test extends \WP_UnitTestCase {
 	 * @param MockInterface $date_time_factory_mock Mock interface for Date time factory.
 	 */
 	private function create_accessable_method( $remote_getter_mock, $method_name, $array_parameter, $date_time_factory_mock = null ) {
-		$url_collector = new Static_Press_Url_Collector( $remote_getter_mock, $date_time_factory_mock );
+		$url_collector = new Static_Press_Url_Collector( $remote_getter_mock, $date_time_factory_mock, Test_Utility::create_docuemnt_root_getter_mock() );
 		$reflection    = new \ReflectionClass( get_class( $url_collector ) );
 		$method        = $reflection->getMethod( $method_name );
 		$method->setAccessible( true );

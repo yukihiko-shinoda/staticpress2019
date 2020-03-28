@@ -7,10 +7,12 @@
 
 namespace static_press\tests\includes;
 
+use static_press\includes\Static_Press_Factory_Model_Url_Static_File;
 use static_press\includes\Static_Press_File_Scanner;
 use static_press\includes\Static_Press_Model_Url_Static_File;
 use static_press\includes\Static_Press_Model_Static_File;
 use static_press\includes\Static_Press_Model_Url;
+use static_press\tests\testlibraries\Test_Utility;
 
 /**
  * StaticPress test case.
@@ -75,7 +77,11 @@ class Static_Press_File_Scanner_Test extends \WP_UnitTestCase {
 	 * Function scan() should returns list of file.
 	 */
 	public function test_scan_static() {
-		$static_press_file_scanner = new Static_Press_File_Scanner( Static_Press_Model_Static_File::get_filtered_array_extension() );
+		$static_press_file_scanner = new Static_Press_File_Scanner(
+			Static_Press_Model_Static_File::get_filtered_array_extension(),
+			Static_Press_Model_Url::TYPE_STATIC_FILE,
+			new Static_Press_Factory_Model_Url_Static_File( Test_Utility::create_docuemnt_root_getter_mock() )
+		);
 		$actual                    = $static_press_file_scanner->scan( '/test/', true );
 		$this->assertEquals( $this->array_static_file, $actual );
 	}
@@ -84,7 +90,11 @@ class Static_Press_File_Scanner_Test extends \WP_UnitTestCase {
 	 * Function scan() should returns list of file.
 	 */
 	public function test_scan_content() {
-		$static_press_file_scanner = new Static_Press_File_Scanner( Static_Press_Model_Static_File::get_filtered_array_extension(), Static_Press_Model_Url::TYPE_CONTENT_FILE );
+		$static_press_file_scanner = new Static_Press_File_Scanner(
+			Static_Press_Model_Static_File::get_filtered_array_extension(),
+			Static_Press_Model_Url::TYPE_CONTENT_FILE,
+			new Static_Press_Factory_Model_Url_Static_File( Test_Utility::create_docuemnt_root_getter_mock() )
+		);
 		$actual                    = $static_press_file_scanner->scan( '/test/', true );
 		$this->assertEquals( $this->array_content_file, $actual );
 	}
@@ -95,24 +105,15 @@ class Static_Press_File_Scanner_Test extends \WP_UnitTestCase {
 	 * @param string[] $array_directory Array of directories.
 	 * @param string[] $array_extension Array of extension.
 	 * @param string   $file_type       File type.
-	 * @param string   $base_directory  Base directory.
 	 * @return Static_Press_Model_Url_Static_File[] Array of model URL static file.
 	 */
-	private function list_files( $array_directory, $array_extension, $file_type, $base_directory ) {
-		switch ( $file_type ) {
-			case Static_Press_Model_Url::TYPE_STATIC_FILE:
-				$base_directory = ABSPATH;
-				break;
-			case Static_Press_Model_Url::TYPE_CONTENT_FILE:
-				$base_directory = WP_CONTENT_DIR . '/';
-				break;
-		}
+	private function list_files( $array_directory, $array_extension, $file_type ) {
 		$array_file = array();
 		foreach ( $array_directory as $directory ) {
 			foreach ( $array_extension as $extension ) {
 				$file_path = $directory . '/test.' . $extension;
 				file_put_contents( $file_path, '' );
-				$array_file[] = new Static_Press_Model_Url_Static_File( $file_type, $base_directory, $file_path );
+				$array_file[] = new Static_Press_Model_Url_Static_File( $file_type, '/usr/src/wordpress/', $file_path );
 			}
 		}
 		return $array_file;

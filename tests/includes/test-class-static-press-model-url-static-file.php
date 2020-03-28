@@ -9,6 +9,8 @@ namespace static_press\tests\includes;
 
 use static_press\includes\Static_Press_Model_Url;
 use static_press\includes\Static_Press_Model_Url_Static_File;
+use static_press\tests\testlibraries\Test_Utility;
+
 /**
  * StaticPress test case.
  */
@@ -52,7 +54,7 @@ class Static_Press_Model_Url_Static_File_Test extends \WP_UnitTestCase {
 	 */
 	public function provider_constructor() {
 		return array(
-			array( trailingslashit( ABSPATH ), trailingslashit( ABSPATH ) . 'test.txt', '/test.txt' ),
+			array( trailingslashit( Test_Utility::DOCUMENT_ROOT ), trailingslashit( Test_Utility::DOCUMENT_ROOT ) . 'test.txt', '/test.txt' ),
 			array( trailingslashit( WP_CONTENT_DIR ), trailingslashit( WP_CONTENT_DIR ) . 'test.txt', '/test.txt' ),
 		);
 	}

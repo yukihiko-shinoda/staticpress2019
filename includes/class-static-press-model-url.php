@@ -279,15 +279,6 @@ abstract class Static_Press_Model_Url {
 	}
 
 	/**
-	 * Gets directory of source.
-	 * 
-	 * @return string Directory of source.
-	 */
-	public function get_directory_source() {
-		return untrailingslashit( Static_Press_Model_Url_Static_File::get_base_directory( $this->type ) );
-	}
-
-	/**
 	 * Converts to array.
 	 * 
 	 * @return array

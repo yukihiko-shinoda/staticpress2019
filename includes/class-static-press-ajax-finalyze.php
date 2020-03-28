@@ -30,7 +30,7 @@ use static_press\includes\Static_Press_Site_Dependency;
 use static_press\includes\Static_Press_Transient_Service;
 
 /**
- * Class Static_Press_Ajax_Init
+ * Class Static_Press_Ajax_Finalyze
  */
 class Static_Press_Ajax_Finalyze extends Static_Press_Ajax_Processor {
 	/**

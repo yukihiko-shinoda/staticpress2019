@@ -34,6 +34,7 @@ class Static_Press_Database_Test extends \WP_UnitTestCase {
 	 */
 	public function setUp() {
 		parent::setUp();
+		Test_Utility::delete_files();
 		remove_filter( 'query', array( $this, '_create_temporary_tables' ) );
 		remove_filter( 'query', array( $this, '_drop_temporary_tables' ) );
 	}
@@ -43,6 +44,7 @@ class Static_Press_Database_Test extends \WP_UnitTestCase {
 	public function tearDown() {
 		add_filter( 'query', array( $this, '_create_temporary_tables' ) );
 		add_filter( 'query', array( $this, '_drop_temporary_tables' ) );
+		Test_Utility::delete_files();
 		parent::tearDown();
 	}
 	/**
@@ -98,61 +100,23 @@ class Static_Press_Database_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Function ajax_init() should die.
-	 * 
-	 * @runInSeparateProcess
-	 */
-	public function test_ajax_init() {
-		$this->sign_on_to_word_press();
-		$static_press = new Static_Press( '/', '', array(), null, Test_Utility::set_up_seo_url( 'http://example.org/' ) );
-		ob_start();
-		try {
-			$static_press->ajax_init( Test_Utility::create_terminator_mock() );
-		} catch ( Die_Exception $exception ) {
-			$output = ob_get_clean();
-			$this->assertEquals( 'Dead!', $exception->getMessage() );
-			$array_json = json_decode( $output, true );
-			$this->assertTrue( $array_json['result'] );
-			$array_urls_count  = $array_json['urls_count'];
-			$url_count_content = $array_urls_count[0];
-			$this->assertEquals( 'content_file', $url_count_content['type'] );
-			$this->assertGreaterThan( 0, $url_count_content['count'] );
-			$url_count_front = $array_urls_count[1];
-			$this->assertEquals( 'front_page', $url_count_front['type'] );
-			$this->assertEquals( 1, $url_count_front['count'] );
-			$url_count_seo = $array_urls_count[2];
-			$this->assertEquals( 'seo_files', $url_count_seo['type'] );
-			$this->assertEquals( 5, $url_count_seo['count'] );
-			return;
-		}
-		$this->fail();
-	}
-
-	/**
-	 * Function ajax_fetch() should die.
+	 * Function ajax_fetch() should fail when record doesn't exist.
 	 * 
 	 * @runInSeparateProcess
 	 */
 	public function test_ajax_fetch_without_record() {
 		$this->sign_on_to_word_press();
-
-		$expect       = '{"result":false,"final":true}';
+		$expect       = array(
+			'result' => false,
+			'final'  => true,
+		);
 		$static_press = new Static_Press();
-		ob_start();
-		try {
-			$static_press->ajax_fetch( Test_Utility::create_terminator_mock() );
-		} catch ( Die_Exception $exception ) {
-			$output = ob_get_clean();
-			$this->assertEquals( 'Dead!', $exception->getMessage() );
-			$this->assertEquals( $expect, $output );
-			return;
-		}
-		$this->fail();
+		$array_json   = $this->request_fetch( $static_press );
+		$this->assertEquals( $expect, $array_json );
 	}
 
 	/**
-	 * Test steps for ajax_fetch_with_record().
-	 * Function ajax_fetch() should die.
+	 * Test steps for ajax_fetch().
 	 * 
 	 * @dataProvider provider_ajax_fetch_with_record
 	 * 
@@ -168,16 +132,7 @@ class Static_Press_Database_Test extends \WP_UnitTestCase {
 		}
 
 		$static_press = new Static_Press( '/', '', array(), null, Test_Utility::create_remote_getter_mock() );
-		ob_start();
-		try {
-			$static_press->ajax_fetch( Test_Utility::create_terminator_mock() );
-		} catch ( Die_Exception $exception ) {
-			$output = ob_get_clean();
-			$this->assertEquals( 'Dead!', $exception->getMessage() );
-			$this->assertEquals( $expect, json_decode( $output, true ) );
-			return;
-		}
-		$this->fail();
+		$this->assertEquals( $expect, $this->request_fetch( $static_press ) );
 	}
 
 	/**
@@ -322,26 +277,71 @@ class Static_Press_Database_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Function ajax_finalyze() should die.
+	 * Function ajax_finalyze() should response result.
 	 * 
 	 * @runInSeparateProcess
 	 */
 	public function test_ajax_finalyze() {
 		$user_id = $this->sign_on_to_word_press();
 		set_transient( "static static - {$user_id}", array( 'fetch_last_id' => 2 ), 3600 );
-		$expect       = '{"result":true}';
+		$expect       = array( 'result' => true );
 		$static_press = new Static_Press();
-		ob_start();
-		try {
-			$static_press->ajax_finalyze( Test_Utility::create_terminator_mock() );
-		} catch ( Die_Exception $exception ) {
-			$output = ob_get_clean();
-			$this->assertEquals( 'Dead!', $exception->getMessage() );
-			$this->assertEquals( $expect, $output );
-			$this->assertFalse( get_transient( 'static static' ) );
-			return;
+		$this->assertEquals( $expect, $this->request_finalyze( $static_press ) );
+	}
+
+	/**
+	 * Function ajax_init() should response record count per file type.
+	 * 
+	 * @runInSeparateProcess
+	 */
+	public function test_all() {
+		$resource_file_name = 'white.png';
+		Test_Utility::copy_test_resource( $resource_file_name, WP_CONTENT_DIR . '/uploads/2020/03/white.png' );
+		$this->sign_on_to_word_press();
+		$static_press = new Static_Press(
+			'/',
+			Test_Utility::OUTPUT_DIRECTORY,
+			array(),
+			null,
+			Test_Utility::set_up_seo_url( 'http://example.org/' ),
+			Test_Utility::create_docuemnt_root_getter_mock()
+		);
+		$array_json   = $this->request_init( $static_press );
+		$this->assertTrue( $array_json['result'] );
+		$array_urls_count  = $array_json['urls_count'];
+		$url_count_content = $array_urls_count[0];
+		$this->assertEquals( 'content_file', $url_count_content['type'] );
+		$this->assertGreaterThan( 0, $url_count_content['count'] );
+		$url_count_front = $array_urls_count[1];
+		$this->assertEquals( 'front_page', $url_count_front['type'] );
+		$this->assertEquals( 1, $url_count_front['count'] );
+		$url_count_seo = $array_urls_count[2];
+		$this->assertEquals( 'seo_files', $url_count_seo['type'] );
+		$this->assertEquals( 5, $url_count_seo['count'] );
+
+		$static_press = new Static_Press(
+			'/',
+			Test_Utility::OUTPUT_DIRECTORY,
+			array(),
+			null,
+			Test_Utility::create_remote_getter_mock(),
+			Test_Utility::create_docuemnt_root_getter_mock()
+		);
+		while ( true ) {
+			$response = $this->request_fetch( $static_press );
+			if ( ! $response['result'] || $response['final'] ) {
+				break;
+			}
 		}
-		$this->fail();
+
+		$expect       = array( 'result' => true );
+		$static_press = new Static_Press( '/', Test_Utility::OUTPUT_DIRECTORY );
+		$this->assertEquals( $expect, $this->request_finalyze( $static_press ) );
+		$path_to_expect_file = Test_Utility::OUTPUT_DIRECTORY . 'wp-content/uploads/2020/03/white.png';
+		$files               = Test_Utility::get_array_file_in_output_directory();
+		$message             = 'File ' . $path_to_expect_file . "doesn't exist.\nExisting file list:\n" . implode( "\n", $files );
+		$this->assertContains( $path_to_expect_file, $files, $message );
+		$this->assertEquals( Test_Utility::get_test_resource_content( $resource_file_name ), file_get_contents( $path_to_expect_file ) );
 	}
 
 	/**
@@ -359,5 +359,65 @@ class Static_Press_Database_Test extends \WP_UnitTestCase {
 		);
 		wp_set_current_user( $result->ID );
 		return $result->ID;
+	}
+
+	/**
+	 * Requests init.
+	 * 
+	 * @param Static_Press $static_press StaticPress.
+	 * @return array JSON responce.
+	 */
+	private function request_init( $static_press ) {
+		return $this->request(
+			function() use ( $static_press ) {
+				$static_press->ajax_init( Test_Utility::create_terminator_mock() );
+			}
+		);
+	}
+
+	/**
+	 * Requests fetch.
+	 * 
+	 * @param Static_Press $static_press StaticPress.
+	 * @return array JSON responce.
+	 */
+	private function request_fetch( $static_press ) {
+		return $this->request(
+			function() use ( $static_press ) {
+				$static_press->ajax_fetch( Test_Utility::create_terminator_mock() );
+			}
+		);
+	}
+
+	/**
+	 * Requests finalyze.
+	 * 
+	 * @param Static_Press $static_press StaticPress.
+	 * @return array JSON responce.
+	 */
+	private function request_finalyze( $static_press ) {
+		return $this->request(
+			function() use ( $static_press ) {
+				$static_press->ajax_finalyze( Test_Utility::create_terminator_mock() );
+			}
+		);
+	}
+
+	/**
+	 * Requests.
+	 * 
+	 * @param callable $function StaticPress.
+	 * @return array JSON responce.
+	 */
+	private function request( $function ) {
+		ob_start();
+		try {
+			$function();
+		} catch ( Die_Exception $exception ) {
+			$output = ob_get_clean();
+			$this->assertEquals( 'Dead!', $exception->getMessage() );
+			return json_decode( $output, true );
+		}
+		$this->fail();
 	}
 }

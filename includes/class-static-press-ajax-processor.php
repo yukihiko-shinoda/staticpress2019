@@ -74,24 +74,32 @@ abstract class Static_Press_Ajax_Processor {
 	 * @var Static_Press_Date_Time_Factory
 	 */
 	private $date_time_factory;
+	/**
+	 * Document root getter.
+	 * 
+	 * @var Static_Press_Document_Root_Getter
+	 */
+	protected $document_root_getter;
 
 	/**
 	 * Constructor.
 	 * 
-	 * @param string                         $static_site_url   Absolute URL of static site.
-	 * @param string                         $dump_directory    Directory to dump static files.
-	 * @param Static_Press_Repository        $repository        Database access instance.
-	 * @param Static_Press_Remote_Getter     $remote_getter     Remote getter instance.
-	 * @param Static_Press_Terminator        $terminator        Terminator instance.
-	 * @param Static_Press_Date_Time_Factory $date_time_factory Date time factory instance.
+	 * @param string                            $static_site_url      Absolute URL of static site.
+	 * @param string                            $dump_directory       Directory to dump static files.
+	 * @param Static_Press_Repository           $repository           Database access instance.
+	 * @param Static_Press_Remote_Getter        $remote_getter        Remote getter instance.
+	 * @param Static_Press_Terminator           $terminator           Terminator instance.
+	 * @param Static_Press_Date_Time_Factory    $date_time_factory    Date time factory instance.
+	 * @param Static_Press_Document_Root_Getter $document_root_getter Document root getter.
 	 */
-	public function __construct( $static_site_url, $dump_directory, $repository, $remote_getter, $terminator = null, $date_time_factory = null ) {
-		$this->static_site_url   = $static_site_url;
-		$this->dump_directory    = $dump_directory;
-		$this->repository        = $repository;
-		$this->url_collector     = new Static_Press_Url_Collector( $remote_getter, $date_time_factory );
-		$this->terminator        = $terminator ? $terminator : new Static_Press_Terminator();
-		$this->date_time_factory = $date_time_factory ? $date_time_factory : new Static_Press_Date_Time_Factory();
+	public function __construct( $static_site_url, $dump_directory, $repository, $remote_getter, $terminator = null, $date_time_factory = null, $document_root_getter = null ) {
+		$this->static_site_url      = $static_site_url;
+		$this->dump_directory       = $dump_directory;
+		$this->repository           = $repository;
+		$this->url_collector        = new Static_Press_Url_Collector( $remote_getter, $date_time_factory, $document_root_getter );
+		$this->terminator           = $terminator ? $terminator : new Static_Press_Terminator();
+		$this->date_time_factory    = $date_time_factory ? $date_time_factory : new Static_Press_Date_Time_Factory();
+		$this->document_root_getter = $document_root_getter ? $document_root_getter : new Static_Press_Document_Root_Getter();
 	}
 	/**
 	 * Executes to process ajax request.
@@ -166,7 +174,8 @@ abstract class Static_Press_Ajax_Processor {
 			$this->static_site_url,
 			$this->repository,
 			$this->date_time_factory,
-			$this->url_collector
+			$this->url_collector,
+			$this->document_root_getter
 		);
 	}
 

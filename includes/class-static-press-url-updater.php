@@ -36,16 +36,24 @@ class Static_Press_Url_Updater {
 	 * @var string
 	 */
 	private $dump_directory;
+	/**
+	 * Document root getter.
+	 * 
+	 * @var Static_Press_Document_Root_Getter
+	 */
+	private $document_root_getter;
 
 	/**
 	 * Constructor.
 	 * 
-	 * @param Static_Press_Repository $repository Repository.
-	 * @param Static_Press_Repository $dump_directory Directory to dump static files.
+	 * @param Static_Press_Repository           $repository           Repository.
+	 * @param Static_Press_Repository           $dump_directory       Directory to dump static files.
+	 * @param Static_Press_Document_Root_Getter $document_root_getter Document root getter.
 	 */
-	public function __construct( $repository, $dump_directory ) {
-		$this->repository     = $repository;
-		$this->dump_directory = $dump_directory;
+	public function __construct( $repository, $dump_directory, $document_root_getter = null ) {
+		$this->repository           = $repository;
+		$this->dump_directory       = $dump_directory;
+		$this->document_root_getter = $document_root_getter ? $document_root_getter : new Static_Press_Document_Root_Getter();
 	}
 	/**
 	 * Updates URL.
@@ -57,7 +65,7 @@ class Static_Press_Url_Updater {
 	 * @param  Static_Press_Model_Url[] $urls URLs.
 	 */
 	public function update( $urls ) {
-		$static_file_judger = new Static_Press_Static_FIle_Judger( $this->dump_directory );
+		$static_file_judger = new Static_Press_Static_FIle_Judger( $this->dump_directory, $this->document_root_getter );
 		foreach ( (array) $urls as $url ) {
 			/**
 			 * URL.

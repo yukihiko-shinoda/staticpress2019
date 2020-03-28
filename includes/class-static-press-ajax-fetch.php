@@ -48,15 +48,16 @@ class Static_Press_Ajax_Fetch extends Static_Press_Ajax_Processor {
 	/**
 	 * Constructor.
 	 * 
-	 * @param string                         $static_site_url   Absolute URL of static site.
-	 * @param string                         $dump_directory    Directory to dump static files.
-	 * @param Static_Press_Repository        $repository        Database access instance.
-	 * @param Static_Press_Remote_Getter     $remote_getter     Remote getter instance.
-	 * @param Static_Press_Terminator        $terminator        Terminator instance.
-	 * @param Static_Press_Date_Time_Factory $date_time_factory Date time factory instance.
+	 * @param string                            $static_site_url      Absolute URL of static site.
+	 * @param string                            $dump_directory       Directory to dump static files.
+	 * @param Static_Press_Repository           $repository           Database access instance.
+	 * @param Static_Press_Remote_Getter        $remote_getter        Remote getter instance.
+	 * @param Static_Press_Terminator           $terminator           Terminator instance.
+	 * @param Static_Press_Date_Time_Factory    $date_time_factory    Date time factory instance.
+	 * @param Static_Press_Document_Root_Getter $document_root_getter Document root getter.
 	 */
-	public function __construct( $static_site_url, $dump_directory, $repository, $remote_getter, $terminator = null, $date_time_factory = null ) {
-		parent::__construct( $static_site_url, $dump_directory, $repository, $remote_getter, $terminator, $date_time_factory );
+	public function __construct( $static_site_url, $dump_directory, $repository, $remote_getter, $terminator = null, $date_time_factory = null, $document_root_getter = null ) {
+		parent::__construct( $static_site_url, $dump_directory, $repository, $remote_getter, $terminator, $date_time_factory, $document_root_getter );
 		$this->fetch_result = new Static_Press_Fetch_Result();
 	}
 

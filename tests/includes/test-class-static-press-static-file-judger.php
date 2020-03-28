@@ -47,6 +47,8 @@ class Static_Press_Static_FIle_Jugder_Test extends \WP_UnitTestCase {
 		Test_Utility::create_static_file_readme();
 		Test_Utility::create_static_file_not_exist();
 		Test_Utility::create_static_file_active_plugin();
+		Test_Utility::create_static_file_not_plugin_nor_theme();
+		Test_Utility::create_content_file_not_plugin_nor_theme();
 		$this->theme_switcher->switch_theme();
 	}
 
@@ -55,6 +57,8 @@ class Static_Press_Static_FIle_Jugder_Test extends \WP_UnitTestCase {
 	 */
 	public function tearDown() {
 		Test_Utility::delete_files();
+		Test_Utility::delete_files( ABSPATH . 'wp-content/uploads/' );
+		Test_Utility::delete_files( WP_CONTENT_DIR . '/app/uploads/' );
 		Mockery::close();
 		parent::tearDown();
 	}
@@ -67,7 +71,7 @@ class Static_Press_Static_FIle_Jugder_Test extends \WP_UnitTestCase {
 	 * @param integer                            $expect Expect.
 	 */
 	public function test_classify( $url, $expect ) {
-		$static_file_judger = new Static_Press_Static_FIle_Judger( ABSPATH . 'static' );
+		$static_file_judger = new Static_Press_Static_FIle_Judger( ABSPATH . 'static', Test_Utility::create_docuemnt_root_getter_mock() );
 		$this->assertEquals( $expect, $static_file_judger->classify( $url ) );
 	}
 
@@ -92,7 +96,7 @@ class Static_Press_Static_FIle_Jugder_Test extends \WP_UnitTestCase {
 	 * Function classify() should save as disable when dump directory is same with absolute path.
 	 */
 	public function test_classify_case_dump_directory_is_absolute_path() {
-		$static_file_judger = new Static_Press_Static_FIle_Judger( ABSPATH );
+		$static_file_judger = new Static_Press_Static_FIle_Judger( ABSPATH, Test_Utility::create_docuemnt_root_getter_mock() );
 		$url                = new Static_Press_Model_Url_Static_File( Static_Press_Model_Url::TYPE_STATIC_FILE, '/', '/' );
 		$this->assertEquals( 0, $static_file_judger->classify( $url ) );
 	}
@@ -101,7 +105,7 @@ class Static_Press_Static_FIle_Jugder_Test extends \WP_UnitTestCase {
 	 * Function classify() should save as disable when file is not updated after last dump.
 	 */
 	public function test_classify_case_non_update_file() {
-		$static_file_judger = new Static_Press_Static_FIle_Judger( Test_Utility::OUTPUT_DIRECTORY );
+		$static_file_judger = new Static_Press_Static_FIle_Judger( Test_Utility::OUTPUT_DIRECTORY, Test_Utility::create_docuemnt_root_getter_mock() );
 		$url                = Test_Utility::create_static_file_not_updated();
 		$this->assertEquals( 0, $static_file_judger->classify( $url ) );
 	}
@@ -110,7 +114,7 @@ class Static_Press_Static_FIle_Jugder_Test extends \WP_UnitTestCase {
 	 * Function classify() should save as disable when URL is not activated plugin's static file.
 	 */
 	public function test_classify_case_non_active_plugin_static_file() {
-		$static_file_judger = new Static_Press_Static_FIle_Judger( ABSPATH . 'static' );
+		$static_file_judger = new Static_Press_Static_FIle_Judger( ABSPATH . 'static', Test_Utility::create_docuemnt_root_getter_mock() );
 		$url                = Test_Utility::create_static_file_non_active_plugin();
 		$this->assertEquals( 0, $static_file_judger->classify( $url ) );
 	}
@@ -122,7 +126,7 @@ class Static_Press_Static_FIle_Jugder_Test extends \WP_UnitTestCase {
 	 * @param Static_Press_Model_Url_Static_File $url URL.
 	 */
 	public function test_classify_case_static_file_not_plugin_nor_theme( $url ) {
-		$static_file_judger = new Static_Press_Static_FIle_Judger( ABSPATH . 'static' );
+		$static_file_judger = new Static_Press_Static_FIle_Judger( ABSPATH . 'static', Test_Utility::create_docuemnt_root_getter_mock() );
 		$this->assertEquals( 1, $static_file_judger->classify( $url ) );
 	}
 

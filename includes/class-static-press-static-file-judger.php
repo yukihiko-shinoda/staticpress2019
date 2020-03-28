@@ -35,17 +35,26 @@ class Static_Press_Static_FIle_Judger {
 	 * @var string
 	 */
 	private $pattern;
+	/**
+	 * Document root.
+	 * 
+	 * @var string
+	 */
+	private $document_root;
 
 	/**
 	 * Constructor.
 	 * 
-	 * @param string $dump_directory Directory to dump.
+	 * @param string                            $dump_directory       Directory to dump.
+	 * @param Static_Press_Document_Root_Getter $document_root_getter Document root getter.
 	 */
-	public function __construct( $dump_directory ) {
+	public function __construct( $dump_directory, $document_root_getter = null ) {
 		$this->directory_plugin = trailingslashit( str_replace( ABSPATH, '/', WP_PLUGIN_DIR ) );
 		$this->directory_theme  = trailingslashit( str_replace( ABSPATH, '/', WP_CONTENT_DIR ) . '/themes' );
 		$this->directory_dump   = untrailingslashit( $dump_directory );
 		$this->pattern          = '#^(/(readme|readme-[^\.]+|license)\.(txt|html?)|(' . preg_quote( $this->directory_plugin ) . '|' . preg_quote( $this->directory_theme ) . ').*/((readme|changelog|license)\.(txt|html?)|(screenshot|screenshot-[0-9]+)\.(png|jpe?g|gif)))$#i';
+		$document_root_getter   = $document_root_getter ? $document_root_getter : new Static_Press_Document_Root_Getter();
+		$this->document_root    = $document_root_getter->get();
 	}
 
 	/**
@@ -55,10 +64,9 @@ class Static_Press_Static_FIle_Judger {
 	 * @return int should not dump: 0, should dump: 1
 	 */
 	public function classify( $model_url ) {
-		$url              = $model_url->get_url();
-		$directory_source = $model_url->get_directory_source();
-		$file_source      = $directory_source . $url;
-		$file_dest        = $this->directory_dump . $url;
+		$url         = $model_url->get_url();
+		$file_source = $this->document_root . $url;
+		$file_dest   = $this->directory_dump . $url;
 		switch ( true ) {
 			case $file_source === $file_dest:        // Seems to intend to prevent from being duplicate dump process for already dumped files.
 			case preg_match( $this->pattern, $url ): // Seems to intend readme, license, changelog, screenshot in plugin directory or theme directory.

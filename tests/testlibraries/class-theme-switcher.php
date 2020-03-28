@@ -48,7 +48,7 @@ class Theme_Switcher {
 	public function create_static_file_active_theme() {
 		return new Static_Press_Model_Url_Static_File(
 			Static_Press_Model_Url::TYPE_STATIC_FILE,
-			ABSPATH,
+			trailingslashit( Test_Utility::DOCUMENT_ROOT ),
 			ABSPATH . "wp-content/themes/{$this->theme_to_activate}/style.css"
 		);
 	}
@@ -59,7 +59,7 @@ class Theme_Switcher {
 	public function create_static_file_non_active_theme() {
 		return new Static_Press_Model_Url_Static_File(
 			Static_Press_Model_Url::TYPE_STATIC_FILE,
-			ABSPATH,
+			trailingslashit( Test_Utility::DOCUMENT_ROOT ),
 			ABSPATH . "wp-content/themes/{$this->theme_to_not_activate}/style.css"
 		);
 	}

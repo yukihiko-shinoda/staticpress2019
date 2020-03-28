@@ -60,14 +60,23 @@ class Static_Press_Url_Collector {
 	 */
 	private $date_time_factory;
 	/**
+	 * Document root getter.
+	 * 
+	 * @var Static_Press_Document_Root_Getter
+	 */
+	private $document_root_getter;
+
+	/**
 	 * Constructor.
 	 * 
-	 * @param Static_Press_Remote_Getter     $remote_getter     Remote getter.
-	 * @param Static_Press_Date_Time_Factory $date_time_factory Date time factory.
+	 * @param Static_Press_Remote_Getter        $remote_getter        Remote getter.
+	 * @param Static_Press_Date_Time_Factory    $date_time_factory    Date time factory.
+	 * @param Static_Press_Document_Root_Getter $document_root_getter Document root getter.
 	 */
-	public function __construct( $remote_getter, $date_time_factory = null ) {
-		$this->remote_getter     = $remote_getter;
-		$this->date_time_factory = $date_time_factory ? $date_time_factory : new Static_Press_Date_Time_Factory();
+	public function __construct( $remote_getter, $date_time_factory = null, $document_root_getter = null ) {
+		$this->remote_getter        = $remote_getter;
+		$this->date_time_factory    = $date_time_factory ? $date_time_factory : new Static_Press_Date_Time_Factory();
+		$this->document_root_getter = $document_root_getter ? $document_root_getter : new Static_Press_Document_Root_Getter();
 	}
 
 	/**
@@ -187,8 +196,16 @@ class Static_Press_Url_Collector {
 	 * @return Static_Press_Model_Url_Static_File[] Static file URL.
 	 */
 	private function static_files_url() {
-		$file_scanner_abspath = new Static_Press_File_Scanner( Static_Press_Model_Static_File::get_filtered_array_extension() );
-		$file_scanner_content = new Static_Press_File_Scanner( Static_Press_Model_Static_File::get_filtered_array_extension(), Static_Press_Model_Url::TYPE_CONTENT_FILE );
+		$file_scanner_abspath = new Static_Press_File_Scanner(
+			Static_Press_Model_Static_File::get_filtered_array_extension(),
+			Static_Press_Model_Url::TYPE_STATIC_FILE,
+			new Static_Press_Factory_Model_Url_Static_File( $this->document_root_getter )
+		);
+		$file_scanner_content = new Static_Press_File_Scanner(
+			Static_Press_Model_Static_File::get_filtered_array_extension(),
+			Static_Press_Model_Url::TYPE_CONTENT_FILE,
+			new Static_Press_Factory_Model_Url_Static_File( $this->document_root_getter )
+		);
 		$static_files         = array_merge(
 			$file_scanner_abspath->scan( '/', false ),
 			$file_scanner_abspath->scan( '/wp-admin/', true ),

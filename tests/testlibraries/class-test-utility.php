@@ -24,6 +24,7 @@ use static_press\tests\testlibraries\Expect_Urls_Static_Files;
  */
 class Test_Utility {
 	const DATE_FOR_TEST    = '2019-12-23 12:34:56';
+	const DOCUMENT_ROOT    = '/usr/src/wordpress';
 	const OUTPUT_DIRECTORY = '/tmp/static/';
 	/**
 	 * Sets up for testing seo_url().
@@ -108,6 +109,17 @@ class Test_Utility {
 	 */
 	public static function get_test_resource_content( $file_name ) {
 		return file_get_contents( dirname( __FILE__ ) . '/../testresources/' . $file_name );
+	}
+
+	/**
+	 * Copies test resource content.
+	 * 
+	 * @param string $file_name   Related path based on testresources directory not start with '/'.
+	 * @param string $target_path Target path.
+	 * @return string Content.
+	 */
+	public static function copy_test_resource( $file_name, $target_path ) {
+		return copy( dirname( __FILE__ ) . '/../testresources/' . $file_name, $target_path );
 	}
 
 	/**
@@ -290,12 +302,23 @@ class Test_Utility {
 	}
 
 	/**
+	 * Creates mock for Date time factory to fix date time.
+	 * 
+	 * @param string $return_value Return value.
+	 */
+	public static function create_docuemnt_root_getter_mock( $return_value = self::DOCUMENT_ROOT ) {
+		$document_root_getter_mock = Mockery::mock( 'alias:Document_Root_Getter_Mock' );
+		$document_root_getter_mock->shouldReceive( 'get' )->andReturn( $return_value );
+		return $document_root_getter_mock;
+	}
+
+	/**
 	 * Creates static file of readme.
 	 * 
 	 * @return Static_Press_Model_Url_Static_File Static file of readme.
 	 */
 	public static function create_static_file_readme() {
-		return self::create_static_file( Static_Press_Model_Url::TYPE_STATIC_FILE, ABSPATH, ABSPATH . 'readme.txt' );
+		return self::create_static_file( Static_Press_Model_Url::TYPE_STATIC_FILE, ABSPATH . 'readme.txt' );
 	}
 
 	/**
@@ -305,7 +328,7 @@ class Test_Utility {
 	 */
 	public static function create_static_file_not_exist() {
 		$path = ABSPATH . 'test.png';
-		$url  = self::create_static_file( Static_Press_Model_Url::TYPE_STATIC_FILE, ABSPATH, $path );
+		$url  = self::create_static_file( Static_Press_Model_Url::TYPE_STATIC_FILE, $path );
 		unlink( $path );
 		return $url;
 	}
@@ -320,7 +343,7 @@ class Test_Utility {
 			mkdir( self::OUTPUT_DIRECTORY, 0755 );
 		}
 		file_put_contents( self::OUTPUT_DIRECTORY . 'test.txt', '' );
-		return self::create_static_file( Static_Press_Model_Url::TYPE_STATIC_FILE, ABSPATH, ABSPATH . 'test.txt' );
+		return self::create_static_file( Static_Press_Model_Url::TYPE_STATIC_FILE, ABSPATH . 'test.txt' );
 	}
 
 	/**
@@ -331,7 +354,7 @@ class Test_Utility {
 	 */
 	public static function create_static_file_active_plugin() {
 		self::activate_plugin();
-		return new Static_Press_Model_Url_Static_File( Static_Press_Model_Url::TYPE_STATIC_FILE, ABSPATH, ABSPATH . 'wp-content/plugins/akismet/_inc/akismet.css' );
+		return new Static_Press_Model_Url_Static_File( Static_Press_Model_Url::TYPE_STATIC_FILE, trailingslashit( self::DOCUMENT_ROOT ), ABSPATH . 'wp-content/plugins/akismet/_inc/akismet.css' );
 	}
 
 	/**
@@ -342,7 +365,7 @@ class Test_Utility {
 	 */
 	public static function create_static_file_non_active_plugin() {
 		self::deactivate_plugin();
-		return new Static_Press_Model_Url_Static_File( Static_Press_Model_Url::TYPE_STATIC_FILE, ABSPATH, ABSPATH . 'wp-content/plugins/akismet/_inc/akismet.css' );
+		return new Static_Press_Model_Url_Static_File( Static_Press_Model_Url::TYPE_STATIC_FILE, trailingslashit( self::DOCUMENT_ROOT ), ABSPATH . 'wp-content/plugins/akismet/_inc/akismet.css' );
 	}
 
 	/**
@@ -377,7 +400,7 @@ class Test_Utility {
 	 * @return Static_Press_Model_Url_Static_File Static file of active plugin.
 	 */
 	public static function create_static_file_not_plugin_nor_theme() {
-		return self::create_static_file( Static_Press_Model_Url::TYPE_STATIC_FILE, ABSPATH, ABSPATH . 'wp-content/uploads/2020/03/test.txt' );
+		return self::create_static_file( Static_Press_Model_Url::TYPE_STATIC_FILE, ABSPATH . 'wp-content/uploads/2020/03/test.txt' );
 	}
 
 	/**
@@ -386,24 +409,32 @@ class Test_Utility {
 	 * @return Static_Press_Model_Url_Static_File Static file of active plugin.
 	 */
 	public static function create_content_file_not_plugin_nor_theme() {
-		return self::create_static_file( Static_Press_Model_Url::TYPE_CONTENT_FILE, WP_CONTENT_DIR, WP_CONTENT_DIR . '/app/uploads/2020/03/test.txt' );
+		return self::create_static_file( Static_Press_Model_Url::TYPE_CONTENT_FILE, WP_CONTENT_DIR . '/app/uploads/2020/03/test.txt' );
 	}
 
 	/**
 	 * Creates static file of active plugin.
 	 * 
-	 * @param string $file_type      File type.
-	 * @param string $base_directory Base directory.
-	 * @param string $path           Path.
+	 * @param string $file_type File type.
+	 * @param string $path      Path.
 	 * @return Static_Press_Model_Url_Static_File Static file of active plugin.
 	 */
-	public static function create_static_file( $file_type, $base_directory, $path ) {
+	public static function create_static_file( $file_type, $path ) {
+		self::create_file_with_directory( $path );
+		return new Static_Press_Model_Url_Static_File( $file_type, trailingslashit( self::DOCUMENT_ROOT ), $path );
+	}
+
+	/**
+	 * Creates static file of active plugin.
+	 * 
+	 * @param string $path           Path.
+	 */
+	public static function create_file_with_directory( $path ) {
 		$directory = dirname( $path );
 		if ( ! file_exists( $directory ) ) {
 			mkdir( $directory, 0777, true );
 		}
 		file_put_contents( $path, '' );
-		return new Static_Press_Model_Url_Static_File( $file_type, $base_directory, $path );
 	}
 
 	/**
@@ -423,5 +454,28 @@ class Test_Utility {
 		} elseif ( is_file( $target ) ) {
 			unlink( $target );
 		}
+	}
+
+	/**
+	 * Gets array file in output directory.
+	 */
+	public static function get_array_file_in_output_directory() {
+		return array_filter( self::rglob( self::OUTPUT_DIRECTORY . '*' ), 'is_file' );
+	}
+
+	/**
+	 * Glob recursive.
+	 * 
+	 * @see https://stackoverflow.com/questions/17160696/php-glob-scan-in-subfolders-for-a-file/17161106#17161106
+	 * @param string  $pattern Pattern.
+	 * @param integer $flags   Flags.
+	 * @return string[] Files.
+	 */
+	private static function rglob( $pattern, $flags = 0 ) {
+		$files = glob( $pattern, $flags ); 
+		foreach ( glob( dirname( $pattern ) . '/*', GLOB_ONLYDIR | GLOB_NOSORT ) as $dir ) {
+			$files = array_merge( $files, self::rglob( $dir . '/' . basename( $pattern ), $flags ) );
+		}
+		return $files;
 	}
 }
