@@ -12,6 +12,12 @@ namespace static_press\includes;
  */
 class Static_Press_Static_FIle_Judger {
 	/**
+	 * Directory to dump.
+	 * 
+	 * @var string
+	 */
+	private $directory_dump;
+	/**
 	 * Directory of plugin.
 	 * 
 	 * @var string
@@ -23,12 +29,6 @@ class Static_Press_Static_FIle_Judger {
 	 * @var string
 	 */
 	private $directory_theme;
-	/**
-	 * Directory to dump.
-	 * 
-	 * @var string
-	 */
-	private $directory_dump;
 	/**
 	 * Pattern.
 	 * 
@@ -49,12 +49,13 @@ class Static_Press_Static_FIle_Judger {
 	 * @param Static_Press_Document_Root_Getter $document_root_getter Document root getter.
 	 */
 	public function __construct( $dump_directory, $document_root_getter = null ) {
-		$this->directory_plugin = trailingslashit( str_replace( ABSPATH, '/', WP_PLUGIN_DIR ) );
-		$this->directory_theme  = trailingslashit( str_replace( ABSPATH, '/', WP_CONTENT_DIR ) . '/themes' );
-		$this->directory_dump   = untrailingslashit( $dump_directory );
-		$this->pattern          = '#^(/(readme|readme-[^\.]+|license)\.(txt|html?)|(' . preg_quote( $this->directory_plugin ) . '|' . preg_quote( $this->directory_theme ) . ').*/((readme|changelog|license)\.(txt|html?)|(screenshot|screenshot-[0-9]+)\.(png|jpe?g|gif)))$#i';
-		$document_root_getter   = $document_root_getter ? $document_root_getter : new Static_Press_Document_Root_Getter();
-		$this->document_root    = $document_root_getter->get();
+		$this->directory_dump       = untrailingslashit( $dump_directory );
+		$document_root_getter       = $document_root_getter ? $document_root_getter : new Static_Press_Document_Root_Getter();
+		$this->document_root        = $document_root_getter->get();
+		$this->directory_plugin     = trailingslashit( str_replace( $this->document_root, '', WP_PLUGIN_DIR ) );
+		$this->directory_theme      = trailingslashit( str_replace( $this->document_root, '', WP_CONTENT_DIR ) . '/themes' );
+		$relative_path_to_wordpress = trailingslashit( str_replace( $this->document_root, '', ABSPATH ) );
+		$this->pattern              = '#^(' . $relative_path_to_wordpress . '(readme|readme-[^\.]+|license)\.(txt|html?)|(' . preg_quote( $this->directory_plugin ) . '|' . preg_quote( $this->directory_theme ) . ').*/((readme|changelog|license)\.(txt|html?)|(screenshot|screenshot-[0-9]+)\.(png|jpe?g|gif)))$#i';
 	}
 
 	/**

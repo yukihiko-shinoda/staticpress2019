@@ -7,6 +7,7 @@
 
 namespace static_press\tests\includes;
 
+require_once dirname( __FILE__ ) . '/../testlibraries/class-environment.php';
 require_once dirname( __FILE__ ) . '/../testlibraries/class-expect-url.php';
 require_once dirname( __FILE__ ) . '/../testlibraries/class-model-url.php';
 require_once dirname( __FILE__ ) . '/../testlibraries/class-repository-for-test.php';
@@ -19,6 +20,7 @@ use static_press\includes\Static_Press_Model_Url_Succeed;
 use static_press\includes\Static_Press_Repository;
 use static_press\includes\Static_Press_Transient_Service;
 use static_press\includes\Static_Press_Url_Updater;
+use static_press\tests\testlibraries\Environment;
 use static_press\tests\testlibraries\Expect_Url;
 use static_press\tests\testlibraries\Model_Url;
 use static_press\tests\testlibraries\Repository_For_Test;
@@ -94,8 +96,16 @@ class Static_Press_Url_Updater_Test extends \WP_UnitTestCase {
 		$expect_urls_in_database = array(
 			new Expect_Url( Static_Press_Model_Url::TYPE_OTHER_PAGE, '/test/', '1' ),
 			new Expect_Url( Static_Press_Model_Url::TYPE_OTHER_PAGE, '/', '1' ),
-			new Expect_Url( Static_Press_Model_Url::TYPE_STATIC_FILE, '/wp-content/plugins/akismet/_inc/akismet.css', '1' ),
-			new Expect_Url( Static_Press_Model_Url::TYPE_STATIC_FILE, "/wp-content/themes/{$theme_switcher->theme_to_activate}/style.css", '1' ),
+			new Expect_Url(
+				Static_Press_Model_Url::TYPE_STATIC_FILE,
+				'/' . Environment::DIRECTORY_NAME_WORD_PRESS . '/wp-content/plugins/akismet/_inc/akismet.css',
+				'1'
+			),
+			new Expect_Url(
+				Static_Press_Model_Url::TYPE_STATIC_FILE,
+				'/' . Environment::DIRECTORY_NAME_WORD_PRESS . "/wp-content/themes/{$theme_switcher->theme_to_activate}/style.css",
+				'1'
+			),
 		);
 		$results                 = $repository->get_all_url( '2019-12-23 12:34:57' );
 		Expect_Url::assert_url( $this, $expect_urls_in_database, $results );
@@ -156,7 +166,11 @@ class Static_Press_Url_Updater_Test extends \WP_UnitTestCase {
 	public function test_update_case_static_file_not_plugin_nor_theme() {
 		$urls                    = array( Test_Utility::create_static_file_not_plugin_nor_theme() );
 		$expect_urls_in_database = array(
-			new Expect_Url( Static_Press_Model_Url::TYPE_STATIC_FILE, '/wp-content/uploads/2020/03/test.txt', '1' ),
+			new Expect_Url(
+				Static_Press_Model_Url::TYPE_STATIC_FILE,
+				'/' . Environment::DIRECTORY_NAME_WORD_PRESS . '/wp-content/uploads/2020/03/test.txt',
+				'1'
+			),
 		);
 		$repository              = new Static_Press_Repository();
 		$url_updater             = new Static_Press_Url_Updater( $repository, null, Test_Utility::create_docuemnt_root_getter_mock() );

@@ -7,11 +7,14 @@
 
 namespace static_press\tests\includes;
 
+require_once dirname( __FILE__ ) . '/../testlibraries/class-environment.php';
+require_once dirname( __FILE__ ) . '/../testlibraries/class-test-utility.php';
 use static_press\includes\Static_Press_Factory_Model_Url_Static_File;
 use static_press\includes\Static_Press_File_Scanner;
 use static_press\includes\Static_Press_Model_Url_Static_File;
 use static_press\includes\Static_Press_Model_Static_File;
 use static_press\includes\Static_Press_Model_Url;
+use static_press\tests\testlibraries\Environment;
 use static_press\tests\testlibraries\Test_Utility;
 
 /**
@@ -113,7 +116,7 @@ class Static_Press_File_Scanner_Test extends \WP_UnitTestCase {
 			foreach ( $array_extension as $extension ) {
 				$file_path = $directory . '/test.' . $extension;
 				file_put_contents( $file_path, '' );
-				$array_file[] = new Static_Press_Model_Url_Static_File( $file_type, '/usr/src/wordpress/', $file_path );
+				$array_file[] = new Static_Press_Model_Url_Static_File( $file_type, trailingslashit( Environment::get_document_root() ), $file_path );
 			}
 		}
 		return $array_file;

@@ -8,6 +8,7 @@
 namespace static_press\tests\testlibraries;
 
 require_once dirname( __FILE__ ) . '/../testlibraries/class-die-exception.php';
+require_once dirname( __FILE__ ) . '/../testlibraries/class-environment.php';
 require_once dirname( __FILE__ ) . '/../testlibraries/class-expect-urls-static-files.php';
 
 use LogicException;
@@ -17,6 +18,7 @@ use static_press\includes\Static_Press_Model_Url_Front_Page;
 use static_press\includes\Static_Press_Model_Url_Seo;
 use static_press\includes\Static_Press_Model_Url_Static_File;
 use static_press\tests\testlibraries\Die_Exception;
+use static_press\tests\testlibraries\Environment;
 use static_press\tests\testlibraries\Expect_Urls_Static_Files;
 
 /**
@@ -24,7 +26,6 @@ use static_press\tests\testlibraries\Expect_Urls_Static_Files;
  */
 class Test_Utility {
 	const DATE_FOR_TEST    = '2019-12-23 12:34:56';
-	const DOCUMENT_ROOT    = '/usr/src/wordpress';
 	const OUTPUT_DIRECTORY = '/tmp/static/';
 	/**
 	 * Sets up for testing seo_url().
@@ -306,7 +307,8 @@ class Test_Utility {
 	 * 
 	 * @param string $return_value Return value.
 	 */
-	public static function create_docuemnt_root_getter_mock( $return_value = self::DOCUMENT_ROOT ) {
+	public static function create_docuemnt_root_getter_mock( $return_value = null ) {
+		$return_value              = $return_value ? $return_value : Environment::get_document_root();
 		$document_root_getter_mock = Mockery::mock( 'alias:Document_Root_Getter_Mock' );
 		$document_root_getter_mock->shouldReceive( 'get' )->andReturn( $return_value );
 		return $document_root_getter_mock;
@@ -339,10 +341,7 @@ class Test_Utility {
 	 * @return Static_Press_Model_Url_Static_File Static file of not updated after last dump.
 	 */
 	public static function create_static_file_not_updated() {
-		if ( ! file_exists( self::OUTPUT_DIRECTORY ) ) {
-			mkdir( self::OUTPUT_DIRECTORY, 0755 );
-		}
-		file_put_contents( self::OUTPUT_DIRECTORY . 'test.txt', '' );
+		self::create_file_with_directory( self::OUTPUT_DIRECTORY . Environment::DIRECTORY_NAME_WORD_PRESS . '/test.txt' );
 		return self::create_static_file( Static_Press_Model_Url::TYPE_STATIC_FILE, ABSPATH . 'test.txt' );
 	}
 
@@ -354,7 +353,7 @@ class Test_Utility {
 	 */
 	public static function create_static_file_active_plugin() {
 		self::activate_plugin();
-		return new Static_Press_Model_Url_Static_File( Static_Press_Model_Url::TYPE_STATIC_FILE, trailingslashit( self::DOCUMENT_ROOT ), ABSPATH . 'wp-content/plugins/akismet/_inc/akismet.css' );
+		return new Static_Press_Model_Url_Static_File( Static_Press_Model_Url::TYPE_STATIC_FILE, trailingslashit( Environment::get_document_root() ), ABSPATH . 'wp-content/plugins/akismet/_inc/akismet.css' );
 	}
 
 	/**
@@ -365,7 +364,7 @@ class Test_Utility {
 	 */
 	public static function create_static_file_non_active_plugin() {
 		self::deactivate_plugin();
-		return new Static_Press_Model_Url_Static_File( Static_Press_Model_Url::TYPE_STATIC_FILE, trailingslashit( self::DOCUMENT_ROOT ), ABSPATH . 'wp-content/plugins/akismet/_inc/akismet.css' );
+		return new Static_Press_Model_Url_Static_File( Static_Press_Model_Url::TYPE_STATIC_FILE, trailingslashit( Environment::get_document_root() ), ABSPATH . 'wp-content/plugins/akismet/_inc/akismet.css' );
 	}
 
 	/**
@@ -421,7 +420,7 @@ class Test_Utility {
 	 */
 	public static function create_static_file( $file_type, $path ) {
 		self::create_file_with_directory( $path );
-		return new Static_Press_Model_Url_Static_File( $file_type, trailingslashit( self::DOCUMENT_ROOT ), $path );
+		return new Static_Press_Model_Url_Static_File( $file_type, trailingslashit( Environment::get_document_root() ), $path );
 	}
 
 	/**

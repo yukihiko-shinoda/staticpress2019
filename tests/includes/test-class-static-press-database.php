@@ -14,6 +14,7 @@ require_once dirname( __FILE__ ) . '/../testlibraries/class-test-utility.php';
 use static_press\includes\Static_Press;
 use static_press\includes\Static_Press_Model_Url;
 use static_press\tests\testlibraries\Die_Exception;
+use static_press\tests\testlibraries\Environment;
 use static_press\tests\testlibraries\Model_Url;
 use static_press\tests\testlibraries\Repository_For_Test;
 use static_press\tests\testlibraries\Test_Utility;
@@ -337,7 +338,7 @@ class Static_Press_Database_Test extends \WP_UnitTestCase {
 		$expect       = array( 'result' => true );
 		$static_press = new Static_Press( '/', Test_Utility::OUTPUT_DIRECTORY );
 		$this->assertEquals( $expect, $this->request_finalyze( $static_press ) );
-		$path_to_expect_file = Test_Utility::OUTPUT_DIRECTORY . 'wp-content/uploads/2020/03/white.png';
+		$path_to_expect_file = Test_Utility::OUTPUT_DIRECTORY . Environment::DIRECTORY_NAME_WORD_PRESS . '/wp-content/uploads/2020/03/white.png';
 		$files               = Test_Utility::get_array_file_in_output_directory();
 		$message             = 'File ' . $path_to_expect_file . "doesn't exist.\nExisting file list:\n" . implode( "\n", $files );
 		$this->assertContains( $path_to_expect_file, $files, $message );
