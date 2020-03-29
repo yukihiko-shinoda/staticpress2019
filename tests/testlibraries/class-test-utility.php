@@ -109,7 +109,7 @@ class Test_Utility {
 	 * @return string Content.
 	 */
 	public static function get_test_resource_content( $file_name ) {
-		return file_get_contents( dirname( __FILE__ ) . '/../testresources/' . $file_name );
+		return file_get_contents( self::get_path_to_test_resource( $file_name ) );
 	}
 
 	/**
@@ -120,9 +120,18 @@ class Test_Utility {
 	 * @return string Content.
 	 */
 	public static function copy_test_resource( $file_name, $target_path ) {
-		return copy( dirname( __FILE__ ) . '/../testresources/' . $file_name, $target_path );
+		return copy( self::get_path_to_test_resource( $file_name ), $target_path );
 	}
 
+	/**
+	 * Copies test resource content.
+	 * 
+	 * @param string $file_name   Related path based on testresources directory not start with '/'.
+	 * @return string Path to test resource.
+	 */
+	public static function get_path_to_test_resource( $file_name ) {
+		return dirname( dirname( __FILE__ ) ) . '/testresources/' . $file_name;
+	}
 	/**
 	 * Gets expect URLs of front_page_url().
 	 */
@@ -446,8 +455,8 @@ class Test_Utility {
 	public static function delete_files( $target = self::OUTPUT_DIRECTORY ) {
 		if ( is_dir( $target ) ) {
 			$files = glob( $target . '*', GLOB_MARK ); // GLOB_MARK adds a slash to directories returned.
-			foreach ( $files as $file ) {
-				self::delete_files( $file );
+			foreach ( $files as $path ) {
+				self::delete_files( $path );
 			}
 			rmdir( $target );
 		} elseif ( is_file( $target ) ) {
@@ -462,6 +471,29 @@ class Test_Utility {
 		return array_filter( self::rglob( self::OUTPUT_DIRECTORY . '*' ), 'is_file' );
 	}
 
+	/**
+	 * Copy entire contents of a directory to another directory.
+	 * 
+	 * @see https://stackoverflow.com/questions/2050859/copy-entire-contents-of-a-directory-to-another-using-php/2050909#2050909
+	 * @param string $src Source.
+	 * @param string $dst Destination.
+	 */
+	public static function recurse_copy( $src, $dst ) {
+		$dir = opendir( $src );
+		if ( ! file_exists( $dst ) ) {
+			mkdir( $dst );
+		}
+		while ( false !== ( $path = readdir( $dir ) ) ) {
+			if ( ( '.' != $path ) && ( '..' != $path ) ) {
+				if ( is_dir( $src . '/' . $path ) ) {
+					self::recurse_copy( $src . '/' . $path, $dst . '/' . $path );
+				} else {
+					copy( $src . '/' . $path, $dst . '/' . $path );
+				}
+			}
+		}
+		closedir( $dir );
+	}
 	/**
 	 * Glob recursive.
 	 * 

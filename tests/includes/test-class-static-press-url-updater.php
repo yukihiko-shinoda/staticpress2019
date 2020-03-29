@@ -88,6 +88,7 @@ class Static_Press_Url_Updater_Test extends \WP_UnitTestCase {
 			Test_Utility::create_static_file_not_exist(),
 			Test_Utility::create_static_file_active_plugin(),
 			$theme_switcher->create_static_file_active_theme(),
+			$theme_switcher->create_static_file_theme_parent_activated(),
 			$theme_switcher->create_static_file_non_active_theme(),
 		);
 		$repository        = new Static_Press_Repository();
@@ -104,6 +105,11 @@ class Static_Press_Url_Updater_Test extends \WP_UnitTestCase {
 			new Expect_Url(
 				Static_Press_Model_Url::TYPE_STATIC_FILE,
 				'/' . Environment::DIRECTORY_NAME_WORD_PRESS . "/wp-content/themes/{$theme_switcher->theme_to_activate}/style.css",
+				'1'
+			),
+			new Expect_Url(
+				Static_Press_Model_Url::TYPE_STATIC_FILE,
+				'/' . Environment::DIRECTORY_NAME_WORD_PRESS . "/wp-content/themes/{$theme_switcher->theme_parent_activated}/style.css",
 				'1'
 			),
 		);
