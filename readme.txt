@@ -5,7 +5,7 @@ Tags: static
 Requires at least: 4.3
 Tested up to: 5.3
 Requires PHP: 5.6
-Stable tag: 0.4.12
+Stable tag: 0.5.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -46,6 +46,12 @@ none
 3. Rebuild!
 
 == Changelog ==
+
+**0.5.0 - March 29, 2020**
+
+Fix bug that static file is not dumped in case when static file is not under WordPress root directory (Support Bedrock).
+Support Hindi.
+Support no protocol external link.
 
 **0.4.12 - March 8, 2020**
 
@@ -129,6 +135,10 @@ source code refactoring
 Initial release.
 
 == Upgrade Notice ==
+
+= 0.5.0 =
+
+This version supports Bedrock, Hindi, and no protocol eternal link.
 
 = 0.4.12 =
 This version fixes bug that name of sub menu invalid.
