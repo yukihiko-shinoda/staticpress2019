@@ -18,6 +18,12 @@ class Static_Press_Static_FIle_Judger {
 	 */
 	private $directory_dump;
 	/**
+	 * Document root.
+	 * 
+	 * @var string
+	 */
+	private $document_root;
+	/**
 	 * Directory of plugin.
 	 * 
 	 * @var string
@@ -36,11 +42,17 @@ class Static_Press_Static_FIle_Judger {
 	 */
 	private $pattern;
 	/**
-	 * Document root.
+	 * Regex for detecting parent theme.
 	 * 
 	 * @var string
 	 */
-	private $document_root;
+	private $regex_theme_parent;
+	/**
+	 * Regex for detecting child theme.
+	 * 
+	 * @var string
+	 */
+	private $regex_theme_child;
 
 	/**
 	 * Constructor.
@@ -56,6 +68,8 @@ class Static_Press_Static_FIle_Judger {
 		$this->directory_theme      = trailingslashit( str_replace( $this->document_root, '', WP_CONTENT_DIR ) . '/themes' );
 		$relative_path_to_wordpress = trailingslashit( str_replace( $this->document_root, '', ABSPATH ) );
 		$this->pattern              = '#^(' . $relative_path_to_wordpress . '(readme|readme-[^\.]+|license)\.(txt|html?)|(' . preg_quote( $this->directory_plugin ) . '|' . preg_quote( $this->directory_theme ) . ').*/((readme|changelog|license)\.(txt|html?)|(screenshot|screenshot-[0-9]+)\.(png|jpe?g|gif)))$#i';
+		$this->regex_theme_parent   = '#^' . preg_quote( str_replace( $this->document_root, '', get_template_directory() ) ) . '#i';
+		$this->regex_theme_child    = '#^' . preg_quote( str_replace( $this->document_root, '', get_stylesheet_directory() ) ) . '#i';
 	}
 
 	/**
@@ -113,10 +127,12 @@ class Static_Press_Static_FIle_Judger {
 	 * @return int should not dump: 0, should dump: 1
 	 */
 	private function classify_static_file_theme( $url ) {
-		$current_theme = trailingslashit( $this->directory_theme . get_stylesheet() );
-		if ( preg_match( '#^' . preg_quote( $current_theme ) . '#i', $url ) ) {
-			return 1;
+		switch ( true ) {
+			case preg_match( $this->regex_theme_parent, $url ):
+			case preg_match( $this->regex_theme_child, $url ):
+				return 1;
+			default:
+				return 0;
 		}
-		return 0;
 	}
 }

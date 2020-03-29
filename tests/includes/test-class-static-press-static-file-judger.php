@@ -50,6 +50,7 @@ class Static_Press_Static_FIle_Jugder_Test extends \WP_UnitTestCase {
 		Test_Utility::create_static_file_active_plugin();
 		Test_Utility::create_static_file_not_plugin_nor_theme();
 		Test_Utility::create_content_file_not_plugin_nor_theme();
+		$this->theme_switcher->create_static_file_active_theme();
 		$this->theme_switcher->switch_theme();
 	}
 
@@ -89,6 +90,7 @@ class Static_Press_Static_FIle_Jugder_Test extends \WP_UnitTestCase {
 			array( Test_Utility::create_static_file_not_exist(), 0 ),
 			array( Test_Utility::create_static_file_active_plugin(), 1 ),
 			array( $this->theme_switcher->create_static_file_active_theme(), 1 ),
+			array( $this->theme_switcher->create_static_file_theme_parent_activated(), 1 ),
 			array( $this->theme_switcher->create_static_file_non_active_theme(), 0 ),
 		);
 	}
