@@ -30,7 +30,7 @@ class Static_Press_Ajax_Init extends Static_Press_Ajax_Processor {
 	 * Inserts all URLs.
 	 */
 	private function insert_all_url() {
-		$url_updater = new Static_Press_Url_Updater( $this->repository, $this->dump_directory );
+		$url_updater = new Static_Press_Url_Updater( $this->repository, $this->dump_directory, $this->document_root_getter );
 		$url_updater->update( $this->url_collector->collect() );
 	}
 

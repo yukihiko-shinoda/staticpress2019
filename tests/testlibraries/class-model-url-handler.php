@@ -8,6 +8,7 @@
 namespace static_press\tests\testlibraries;
 
 require_once dirname( __FILE__ ) . '/./class-business-logic-exception.php';
+require_once dirname( __FILE__ ) . '/./class-model-url.php';
 use static_press\includes\Static_Press_Model_Url;
 use static_press\includes\Static_Press_Model_Url_Author;
 use static_press\includes\Static_Press_Model_Url_Fetched;
@@ -15,6 +16,7 @@ use static_press\includes\Static_Press_Model_Url_Single;
 use static_press\includes\Static_Press_Model_Url_Term;
 use static_press\includes\Static_Press_Repository;
 use static_press\tests\testlibraries\Business_Logic_Exception;
+use static_press\tests\testlibraries\Model_Url;
 
 /**
  * Class Model_Url_Handler

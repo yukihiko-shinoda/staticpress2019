@@ -8,19 +8,29 @@
 namespace static_press\tests\includes;
 
 require_once dirname( __FILE__ ) . '/../testlibraries/class-expect-url.php';
-require_once dirname( __FILE__ ) . '/../testlibraries/class-model-url.php';
+require_once dirname( __FILE__ ) . '/../testlibraries/class-repository-for-test.php';
+require_once dirname( __FILE__ ) . '/../testlibraries/class-test-utility.php';
 use static_press\includes\Static_Press_Model_Url;
 use static_press\includes\Static_Press_Model_Url_Other;
 use static_press\includes\Static_Press_Repository;
 use static_press\includes\Static_Press_Transient_Service;
 use static_press\includes\Static_Press_Url_Updater;
 use static_press\tests\testlibraries\Expect_Url;
+use static_press\tests\testlibraries\Repository_For_Test;
 use static_press\tests\testlibraries\Test_Utility;
 
 /**
  * Reposistory test case.
  */
 class Static_Press_Repository_Test extends \WP_UnitTestCase {
+	/**
+	 * Property $url_table should be WordPress database prefix + 'urls'.
+	 */
+	public function test_constructor() {
+		$repository = new Static_Press_Repository();
+		$this->assertAttributeEquals( Repository_For_Test::url_table(), 'url_table', $repository );
+	}
+
 	/**
 	 * Function get_all_url() should return array of inserted URL object.
 	 *

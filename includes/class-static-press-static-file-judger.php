@@ -12,6 +12,12 @@ namespace static_press\includes;
  */
 class Static_Press_Static_FIle_Judger {
 	/**
+	 * Directory to dump.
+	 * 
+	 * @var string
+	 */
+	private $directory_dump;
+	/**
 	 * Directory of plugin.
 	 * 
 	 * @var string
@@ -24,69 +30,57 @@ class Static_Press_Static_FIle_Judger {
 	 */
 	private $directory_theme;
 	/**
-	 * Directory of source.
-	 * 
-	 * @var string
-	 */
-	private $directory_source;
-	/**
-	 * Directory to dump.
-	 * 
-	 * @var string
-	 */
-	private $directory_dump;
-	/**
 	 * Pattern.
 	 * 
 	 * @var string
 	 */
 	private $pattern;
+	/**
+	 * Document root.
+	 * 
+	 * @var string
+	 */
+	private $document_root;
 
 	/**
 	 * Constructor.
 	 * 
-	 * @param string $dump_directory Directory to dump.
+	 * @param string                            $dump_directory       Directory to dump.
+	 * @param Static_Press_Document_Root_Getter $document_root_getter Document root getter.
 	 */
-	public function __construct( $dump_directory ) {
-		$this->directory_plugin = trailingslashit( str_replace( ABSPATH, '/', WP_PLUGIN_DIR ) );
-		$this->directory_theme  = trailingslashit( str_replace( ABSPATH, '/', WP_CONTENT_DIR ) . '/themes' );
-		$this->directory_source = untrailingslashit( ABSPATH );
-		$this->directory_dump   = untrailingslashit( $dump_directory );
-		$this->pattern          = '#^(/(readme|readme-[^\.]+|license)\.(txt|html?)|(' . preg_quote( $this->directory_plugin ) . '|' . preg_quote( $this->directory_theme ) . ').*/((readme|changelog|license)\.(txt|html?)|(screenshot|screenshot-[0-9]+)\.(png|jpe?g|gif)))$#i';
+	public function __construct( $dump_directory, $document_root_getter = null ) {
+		$this->directory_dump       = untrailingslashit( $dump_directory );
+		$document_root_getter       = $document_root_getter ? $document_root_getter : new Static_Press_Document_Root_Getter();
+		$this->document_root        = $document_root_getter->get();
+		$this->directory_plugin     = trailingslashit( str_replace( $this->document_root, '', WP_PLUGIN_DIR ) );
+		$this->directory_theme      = trailingslashit( str_replace( $this->document_root, '', WP_CONTENT_DIR ) . '/themes' );
+		$relative_path_to_wordpress = trailingslashit( str_replace( $this->document_root, '', ABSPATH ) );
+		$this->pattern              = '#^(' . $relative_path_to_wordpress . '(readme|readme-[^\.]+|license)\.(txt|html?)|(' . preg_quote( $this->directory_plugin ) . '|' . preg_quote( $this->directory_theme ) . ').*/((readme|changelog|license)\.(txt|html?)|(screenshot|screenshot-[0-9]+)\.(png|jpe?g|gif)))$#i';
 	}
 
 	/**
 	 * Classifies URL of static file.
 	 * 
-	 * @param string $url URL.
+	 * @param Static_Press_Model_Url $model_url URL.
 	 * @return int should not dump: 0, should dump: 1
 	 */
-	public function classify( $url ) {
-		$file_source = $this->directory_source . $url;
+	public function classify( $model_url ) {
+		$url         = $model_url->get_url();
+		$file_source = $this->document_root . $url;
 		$file_dest   = $this->directory_dump . $url;
-		if ( $file_source === $file_dest ) {
-			// Seems to intend to prevent from being duplicate dump process for already dumped files.
-			return 0;
+		switch ( true ) {
+			case $file_source === $file_dest:        // Seems to intend to prevent from being duplicate dump process for already dumped files.
+			case preg_match( $this->pattern, $url ): // Seems to intend readme, license, changelog, screenshot in plugin directory or theme directory.
+			case ! file_exists( $file_source ):      // Seems to intend to prevent from processing non exist files.
+			case file_exists( $file_dest ) && filemtime( $file_source ) <= filemtime( $file_dest ): // Seems to intend to skip non update files after last dump.
+				return 0;
+			case preg_match( '#^' . preg_quote( $this->directory_plugin ) . '#i', $url ):
+				return $this->classify_static_file_plugin( $url );
+			case preg_match( '#^' . preg_quote( $this->directory_theme ) . '#i', $url ):
+				return $this->classify_static_file_theme( $url );
+			default:
+				return 1;
 		}
-		if ( preg_match( $this->pattern, $url ) ) {
-			// Seems to intend readme, license, changelog, screenshot in plugin directory or theme directory.
-			return 0;
-		}
-		if ( ! file_exists( $file_source ) ) {
-			// Seems to intend to prevent from processing non exist files.
-			return 0;
-		}
-		if ( file_exists( $file_dest ) && filemtime( $file_source ) <= filemtime( $file_dest ) ) {
-			// Seems to intend to skip non update files after last dump.
-			return 0;
-		}
-		if ( preg_match( '#^' . preg_quote( $this->directory_plugin ) . '#i', $url ) ) {
-			return $this->classify_static_file_plugin( $url );
-		}
-		if ( preg_match( '#^' . preg_quote( $this->directory_theme ) . '#i', $url ) ) {
-			return $this->classify_static_file_theme( $url );
-		}
-		return 1;
 	}
 
 	/**

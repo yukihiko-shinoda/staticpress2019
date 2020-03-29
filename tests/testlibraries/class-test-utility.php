@@ -8,20 +8,25 @@
 namespace static_press\tests\testlibraries;
 
 require_once dirname( __FILE__ ) . '/../testlibraries/class-die-exception.php';
+require_once dirname( __FILE__ ) . '/../testlibraries/class-environment.php';
 require_once dirname( __FILE__ ) . '/../testlibraries/class-expect-urls-static-files.php';
+
+use LogicException;
 use Mockery;
 use static_press\includes\Static_Press_Model_Url;
 use static_press\includes\Static_Press_Model_Url_Front_Page;
 use static_press\includes\Static_Press_Model_Url_Seo;
 use static_press\includes\Static_Press_Model_Url_Static_File;
 use static_press\tests\testlibraries\Die_Exception;
+use static_press\tests\testlibraries\Environment;
 use static_press\tests\testlibraries\Expect_Urls_Static_Files;
 
 /**
  * URL Collector.
  */
 class Test_Utility {
-	const DATE_FOR_TEST = '2019-12-23 12:34:56';
+	const DATE_FOR_TEST    = '2019-12-23 12:34:56';
+	const OUTPUT_DIRECTORY = '/tmp/static/';
 	/**
 	 * Sets up for testing seo_url().
 	 * 
@@ -105,6 +110,17 @@ class Test_Utility {
 	 */
 	public static function get_test_resource_content( $file_name ) {
 		return file_get_contents( dirname( __FILE__ ) . '/../testresources/' . $file_name );
+	}
+
+	/**
+	 * Copies test resource content.
+	 * 
+	 * @param string $file_name   Related path based on testresources directory not start with '/'.
+	 * @param string $target_path Target path.
+	 * @return string Content.
+	 */
+	public static function copy_test_resource( $file_name, $target_path ) {
+		return copy( dirname( __FILE__ ) . '/../testresources/' . $file_name, $target_path );
 	}
 
 	/**
@@ -284,5 +300,181 @@ class Test_Utility {
 		->with( $parameter )
 		->andReturn( $return_value );
 		return $date_time_factory_mock;
+	}
+
+	/**
+	 * Creates mock for Date time factory to fix date time.
+	 * 
+	 * @param string $return_value Return value.
+	 */
+	public static function create_docuemnt_root_getter_mock( $return_value = null ) {
+		$return_value              = $return_value ? $return_value : Environment::get_document_root();
+		$document_root_getter_mock = Mockery::mock( 'alias:Document_Root_Getter_Mock' );
+		$document_root_getter_mock->shouldReceive( 'get' )->andReturn( $return_value );
+		return $document_root_getter_mock;
+	}
+
+	/**
+	 * Creates static file of readme.
+	 * 
+	 * @return Static_Press_Model_Url_Static_File Static file of readme.
+	 */
+	public static function create_static_file_readme() {
+		return self::create_static_file( Static_Press_Model_Url::TYPE_STATIC_FILE, ABSPATH . 'readme.txt' );
+	}
+
+	/**
+	 * Creates static file of not exist.
+	 * 
+	 * @return Static_Press_Model_Url_Static_File Static file of not exist.
+	 */
+	public static function create_static_file_not_exist() {
+		$path = ABSPATH . 'test.png';
+		$url  = self::create_static_file( Static_Press_Model_Url::TYPE_STATIC_FILE, $path );
+		unlink( $path );
+		return $url;
+	}
+
+	/**
+	 * Creates static file of not updated after last dump.
+	 * 
+	 * @return Static_Press_Model_Url_Static_File Static file of not updated after last dump.
+	 */
+	public static function create_static_file_not_updated() {
+		self::create_file_with_directory( self::OUTPUT_DIRECTORY . Environment::DIRECTORY_NAME_WORD_PRESS . '/test.txt' );
+		return self::create_static_file( Static_Press_Model_Url::TYPE_STATIC_FILE, ABSPATH . 'test.txt' );
+	}
+
+	/**
+	 * Creates static file of active plugin.
+	 * 
+	 * @return Static_Press_Model_Url_Static_File Static file of active plugin.
+	 * @throws \LogicException Case when failed to activate plugin.
+	 */
+	public static function create_static_file_active_plugin() {
+		self::activate_plugin();
+		return new Static_Press_Model_Url_Static_File( Static_Press_Model_Url::TYPE_STATIC_FILE, trailingslashit( Environment::get_document_root() ), ABSPATH . 'wp-content/plugins/akismet/_inc/akismet.css' );
+	}
+
+	/**
+	 * Creates static file of active plugin.
+	 * 
+	 * @return Static_Press_Model_Url_Static_File Static file of active plugin.
+	 * @throws \LogicException Case when failed to deactivate plugin.
+	 */
+	public static function create_static_file_non_active_plugin() {
+		self::deactivate_plugin();
+		return new Static_Press_Model_Url_Static_File( Static_Press_Model_Url::TYPE_STATIC_FILE, trailingslashit( Environment::get_document_root() ), ABSPATH . 'wp-content/plugins/akismet/_inc/akismet.css' );
+	}
+
+	/**
+	 * Activates plugin.
+	 * 
+	 * @throws \LogicException Case when failed to activate plugin.
+	 */
+	public static function activate_plugin() {
+		$result = activate_plugin( 'akismet/akismet.php' );
+		if ( null !== $result ) {
+			var_dump( $result );
+			throw new \LogicException( 'Failed to activate plugin!' );
+		}
+	}
+
+	/**
+	 * Activates plugin.
+	 * 
+	 * @throws \LogicException Case when failed to deactivate plugin.
+	 */
+	public static function deactivate_plugin() {
+		$result = deactivate_plugins( array( 'akismet/akismet.php' ) );
+		if ( null !== $result ) {
+			var_dump( $result );
+			throw new \LogicException( 'Failed to deactivate plugin!' );
+		}
+	}
+
+	/**
+	 * Creates static file of active plugin.
+	 * 
+	 * @return Static_Press_Model_Url_Static_File Static file of active plugin.
+	 */
+	public static function create_static_file_not_plugin_nor_theme() {
+		return self::create_static_file( Static_Press_Model_Url::TYPE_STATIC_FILE, ABSPATH . 'wp-content/uploads/2020/03/test.txt' );
+	}
+
+	/**
+	 * Creates static file of active plugin.
+	 * 
+	 * @return Static_Press_Model_Url_Static_File Static file of active plugin.
+	 */
+	public static function create_content_file_not_plugin_nor_theme() {
+		return self::create_static_file( Static_Press_Model_Url::TYPE_CONTENT_FILE, WP_CONTENT_DIR . '/app/uploads/2020/03/test.txt' );
+	}
+
+	/**
+	 * Creates static file of active plugin.
+	 * 
+	 * @param string $file_type File type.
+	 * @param string $path      Path.
+	 * @return Static_Press_Model_Url_Static_File Static file of active plugin.
+	 */
+	public static function create_static_file( $file_type, $path ) {
+		self::create_file_with_directory( $path );
+		return new Static_Press_Model_Url_Static_File( $file_type, trailingslashit( Environment::get_document_root() ), $path );
+	}
+
+	/**
+	 * Creates static file of active plugin.
+	 * 
+	 * @param string $path           Path.
+	 */
+	public static function create_file_with_directory( $path ) {
+		$directory = dirname( $path );
+		if ( ! file_exists( $directory ) ) {
+			mkdir( $directory, 0777, true );
+		}
+		file_put_contents( $path, '' );
+	}
+
+	/**
+	 * PHP delete function that deals with directories recursively.
+	 *
+	 * @see https://paulund.co.uk/php-delete-directory-and-files-in-directory
+	 *
+	 * @param string $target Example: '/path/for/the/directory/' .
+	 */
+	public static function delete_files( $target = self::OUTPUT_DIRECTORY ) {
+		if ( is_dir( $target ) ) {
+			$files = glob( $target . '*', GLOB_MARK ); // GLOB_MARK adds a slash to directories returned.
+			foreach ( $files as $file ) {
+				self::delete_files( $file );
+			}
+			rmdir( $target );
+		} elseif ( is_file( $target ) ) {
+			unlink( $target );
+		}
+	}
+
+	/**
+	 * Gets array file in output directory.
+	 */
+	public static function get_array_file_in_output_directory() {
+		return array_filter( self::rglob( self::OUTPUT_DIRECTORY . '*' ), 'is_file' );
+	}
+
+	/**
+	 * Glob recursive.
+	 * 
+	 * @see https://stackoverflow.com/questions/17160696/php-glob-scan-in-subfolders-for-a-file/17161106#17161106
+	 * @param string  $pattern Pattern.
+	 * @param integer $flags   Flags.
+	 * @return string[] Files.
+	 */
+	private static function rglob( $pattern, $flags = 0 ) {
+		$files = glob( $pattern, $flags ); 
+		foreach ( glob( dirname( $pattern ) . '/*', GLOB_ONLYDIR | GLOB_NOSORT ) as $dir ) {
+			$files = array_merge( $files, self::rglob( $dir . '/' . basename( $pattern ), $flags ) );
+		}
+		return $files;
 	}
 }
