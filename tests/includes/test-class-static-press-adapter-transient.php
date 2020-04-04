@@ -1,18 +1,18 @@
 <?php
 /**
- * Class Static_Press_Repository_Test
+ * Class Static_Press_Adapter_Transient_Test
  *
  * @package static_press\tests\includes
  */
 
 namespace static_press\tests\includes;
 
-use static_press\includes\Static_Press_Transient_Manager;
+use static_press\includes\Static_Press_Adapter_Transient;
 
 /**
  * Transient manager test case.
  */
-class Static_Press_Transient_Manager_Test extends \WP_UnitTestCase {
+class Static_Press_Adapter_Transient_Test extends \WP_UnitTestCase {
 	/**
 	 * Function get_transient_key() should return appropriate string when current user id is not set.
 	 *
@@ -39,7 +39,7 @@ class Static_Press_Transient_Manager_Test extends \WP_UnitTestCase {
 	 */
 	public function test_delete_transient() {
 		set_transient( 'static static', array( 'fetch_last_id' => 2 ), 3600 );
-		Static_Press_Transient_Manager::delete_transient();
+		Static_Press_Adapter_Transient::delete_transient();
 		$this->assertFalse( get_transient( 'static static' ) );
 	}
 
@@ -50,7 +50,7 @@ class Static_Press_Transient_Manager_Test extends \WP_UnitTestCase {
 	 * @param array  $array_parameter Array of parameter.
 	 */
 	private function call_private_method( $method_name, $array_parameter ) {
-		$transient_manager = new Static_Press_Transient_Manager();
+		$transient_manager = new Static_Press_Adapter_Transient();
 		$reflection        = new \ReflectionClass( get_class( $transient_manager ) );
 		$method            = $reflection->getMethod( $method_name );
 		$method->setAccessible( true );

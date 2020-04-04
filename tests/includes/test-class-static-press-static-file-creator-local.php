@@ -14,7 +14,7 @@ require_once dirname( __FILE__ ) . '/../testlibraries/class-model-url.php';
 require_once dirname( __FILE__ ) . '/../testlibraries/class-repository-for-test.php';
 use static_press\includes\Static_Press_Model_Url;
 use static_press\includes\Static_Press_Repository;
-use static_press\includes\Static_Press_Transient_Service;
+use static_press\includes\Static_Press_Repository_Progress;
 use static_press\includes\Static_Press_Static_File_Creator_Local;
 use static_press\tests\testlibraries\Expect_Url;
 use static_press\tests\testlibraries\File_System_Operator;
@@ -124,7 +124,7 @@ class Static_Press_Static_File_Creator_Local_Test extends \WP_UnitTestCase {
 		$method->setAccessible( true );
 		$actual = $method->invokeArgs( $static_press, array( $parameter ) );
 		$this->assertEquals( $parameter, $actual );
-		$transient_service = new Static_Press_Transient_Service();
+		$transient_service = new Static_Press_Repository_Progress();
 		$start_time        = $transient_service->fetch_start_time();
 		$repository        = new Static_Press_Repository();
 		$results           = $repository->get_all_url( $start_time );

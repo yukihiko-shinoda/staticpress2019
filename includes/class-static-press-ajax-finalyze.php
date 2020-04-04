@@ -19,15 +19,15 @@ if ( ! class_exists( 'static_press\includes\Static_Press_Response_Processor_404_
 if ( ! class_exists( 'static_press\includes\Static_Press_Site_Dependency' ) ) {
 	require dirname( __FILE__ ) . '/class-static-press-site-dependency.php';
 }
-if ( ! class_exists( 'static_press\includes\Static_Press_Transient_Service' ) ) {
-	require dirname( __FILE__ ) . '/class-static-press-transient-service.php';
+if ( ! class_exists( 'static_press\includes\Static_Press_Repository_Progress' ) ) {
+	require dirname( __FILE__ ) . '/class-static-press-repository-progress.php';
 }
 
 use static_press\includes\Static_Press_Ajax_Processor;
 use static_press\includes\Static_Press_Response_Processor_200;
 use static_press\includes\Static_Press_Response_Processor_404_Dump;
 use static_press\includes\Static_Press_Site_Dependency;
-use static_press\includes\Static_Press_Transient_Service;
+use static_press\includes\Static_Press_Repository_Progress;
 
 /**
  * Class Static_Press_Ajax_Finalyze
@@ -47,7 +47,7 @@ class Static_Press_Ajax_Finalyze extends Static_Press_Ajax_Processor {
 			// TODO Original specification, although not good...
 			// Case when static file does not exist.
 		}
-		Static_Press_Transient_Service::delete();
+		Static_Press_Repository_Progress::delete();
 
 		$result = array( 'result' => true );
 		$this->json_output( apply_filters( 'StaticPress::ajax_finalyze', $result ) );

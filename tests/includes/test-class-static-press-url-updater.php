@@ -20,7 +20,7 @@ use static_press\includes\Static_Press_Model_Url;
 use static_press\includes\Static_Press_Model_Url_Static_File;
 use static_press\includes\Static_Press_Model_Url_Succeed;
 use static_press\includes\Static_Press_Repository;
-use static_press\includes\Static_Press_Transient_Service;
+use static_press\includes\Static_Press_Repository_Progress;
 use static_press\includes\Static_Press_Url_Updater;
 use static_press\tests\testlibraries\Environment;
 use static_press\tests\testlibraries\Expect_Url;
@@ -131,7 +131,7 @@ class Static_Press_Url_Updater_Test extends \WP_UnitTestCase {
 		$repository              = new Static_Press_Repository();
 		$url_updater             = new Static_Press_Url_Updater( $repository, ABSPATH );
 		$url_updater->update( $urls );
-		$transient_service = new Static_Press_Transient_Service();
+		$transient_service = new Static_Press_Repository_Progress();
 		$start_time        = $transient_service->fetch_start_time();
 		$results           = $repository->get_all_url( $start_time );
 		Expect_Url::assert_url( $this, $expect_urls_in_database, $results );
@@ -146,7 +146,7 @@ class Static_Press_Url_Updater_Test extends \WP_UnitTestCase {
 		$repository              = new Static_Press_Repository();
 		$url_updater             = new Static_Press_Url_Updater( $repository, File_System_Operator::OUTPUT_DIRECTORY );
 		$url_updater->update( $urls );
-		$transient_service = new Static_Press_Transient_Service();
+		$transient_service = new Static_Press_Repository_Progress();
 		$start_time        = $transient_service->fetch_start_time();
 		$results           = $repository->get_all_url( $start_time );
 		Expect_Url::assert_url( $this, $expect_urls_in_database, $results );
@@ -161,7 +161,7 @@ class Static_Press_Url_Updater_Test extends \WP_UnitTestCase {
 		$repository              = new Static_Press_Repository();
 		$url_updater             = new Static_Press_Url_Updater( $repository, null );
 		$url_updater->update( $urls );
-		$transient_service = new Static_Press_Transient_Service();
+		$transient_service = new Static_Press_Repository_Progress();
 		$start_time        = $transient_service->fetch_start_time();
 		$results           = $repository->get_all_url( $start_time );
 		Expect_Url::assert_url( $this, $expect_urls_in_database, $results );
@@ -182,7 +182,7 @@ class Static_Press_Url_Updater_Test extends \WP_UnitTestCase {
 		$repository              = new Static_Press_Repository();
 		$url_updater             = new Static_Press_Url_Updater( $repository, null, Mock_Creator::create_docuemnt_root_getter_mock() );
 		$url_updater->update( $urls );
-		$transient_service = new Static_Press_Transient_Service();
+		$transient_service = new Static_Press_Repository_Progress();
 		$start_time        = $transient_service->fetch_start_time();
 		$results           = $repository->get_all_url( $start_time );
 		Expect_Url::assert_url( $this, $expect_urls_in_database, $results );

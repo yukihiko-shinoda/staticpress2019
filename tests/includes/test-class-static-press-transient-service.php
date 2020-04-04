@@ -1,6 +1,6 @@
 <?php
 /**
- * Class Static_Press_Transient_Service_Test
+ * Class Static_Press_Repository_Progress_Test
  *
  * @package static_press\tests\includes
  */
@@ -8,21 +8,21 @@
 namespace static_press\tests\includes;
 
 require_once dirname( __FILE__ ) . '/../testlibraries/class-mock-creator.php';
-use static_press\includes\Static_Press_Transient_Service;
+use static_press\includes\Static_Press_Repository_Progress;
 use static_press\tests\testlibraries\Mock_Creator;
 
 /**
- * Static_Press_Transient_Service test case.
+ * Static_Press_Repository_Progress test case.
  *
  * @noinspection PhpUndefinedClassInspection
  */
-class Static_Press_Transient_Service_Test extends \WP_UnitTestCase {
+class Static_Press_Repository_Progress_Test extends \WP_UnitTestCase {
 	/**
 	 * Function fetch_last_id() should return 0 when parameter is not set.
 	 */
 	public function test_fetch_last_id_without_parameter_with_transient() {
 		set_transient( 'static static', array( 'fetch_last_id' => 2 ), 3600 );
-		$result = Static_Press_Transient_Service::fetch_last_id();
+		$result = Static_Press_Repository_Progress::fetch_last_id();
 		$this->assertEquals( $result, 2 );
 	}
 
@@ -30,7 +30,7 @@ class Static_Press_Transient_Service_Test extends \WP_UnitTestCase {
 	 * Function fetch_last_id() should return 0 when parameter is not set.
 	 */
 	public function test_fetch_last_id_without_parameter_without_transient() {
-		$result = Static_Press_Transient_Service::fetch_last_id();
+		$result = Static_Press_Repository_Progress::fetch_last_id();
 		$this->assertEquals( $result, 0 );
 	}
 
@@ -44,7 +44,7 @@ class Static_Press_Transient_Service_Test extends \WP_UnitTestCase {
 	 */
 	public function test_fetch_last_id_with_paramter_with_transient( $next_id, $expect ) {
 		set_transient( 'static static', array( 'fetch_last_id' => 2 ), 3600 );
-		$result = Static_Press_Transient_Service::fetch_last_id( $next_id );
+		$result = Static_Press_Repository_Progress::fetch_last_id( $next_id );
 		$this->assertEquals( $result, $expect );
 	}
 
@@ -70,7 +70,7 @@ class Static_Press_Transient_Service_Test extends \WP_UnitTestCase {
 	 * @param string $expect  Expect return value.
 	 */
 	public function test_fetch_last_id_with_paramter_without_transient( $next_id, $expect ) {
-		$result = Static_Press_Transient_Service::fetch_last_id( $next_id );
+		$result = Static_Press_Repository_Progress::fetch_last_id( $next_id );
 		$this->assertEquals( $result, $expect );
 	}
 
@@ -95,7 +95,7 @@ class Static_Press_Transient_Service_Test extends \WP_UnitTestCase {
 	 */
 	public function test_fetch_start_time() {
 		$date_time_factory = Mock_Creator::create_date_time_factory_mock( 'create_date', 'Y-m-d h:i:s', Mock_Creator::DATE_FOR_TEST );
-		$transient_service = new Static_Press_Transient_Service( $date_time_factory );
+		$transient_service = new Static_Press_Repository_Progress( $date_time_factory );
 		$result            = $transient_service->fetch_start_time();
 		$this->assertEquals( Mock_Creator::DATE_FOR_TEST, $result );
 	}
@@ -110,7 +110,7 @@ class Static_Press_Transient_Service_Test extends \WP_UnitTestCase {
 		$start_time                = '2019-12-23 12:34:56';
 		$param['fetch_start_time'] = $start_time;
 		set_transient( 'static static', $param, 3600 );
-		$transient_service = new Static_Press_Transient_Service();
+		$transient_service = new Static_Press_Repository_Progress();
 		$result            = $transient_service->fetch_start_time();
 		$this->assertEquals( $start_time, $result );
 	}

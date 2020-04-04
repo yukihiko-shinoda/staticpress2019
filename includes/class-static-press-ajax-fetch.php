@@ -22,15 +22,15 @@ if ( ! class_exists( 'static_press\includes\Static_Press_Model_Url_Fetched' ) ) 
 if ( ! class_exists( 'static_press\includes\Static_Press_Response_Processor_404' ) ) {
 	require dirname( __FILE__ ) . '/class-static-press-response-processor-404.php';
 }
-if ( ! class_exists( 'static_press\includes\Static_Press_Transient_Service' ) ) {
-	require dirname( __FILE__ ) . '/class-static-press-transient-service.php';
+if ( ! class_exists( 'static_press\includes\Static_Press_Repository_Progress' ) ) {
+	require dirname( __FILE__ ) . '/class-static-press-repository-progress.php';
 }
 use static_press\includes\Static_Press_Ajax_Processor;
 use static_press\includes\Static_Press_Business_Logic_Exception;
 use static_press\includes\Static_Press_Fetch_Result;
 use static_press\includes\Static_Press_Model_Url_Fetched;
 use static_press\includes\Static_Press_Response_Processor_404;
-use static_press\includes\Static_Press_Transient_Service;
+use static_press\includes\Static_Press_Repository_Progress;
 /**
  * Class Static_Press_Ajax_Fetch
  */
@@ -164,13 +164,13 @@ class Static_Press_Ajax_Fetch extends Static_Press_Ajax_Processor {
 	private function fetch_url() {
 		$result = $this->repository->get_next_url(
 			$this->fetch_start_time(),
-			Static_Press_Transient_Service::fetch_last_id()
+			Static_Press_Repository_Progress::fetch_last_id()
 		);
 		if ( is_null( $result ) || is_wp_error( $result ) || ! $result->ID ) {
-			Static_Press_Transient_Service::delete();
+			Static_Press_Repository_Progress::delete();
 			throw new Static_Press_Business_Logic_Exception();
 		}
-		Static_Press_Transient_Service::fetch_last_id( $result->ID );
+		Static_Press_Repository_Progress::fetch_last_id( $result->ID );
 		return new Static_Press_Model_Url_Fetched( $result );
 	}
 }

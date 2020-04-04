@@ -15,7 +15,7 @@ use static_press\includes\Static_Press_Model_Url;
 use static_press\includes\Static_Press_Model_Url_Other;
 use static_press\includes\Static_Press_Repository;
 use static_press\includes\Static_Press_Response_Processor_200_Crawl;
-use static_press\includes\Static_Press_Transient_Service;
+use static_press\includes\Static_Press_Repository_Progress;
 use static_press\tests\testlibraries\Expect_Url;
 use static_press\tests\testlibraries\Repository_For_Test;
 use static_press\tests\testlibraries\Mock_Creator;
@@ -46,7 +46,7 @@ class Static_Press_Response_Processor_200_Crawl_Test extends \WP_UnitTestCase {
 		}
 
 		$this->invoke_private_method( 'crawl_body', array( $content ) );
-		$transient_service = new Static_Press_Transient_Service( $date_time_factoy_mock );
+		$transient_service = new Static_Press_Repository_Progress( $date_time_factoy_mock );
 		$start_time        = $transient_service->fetch_start_time();
 		$repository        = new Static_Press_Repository();
 		$results           = $repository->get_all_url( $start_time );
@@ -118,7 +118,7 @@ class Static_Press_Response_Processor_200_Crawl_Test extends \WP_UnitTestCase {
 		}
 
 		$this->invoke_private_method( 'crawl_url', array( $url ) );
-		$transient_service = new Static_Press_Transient_Service( $date_time_factoy_mock );
+		$transient_service = new Static_Press_Repository_Progress( $date_time_factoy_mock );
 		$start_time        = $transient_service->fetch_start_time();
 		$repository        = new Static_Press_Repository();
 		$results           = $repository->get_all_url( $start_time );
