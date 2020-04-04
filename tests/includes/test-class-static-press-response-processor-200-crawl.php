@@ -10,7 +10,7 @@ namespace static_press\tests\includes;
 require_once dirname( __FILE__ ) . '/../testlibraries/class-expect-url.php';
 require_once dirname( __FILE__ ) . '/../testlibraries/class-model-url.php';
 require_once dirname( __FILE__ ) . '/../testlibraries/class-repository-for-test.php';
-require_once dirname( __FILE__ ) . '/../testlibraries/class-test-utility.php';
+require_once dirname( __FILE__ ) . '/../testlibraries/class-mock-creator.php';
 use static_press\includes\Static_Press_Model_Url;
 use static_press\includes\Static_Press_Model_Url_Other;
 use static_press\includes\Static_Press_Repository;
@@ -18,13 +18,12 @@ use static_press\includes\Static_Press_Response_Processor_200_Crawl;
 use static_press\includes\Static_Press_Transient_Service;
 use static_press\tests\testlibraries\Expect_Url;
 use static_press\tests\testlibraries\Repository_For_Test;
-use static_press\tests\testlibraries\Test_Utility;
+use static_press\tests\testlibraries\Mock_Creator;
 
 /**
  * Static_Press_Response_Processor_200_Crawl test case.
  */
 class Static_Press_Response_Processor_200_Crawl_Test extends \WP_UnitTestCase {
-	const DATE_FOR_TEST = '2019-12-23 12:34:56';
 	/**
 	 * Test steps for crawl_body().
 	 *
@@ -36,7 +35,7 @@ class Static_Press_Response_Processor_200_Crawl_Test extends \WP_UnitTestCase {
 	 * @throws ReflectionException     When fail to create ReflectionClass instance.
 	 */
 	public function test_crawl_body( $content, $expect_urls_in_database ) {
-		$date_time_factoy_mock = Test_Utility::create_date_time_factory_mock( 'create_date', 'Y-m-d h:i:s' );
+		$date_time_factoy_mock = Mock_Creator::create_date_time_factory_mock( 'create_date', 'Y-m-d h:i:s' );
 		$urls                  = array(
 			new Static_Press_Model_Url_Other( '/', $date_time_factoy_mock ),
 			new Static_Press_Model_Url_Other( '/test/', $date_time_factoy_mock ),
@@ -108,7 +107,7 @@ class Static_Press_Response_Processor_200_Crawl_Test extends \WP_UnitTestCase {
 	 * @throws ReflectionException     When fail to create ReflectionClass instance.
 	 */
 	public function test_crawl_url( $url, $expect_urls_in_database ) {
-		$date_time_factoy_mock = Test_Utility::create_date_time_factory_mock( 'create_date', 'Y-m-d h:i:s' );
+		$date_time_factoy_mock = Mock_Creator::create_date_time_factory_mock( 'create_date', 'Y-m-d h:i:s' );
 		$urls                  = array(
 			new Static_Press_Model_Url_Other( '/', $date_time_factoy_mock ),
 			new Static_Press_Model_Url_Other( '/test/', $date_time_factoy_mock ),
@@ -180,7 +179,7 @@ class Static_Press_Response_Processor_200_Crawl_Test extends \WP_UnitTestCase {
 	 * @throws ReflectionException When fail to create ReflectionClass instance.
 	 */
 	public function test_has_listed( $link, $expect ) {
-		$date_time_factoy_mock = Test_Utility::create_date_time_factory_mock( 'create_date', 'Y-m-d h:i:s' );
+		$date_time_factoy_mock = Mock_Creator::create_date_time_factory_mock( 'create_date', 'Y-m-d h:i:s' );
 		$urls                  = array(
 			new Static_Press_Model_Url_Other( '/', $date_time_factoy_mock ),
 		);
@@ -220,7 +219,7 @@ class Static_Press_Response_Processor_200_Crawl_Test extends \WP_UnitTestCase {
 	 * @param array  $arguments   Arguments.
 	 */
 	private function invoke_private_method( $method_name, $arguments ) {
-		$date_time_factoy_mock = Test_Utility::create_date_time_factory_mock( 'create_date', 'Y-m-d h:i:s' );
+		$date_time_factoy_mock = Mock_Creator::create_date_time_factory_mock( 'create_date', 'Y-m-d h:i:s' );
 		$static_press          = new Static_Press_Response_Processor_200_Crawl(
 			null,
 			new Static_Press_Repository(),

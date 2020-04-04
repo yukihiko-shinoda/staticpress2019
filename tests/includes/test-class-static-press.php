@@ -7,13 +7,12 @@
 
 namespace static_press\tests\includes;
 
-require_once dirname( __FILE__ ) . '/../testlibraries/class-die-exception.php';
-require_once dirname( __FILE__ ) . '/../testlibraries/class-model-url.php';
-require_once dirname( __FILE__ ) . '/../testlibraries/class-repository-for-test.php';
-require_once dirname( __FILE__ ) . '/../testlibraries/class-test-utility.php';
+require_once dirname( __FILE__ ) . '/../testlibraries/class-file-system-operator.php';
+require_once dirname( __FILE__ ) . '/../testlibraries/class-mock-creator.php';
 use Mockery;
 use static_press\includes\Static_Press;
-use static_press\tests\testlibraries\Test_Utility;
+use static_press\tests\testlibraries\File_System_Operator;
+use static_press\tests\testlibraries\Mock_Creator;
 
 /**
  * StaticPress test case.
@@ -139,8 +138,8 @@ class Static_Press_Test extends \WP_UnitTestCase {
 	 * Function remove_link_tag() should not remove link tag of alternate type of application/atom+xml.
 	 */
 	public function test_remove_link_tag() {
-		$parameter    = Test_Utility::get_test_resource_content( 'remove-link-tag-before.html' );
-		$expect       = Test_Utility::get_test_resource_content( 'remove-link-tag-after.html' );
+		$parameter    = File_System_Operator::get_test_resource_content( 'remove-link-tag-before.html' );
+		$expect       = File_System_Operator::get_test_resource_content( 'remove-link-tag-after.html' );
 		$static_press = new Static_Press();
 		$actual       = $static_press->remove_link_tag( $parameter );
 		$this->assertEquals( $expect, $actual );
@@ -156,13 +155,13 @@ class Static_Press_Test extends \WP_UnitTestCase {
 	 * @param string $file_name_after  File name of after state.
 	 */
 	public function test_add_last_modified( $file_name_before, $http_code, $file_name_after ) {
-		$content      = Test_Utility::get_test_resource_content( $file_name_before );
-		$expect       = Test_Utility::get_test_resource_content( $file_name_after );
+		$content      = File_System_Operator::get_test_resource_content( $file_name_before );
+		$expect       = File_System_Operator::get_test_resource_content( $file_name_after );
 		$static_press = new Static_Press(
 			'/',
 			'',
 			array(),
-			Test_Utility::create_date_time_factory_mock( 'create_gmdate', 'D, d M Y H:i:s', 'Mon, 23 Des 2019 12:34:56' )
+			Mock_Creator::create_date_time_factory_mock( 'create_gmdate', 'D, d M Y H:i:s', 'Mon, 23 Des 2019 12:34:56' )
 		);
 		$actual       = $static_press->add_last_modified( $content, $http_code );
 		$this->assertEquals( $expect, $actual );
@@ -244,8 +243,8 @@ class Static_Press_Test extends \WP_UnitTestCase {
 	 */
 	public function test_replace_relative_uri() {
 		update_option( 'home', 'https://dynamic-site.com/sub/' );
-		$content      = Test_Utility::get_test_resource_content( 'replace_relative_uri-before.html' );
-		$expect       = Test_Utility::get_test_resource_content( 'replace_relative_uri-after.html' );
+		$content      = File_System_Operator::get_test_resource_content( 'replace_relative_uri-before.html' );
+		$expect       = File_System_Operator::get_test_resource_content( 'replace_relative_uri-after.html' );
 		$static_press = new Static_Press( 'https://static-site.com/sub/' );
 		$result       = $static_press->replace_relative_uri( $content );
 		$this->assertEquals( $expect, $result );

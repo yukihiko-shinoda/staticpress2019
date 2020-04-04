@@ -8,9 +8,11 @@
 namespace static_press\tests\testlibraries;
 
 require_once dirname( __FILE__ ) . '/../testlibraries/class-environment.php';
+require_once dirname( __FILE__ ) . '/../testlibraries/class-file-system-operator.php';
 use static_press\includes\Static_Press_Model_Url;
 use static_press\includes\Static_Press_Model_Url_Static_File;
 use static_press\tests\testlibraries\Environment;
+use static_press\tests\testlibraries\File_System_Operator;
 
 /**
  * URL Collector.
@@ -98,8 +100,8 @@ class Theme_Switcher {
 	 * Deploys child theme.
 	 */
 	private function deploy_child_theme() {
-		Test_Utility::recurse_copy(
-			Test_Utility::get_path_to_test_resource( $this->theme_to_activate ),
+		File_System_Operator::recurse_copy(
+			File_System_Operator::get_path_to_test_resource( $this->theme_to_activate ),
 			ABSPATH . 'wp-content/themes/' . $this->theme_to_activate
 		);
 	}

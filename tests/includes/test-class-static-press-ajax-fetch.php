@@ -8,16 +8,16 @@
 namespace static_press\tests\includes;
 
 require_once dirname( __FILE__ ) . '/../testlibraries/class-model-url.php';
+require_once dirname( __FILE__ ) . '/../testlibraries/class-mock-creator.php';
 require_once dirname( __FILE__ ) . '/../testlibraries/class-repository-for-test.php';
-require_once dirname( __FILE__ ) . '/../testlibraries/class-test-utility.php';
 use static_press\includes\Static_Press_Ajax_Fetch;
 use static_press\includes\Static_Press_Business_Logic_Exception;
 use static_press\includes\Static_Press_Model_Url;
 use static_press\includes\Static_Press_Repository;
 use static_press\tests\testlibraries\Expect_Url;
+use static_press\tests\testlibraries\Mock_Creator;
 use static_press\tests\testlibraries\Model_Url;
 use static_press\tests\testlibraries\Repository_For_Test;
-use static_press\tests\testlibraries\Test_Utility;
 /**
  * Static_Press_Ajax_Fetch test case.
  *
@@ -94,8 +94,8 @@ class Static_Press_Ajax_Fetch_Test extends \WP_UnitTestCase {
 			null,
 			null,
 			new Static_Press_Repository(),
-			Test_Utility::create_remote_getter_mock(),
-			Test_Utility::create_terminator_mock()
+			Mock_Creator::create_remote_getter_mock(),
+			Mock_Creator::create_terminator_mock()
 		);
 		$reflection   = new \ReflectionClass( get_class( $static_press ) );
 		$method       = $reflection->getMethod( $method_name );

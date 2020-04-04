@@ -8,17 +8,19 @@
 namespace static_press\tests\includes;
 
 require_once dirname( __FILE__ ) . '/../testlibraries/class-array-url-handler.php';
-require_once dirname( __FILE__ ) . '/../testlibraries/class-test-utility.php';
-use Mockery;
+require_once dirname( __FILE__ ) . '/../testlibraries/class-mock-creator.php';
+require_once dirname( __FILE__ ) . '/../testlibraries/class-model-url-creator.php';
+require_once dirname( __FILE__ ) . '/../testlibraries/class-model-url-handler.php';
 use static_press\includes\Static_Press_Model_Url;
 use static_press\includes\Static_Press_Url_Collector;
 use static_press\tests\testlibraries\Array_Url_Handler;
-use static_press\tests\testlibraries\Test_Utility;
+use static_press\tests\testlibraries\Mock_Creator;
+use static_press\tests\testlibraries\Model_Url_Creator;
+use static_press\tests\testlibraries\Model_Url_Handler;
 /**
  * Reposistory test case.
  */
 class Static_Press_Url_Collector_Test extends \WP_UnitTestCase {
-	const DATE_FOR_TEST = '2019-12-23 12:34:56';
 	/**
 	 * For WordPress
 	 * 
@@ -46,13 +48,13 @@ class Static_Press_Url_Collector_Test extends \WP_UnitTestCase {
 	public function test_collect() {
 		file_put_contents( ABSPATH . 'test.txt', '' );
 		$expect_urls            = array_merge(
-			Test_Utility::get_expect_urls_front_page(),
-			Test_Utility::get_expect_urls_static_files( self::DATE_FOR_TEST ),
-			Test_Utility::get_expect_urls_seo( self::DATE_FOR_TEST )
+			Model_Url_Creator::get_expect_urls_front_page(),
+			Model_Url_Creator::get_expect_urls_static_files( Mock_Creator::DATE_FOR_TEST ),
+			Model_Url_Creator::get_expect_urls_seo( Mock_Creator::DATE_FOR_TEST )
 		);
 		$url_collector          = new Static_Press_Url_Collector(
-			self::crete_remote_getter_mock(),
-			Test_Utility::create_date_time_factory_mock( 'create_date', 'Y-m-d h:i:s', self::DATE_FOR_TEST )
+			Mock_Creator::create_remote_getter_mock(),
+			Mock_Creator::create_date_time_factory_mock( 'create_date', 'Y-m-d h:i:s', Mock_Creator::DATE_FOR_TEST )
 		);
 		$actual                 = $url_collector->collect();
 		$array_array_url_expect = array();
@@ -70,14 +72,14 @@ class Static_Press_Url_Collector_Test extends \WP_UnitTestCase {
 	 * Function front_page_url() should return appropriate URLs.
 	 */
 	public function test_front_page_url() {
-		$expect = Test_Utility::get_expect_urls_front_page();
+		$expect = Model_Url_Creator::get_expect_urls_front_page();
 		$actual = $this->create_accessable_method(
-			self::crete_remote_getter_mock(),
+			Mock_Creator::create_remote_getter_mock(),
 			'front_page_url',
 			array(),
-			Test_Utility::create_date_time_factory_mock( 'create_date', 'Y-m-d h:i:s', self::DATE_FOR_TEST )
+			Mock_Creator::create_date_time_factory_mock( 'create_date', 'Y-m-d h:i:s', Mock_Creator::DATE_FOR_TEST )
 		);
-		Test_Utility::assert_array_model_url( $this, $expect, $actual );
+		Model_Url_Handler::assert_array_model_url( $this, $expect, $actual );
 	}
 
 	/**
@@ -95,7 +97,7 @@ class Static_Press_Url_Collector_Test extends \WP_UnitTestCase {
 					'object_id'     => 3,
 					'object_type'   => 'attachment',
 					'pages'         => 1,
-					'last_modified' => self::DATE_FOR_TEST,
+					'last_modified' => Mock_Creator::DATE_FOR_TEST,
 					'enable'        => null,
 				),
 				array(
@@ -104,7 +106,7 @@ class Static_Press_Url_Collector_Test extends \WP_UnitTestCase {
 					'object_id'     => 4,
 					'object_type'   => 'attachment',
 					'pages'         => 3,
-					'last_modified' => self::DATE_FOR_TEST,
+					'last_modified' => Mock_Creator::DATE_FOR_TEST,
 					'enable'        => null,
 				),
 			);
@@ -116,7 +118,7 @@ class Static_Press_Url_Collector_Test extends \WP_UnitTestCase {
 					'object_id'     => 4,
 					'object_type'   => 'attachment',
 					'pages'         => 1,
-					'last_modified' => self::DATE_FOR_TEST,
+					'last_modified' => Mock_Creator::DATE_FOR_TEST,
 					'enable'        => null,
 				),
 				array(
@@ -125,7 +127,7 @@ class Static_Press_Url_Collector_Test extends \WP_UnitTestCase {
 					'object_id'     => 5,
 					'object_type'   => 'attachment',
 					'pages'         => 3,
-					'last_modified' => self::DATE_FOR_TEST,
+					'last_modified' => Mock_Creator::DATE_FOR_TEST,
 					'enable'        => null,
 				),
 			);
@@ -151,7 +153,7 @@ class Static_Press_Url_Collector_Test extends \WP_UnitTestCase {
 		foreach ( $actual as $url ) {
 			$array_array_url[] = $url->to_array();
 		}
-		Test_Utility::assert_urls( $this, $expect, $array_array_url );
+		Model_Url_Handler::assert_urls( $this, $expect, $array_array_url );
 	}
 
 	/**
@@ -190,7 +192,7 @@ class Static_Press_Url_Collector_Test extends \WP_UnitTestCase {
 				'object_type'   => 'category',
 				'pages'         => 1,
 				'parent'        => 2,
-				'last_modified' => self::DATE_FOR_TEST,
+				'last_modified' => Mock_Creator::DATE_FOR_TEST,
 				'enable'        => null,
 			),
 			array(
@@ -200,7 +202,7 @@ class Static_Press_Url_Collector_Test extends \WP_UnitTestCase {
 				'object_type'   => 'category',
 				'pages'         => 1,
 				'parent'        => 0,
-				'last_modified' => self::DATE_FOR_TEST,
+				'last_modified' => Mock_Creator::DATE_FOR_TEST,
 				'enable'        => null,
 			),
 			array(
@@ -210,7 +212,7 @@ class Static_Press_Url_Collector_Test extends \WP_UnitTestCase {
 				'object_type'   => 'category',
 				'pages'         => 1,
 				'parent'        => 2,
-				'last_modified' => self::DATE_FOR_TEST,
+				'last_modified' => Mock_Creator::DATE_FOR_TEST,
 				'enable'        => null,
 			),
 		);
@@ -219,7 +221,7 @@ class Static_Press_Url_Collector_Test extends \WP_UnitTestCase {
 		foreach ( $actual as $url ) {
 			$array_array_url[] = $url->to_array();
 		}
-		Test_Utility::assert_urls( $this, $expect, $array_array_url );
+		Model_Url_Handler::assert_urls( $this, $expect, $array_array_url );
 	}
 
 	/**
@@ -232,7 +234,7 @@ class Static_Press_Url_Collector_Test extends \WP_UnitTestCase {
 				'url'           => '/?author=1/',
 				'object_id'     => 1,
 				'pages'         => 1,
-				'last_modified' => self::DATE_FOR_TEST,
+				'last_modified' => Mock_Creator::DATE_FOR_TEST,
 				'enable'        => null,
 			),
 		);
@@ -250,7 +252,7 @@ class Static_Press_Url_Collector_Test extends \WP_UnitTestCase {
 		foreach ( $actual as $url ) {
 			$array_array_url[] = $url->to_array();
 		}
-		Test_Utility::assert_urls( $this, $expect, $array_array_url );
+		Model_Url_Handler::assert_urls( $this, $expect, $array_array_url );
 	}
 
 	/**
@@ -258,7 +260,7 @@ class Static_Press_Url_Collector_Test extends \WP_UnitTestCase {
 	 */
 	public function test_static_files_url() {
 		file_put_contents( ABSPATH . 'test.txt', '' );
-		$expect = Test_Utility::get_expect_urls_static_files( self::DATE_FOR_TEST );
+		$expect = Model_Url_Creator::get_expect_urls_static_files( Mock_Creator::DATE_FOR_TEST );
 		wp_insert_post(
 			array(
 				'post_title'   => 'Post Title 1',
@@ -284,13 +286,13 @@ class Static_Press_Url_Collector_Test extends \WP_UnitTestCase {
 	 * Function seo_url() should trancate database table for list URL.
 	 */
 	public function test_seo_url() {
-		$expect_urls     = Test_Utility::get_expect_urls_seo( self::DATE_FOR_TEST );
-		$actual          = $this->create_accessable_method( Test_Utility::set_up_seo_url( 'http://example.org/' ), 'seo_url', array(), Test_Utility::create_date_time_factory_mock( 'create_date', 'Y-m-d h:i:s' ) );
+		$expect_urls     = Model_Url_Creator::get_expect_urls_seo( Mock_Creator::DATE_FOR_TEST );
+		$actual          = $this->create_accessable_method( Mock_Creator::set_up_seo_url( 'http://example.org/' ), 'seo_url', array(), Mock_Creator::create_date_time_factory_mock( 'create_date', 'Y-m-d h:i:s' ) );
 		$array_array_url = array();
 		foreach ( $actual as $url ) {
 			$array_array_url[] = $url->to_array();
 		}
-		Test_Utility::assert_array_model_url( $this, $expect_urls, $actual );
+		Model_Url_Handler::assert_array_model_url( $this, $expect_urls, $actual );
 	}
 
 	/**
@@ -302,19 +304,10 @@ class Static_Press_Url_Collector_Test extends \WP_UnitTestCase {
 	 * @param MockInterface $date_time_factory_mock Mock interface for Date time factory.
 	 */
 	private function create_accessable_method( $remote_getter_mock, $method_name, $array_parameter, $date_time_factory_mock = null ) {
-		$url_collector = new Static_Press_Url_Collector( $remote_getter_mock, $date_time_factory_mock, Test_Utility::create_docuemnt_root_getter_mock() );
+		$url_collector = new Static_Press_Url_Collector( $remote_getter_mock, $date_time_factory_mock, Mock_Creator::create_docuemnt_root_getter_mock() );
 		$reflection    = new \ReflectionClass( get_class( $url_collector ) );
 		$method        = $reflection->getMethod( $method_name );
 		$method->setAccessible( true );
 		return $method->invokeArgs( $url_collector, $array_parameter );
-	}
-
-	/**
-	 * Sets up for testing seo_url().
-	 */
-	private static function crete_remote_getter_mock() {
-		$remote_getter_mock = Mockery::mock( 'alias:Url_Collector_Mock' );
-		$remote_getter_mock->shouldReceive( 'remote_get' )->andReturn( Test_Utility::create_response( '/', 'index-example.html' ) );
-		return $remote_getter_mock;
 	}
 }

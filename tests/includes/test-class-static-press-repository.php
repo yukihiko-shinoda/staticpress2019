@@ -9,7 +9,7 @@ namespace static_press\tests\includes;
 
 require_once dirname( __FILE__ ) . '/../testlibraries/class-expect-url.php';
 require_once dirname( __FILE__ ) . '/../testlibraries/class-repository-for-test.php';
-require_once dirname( __FILE__ ) . '/../testlibraries/class-test-utility.php';
+require_once dirname( __FILE__ ) . '/../testlibraries/class-mock-creator.php';
 use static_press\includes\Static_Press_Model_Url;
 use static_press\includes\Static_Press_Model_Url_Other;
 use static_press\includes\Static_Press_Repository;
@@ -17,7 +17,7 @@ use static_press\includes\Static_Press_Transient_Service;
 use static_press\includes\Static_Press_Url_Updater;
 use static_press\tests\testlibraries\Expect_Url;
 use static_press\tests\testlibraries\Repository_For_Test;
-use static_press\tests\testlibraries\Test_Utility;
+use static_press\tests\testlibraries\Mock_Creator;
 
 /**
  * Reposistory test case.
@@ -37,7 +37,7 @@ class Static_Press_Repository_Test extends \WP_UnitTestCase {
 	 * @throws ReflectionException When fail to create ReflectionClass instance.
 	 */
 	public function test_get_all_url() {
-		$date_time_factory = Test_Utility::create_date_time_factory_mock( 'create_date', 'Y-m-d h:i:s' );
+		$date_time_factory = Mock_Creator::create_date_time_factory_mock( 'create_date', 'Y-m-d h:i:s' );
 		$urls              = array(
 			new Static_Press_Model_Url_Other( '/', $date_time_factory ),
 			new Static_Press_Model_Url_Other( '/test/', $date_time_factory ),

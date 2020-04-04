@@ -8,14 +8,14 @@
 namespace static_press\tests\includes;
 
 require_once dirname( __FILE__ ) . '/../testlibraries/class-environment.php';
-require_once dirname( __FILE__ ) . '/../testlibraries/class-test-utility.php';
+require_once dirname( __FILE__ ) . '/../testlibraries/class-mock-creator.php';
 use static_press\includes\Static_Press_Factory_Model_Url_Static_File;
 use static_press\includes\Static_Press_File_Scanner;
 use static_press\includes\Static_Press_Model_Url_Static_File;
 use static_press\includes\Static_Press_Model_Static_File;
 use static_press\includes\Static_Press_Model_Url;
 use static_press\tests\testlibraries\Environment;
-use static_press\tests\testlibraries\Test_Utility;
+use static_press\tests\testlibraries\Mock_Creator;
 
 /**
  * StaticPress test case.
@@ -83,7 +83,7 @@ class Static_Press_File_Scanner_Test extends \WP_UnitTestCase {
 		$static_press_file_scanner = new Static_Press_File_Scanner(
 			Static_Press_Model_Static_File::get_filtered_array_extension(),
 			Static_Press_Model_Url::TYPE_STATIC_FILE,
-			new Static_Press_Factory_Model_Url_Static_File( Test_Utility::create_docuemnt_root_getter_mock() )
+			new Static_Press_Factory_Model_Url_Static_File( Mock_Creator::create_docuemnt_root_getter_mock() )
 		);
 		$actual                    = $static_press_file_scanner->scan( '/test/', true );
 		$this->assertEquals( $this->array_static_file, $actual );
@@ -96,7 +96,7 @@ class Static_Press_File_Scanner_Test extends \WP_UnitTestCase {
 		$static_press_file_scanner = new Static_Press_File_Scanner(
 			Static_Press_Model_Static_File::get_filtered_array_extension(),
 			Static_Press_Model_Url::TYPE_CONTENT_FILE,
-			new Static_Press_Factory_Model_Url_Static_File( Test_Utility::create_docuemnt_root_getter_mock() )
+			new Static_Press_Factory_Model_Url_Static_File( Mock_Creator::create_docuemnt_root_getter_mock() )
 		);
 		$actual                    = $static_press_file_scanner->scan( '/test/', true );
 		$this->assertEquals( $this->array_content_file, $actual );

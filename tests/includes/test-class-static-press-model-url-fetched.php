@@ -7,8 +7,9 @@
 
 namespace static_press\tests\includes;
 
+require_once dirname( __FILE__ ) . '/../testlibraries/class-model-url-creator.php';
 use static_press\includes\Static_Press_Model_Url;
-use static_press\tests\testlibraries\Model_Url_Handler;
+use static_press\tests\testlibraries\Model_Url_Creator;
 
 /**
  * Reposistory test case.
@@ -21,7 +22,7 @@ class Static_Press_Model_Url_Fetched_Test extends \WP_UnitTestCase {
 	 * @param string $file_type File type.
 	 */
 	public function test_is_static_file_true( $file_type ) {
-		$url = Model_Url_Handler::create_model_url_fetched( 1, $file_type, 'test.txt', 1 );
+		$url = Model_Url_Creator::create_model_url_fetched( 1, $file_type, 'test.txt', 1 );
 		$this->assertTrue( $url->is_static_file() );
 	}
 
@@ -42,7 +43,7 @@ class Static_Press_Model_Url_Fetched_Test extends \WP_UnitTestCase {
 	 * @param string $file_type File type.
 	 */
 	public function test_is_static_file_false( $file_type ) {
-		$url = Model_Url_Handler::create_model_url_fetched( 1, $file_type, 'test.txt', 1 );
+		$url = Model_Url_Creator::create_model_url_fetched( 1, $file_type, 'test.txt', 1 );
 		$this->assertFalse( $url->is_static_file() );
 	}
 

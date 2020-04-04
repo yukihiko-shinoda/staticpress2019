@@ -8,17 +8,19 @@
 namespace static_press\tests\includes;
 
 require_once dirname( __FILE__ ) . '/../testlibraries/class-expect-url.php';
+require_once dirname( __FILE__ ) . '/../testlibraries/class-file-system-operator.php';
+require_once dirname( __FILE__ ) . '/../testlibraries/class-mock-creator.php';
 require_once dirname( __FILE__ ) . '/../testlibraries/class-model-url.php';
 require_once dirname( __FILE__ ) . '/../testlibraries/class-repository-for-test.php';
-require_once dirname( __FILE__ ) . '/../testlibraries/class-test-utility.php';
 use static_press\includes\Static_Press_Model_Url;
 use static_press\includes\Static_Press_Repository;
 use static_press\includes\Static_Press_Transient_Service;
 use static_press\includes\Static_Press_Static_File_Creator_Local;
 use static_press\tests\testlibraries\Expect_Url;
+use static_press\tests\testlibraries\File_System_Operator;
+use static_press\tests\testlibraries\Mock_Creator;
 use static_press\tests\testlibraries\Model_Url;
 use static_press\tests\testlibraries\Repository_For_Test;
-use static_press\tests\testlibraries\Test_Utility;
 
 /**
  * Static_Press_Static_File_Creator_Local test case.
@@ -112,10 +114,10 @@ class Static_Press_Static_File_Creator_Local_Test extends \WP_UnitTestCase {
 
 		$static_press = new Static_Press_Static_File_Creator_Local(
 			Static_Press_Model_Url::TYPE_STATIC_FILE,
-			Test_Utility::OUTPUT_DIRECTORY,
+			File_System_Operator::OUTPUT_DIRECTORY,
 			null,
 			new Static_Press_Repository(),
-			Test_Utility::create_date_time_factory_mock( 'create_date', 'Y-m-d h:i:s', '2019-12-23 12:34:56' )
+			Mock_Creator::create_date_time_factory_mock( 'create_date', 'Y-m-d h:i:s', '2019-12-23 12:34:56' )
 		);
 		$reflection   = new \ReflectionClass( get_class( $static_press ) );
 		$method       = $reflection->getMethod( 'delete_url' );

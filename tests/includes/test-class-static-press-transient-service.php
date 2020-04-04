@@ -7,9 +7,9 @@
 
 namespace static_press\tests\includes;
 
-require_once dirname( __FILE__ ) . '/../testlibraries/class-test-utility.php';
+require_once dirname( __FILE__ ) . '/../testlibraries/class-mock-creator.php';
 use static_press\includes\Static_Press_Transient_Service;
-use static_press\tests\testlibraries\Test_Utility;
+use static_press\tests\testlibraries\Mock_Creator;
 
 /**
  * Static_Press_Transient_Service test case.
@@ -17,7 +17,6 @@ use static_press\tests\testlibraries\Test_Utility;
  * @noinspection PhpUndefinedClassInspection
  */
 class Static_Press_Transient_Service_Test extends \WP_UnitTestCase {
-	const DATE_FOR_TEST = '2019-12-23 12:34:56';
 	/**
 	 * Function fetch_last_id() should return 0 when parameter is not set.
 	 */
@@ -95,10 +94,10 @@ class Static_Press_Transient_Service_Test extends \WP_UnitTestCase {
 	 * @throws ReflectionException When fail to create ReflectionClass instance.
 	 */
 	public function test_fetch_start_time() {
-		$date_time_factory = Test_Utility::create_date_time_factory_mock( 'create_date', 'Y-m-d h:i:s', self::DATE_FOR_TEST );
+		$date_time_factory = Mock_Creator::create_date_time_factory_mock( 'create_date', 'Y-m-d h:i:s', Mock_Creator::DATE_FOR_TEST );
 		$transient_service = new Static_Press_Transient_Service( $date_time_factory );
 		$result            = $transient_service->fetch_start_time();
-		$this->assertEquals( self::DATE_FOR_TEST, $result );
+		$this->assertEquals( Mock_Creator::DATE_FOR_TEST, $result );
 	}
 
 	/**
