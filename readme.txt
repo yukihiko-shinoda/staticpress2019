@@ -3,9 +3,9 @@ Contributors: wokamoto, megumitheme, amimotoami, yshinoda
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=9S8AJCY7XB8F4&lc=JP&item_name=WordPress%20Plugins&item_number=wp%2dplugins&currency_code=JPY&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted
 Tags: static
 Requires at least: 4.3
-Tested up to: 5.3
+Tested up to: 5.4
 Requires PHP: 5.6
-Stable tag: 0.5.0
+Stable tag: 0.5.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -46,6 +46,11 @@ none
 3. Rebuild!
 
 == Changelog ==
+
+**0.5.1 - April 6, 2020**
+
+Fix bug that rebuild stop in some case.
+Update "Tested up to" from 5.3 to 5.4.
 
 **0.5.0 - March 29, 2020**
 
@@ -136,8 +141,10 @@ Initial release.
 
 == Upgrade Notice ==
 
-= 0.5.0 =
+= 0.5.1 =
+This version fixes bug that rebuild stop in some case.
 
+= 0.5.0 =
 This version supports Bedrock, Hindi, and no protocol eternal link.
 
 = 0.4.12 =
