@@ -93,8 +93,6 @@ class Static_Press_Url_Collector_Test extends \WP_UnitTestCase {
 
 	/**
 	 * Function collect() should return urls of front page, static files, and SEO.
-	 * 
-	 * @runInSeparateProcess
 	 */
 	public function test_collect() {
 		file_put_contents( ABSPATH . 'test.txt', '' );
