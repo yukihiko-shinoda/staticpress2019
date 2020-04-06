@@ -14,7 +14,7 @@ require_once dirname( __FILE__ ) . '/../testlibraries/class-fixture-post-author.
 require_once dirname( __FILE__ ) . '/../testlibraries/class-fixture-post-single.php';
 require_once dirname( __FILE__ ) . '/../testlibraries/class-mock-creator.php';
 require_once dirname( __FILE__ ) . '/../testlibraries/class-model-url-creator.php';
-require_once dirname( __FILE__ ) . '/../testlibraries/class-model-url-handler.php';
+require_once dirname( __FILE__ ) . '/../testlibraries/class-model-url-comparer.php';
 require_once dirname( __FILE__ ) . '/../testlibraries/class-post-array-creator.php';
 use static_press\includes\Static_Press_Url_Collector;
 use static_press\tests\testlibraries\Category_Array_Creator;
@@ -24,7 +24,7 @@ use static_press\tests\testlibraries\Fixture_Post_Author;
 use static_press\tests\testlibraries\Fixture_Post_Single;
 use static_press\tests\testlibraries\Mock_Creator;
 use static_press\tests\testlibraries\Model_Url_Creator;
-use static_press\tests\testlibraries\Model_Url_Handler;
+use static_press\tests\testlibraries\Model_Url_Comparer;
 use static_press\tests\testlibraries\Post_Array_Creator;
 /**
  * Reposistory test case.
@@ -106,7 +106,7 @@ class Static_Press_Url_Collector_Test extends \WP_UnitTestCase {
 			Mock_Creator::create_date_time_factory_mock( 'create_date', 'Y-m-d h:i:s', Mock_Creator::DATE_FOR_TEST )
 		);
 		$actual        = $url_collector->collect();
-		Model_Url_Handler::assert_contains_urls( $this, $expect_urls, $actual );
+		Model_Url_Comparer::assert_contains_urls( $this, $expect_urls, $actual );
 	}
 
 	/**
@@ -120,7 +120,7 @@ class Static_Press_Url_Collector_Test extends \WP_UnitTestCase {
 			array(),
 			Mock_Creator::create_date_time_factory_mock( 'create_date', 'Y-m-d h:i:s', Mock_Creator::DATE_FOR_TEST )
 		);
-		Model_Url_Handler::assert_array_model_url( $this, $expect, $actual );
+		Model_Url_Comparer::assert_array_model_url( $this, $expect, $actual );
 	}
 
 	/**
@@ -135,7 +135,7 @@ class Static_Press_Url_Collector_Test extends \WP_UnitTestCase {
 			Model_Url_Creator::create_model_url_single( $this->fixture_post_author ),
 		);
 		$actual = $this->create_accessable_method( null, 'single_url', array() );
-		Model_Url_Handler::assert_array_model_url( $this, $expect, $actual );
+		Model_Url_Comparer::assert_array_model_url( $this, $expect, $actual );
 	}
 
 	/**
@@ -144,7 +144,7 @@ class Static_Press_Url_Collector_Test extends \WP_UnitTestCase {
 	public function test_terms_url() {
 		$expect = Model_Url_Creator::create_array_model_url_term();
 		$actual = $this->create_accessable_method( null, 'terms_url', array() );
-		Model_Url_Handler::assert_array_model_url( $this, $expect, $actual );
+		Model_Url_Comparer::assert_array_model_url( $this, $expect, $actual );
 	}
 
 	/**
@@ -153,7 +153,7 @@ class Static_Press_Url_Collector_Test extends \WP_UnitTestCase {
 	public function test_author_url() {
 		$expect = array( Model_Url_Creator::create_model_url_author( $this->fixture_post_author ) );
 		$actual = $this->create_accessable_method( null, 'author_url', array() );
-		Model_Url_Handler::assert_array_model_url( $this, $expect, $actual );
+		Model_Url_Comparer::assert_array_model_url( $this, $expect, $actual );
 	}
 
 	/**
@@ -163,7 +163,7 @@ class Static_Press_Url_Collector_Test extends \WP_UnitTestCase {
 		file_put_contents( ABSPATH . 'test.txt', '' );
 		$expect = Model_Url_Creator::get_expect_urls_static_files( Mock_Creator::DATE_FOR_TEST );
 		$actual = $this->create_accessable_method( null, 'static_files_url', array() );
-		Model_Url_Handler::assert_contains_urls( $this, $expect, $actual );
+		Model_Url_Comparer::assert_contains_urls( $this, $expect, $actual );
 	}
 
 	/**
@@ -176,7 +176,7 @@ class Static_Press_Url_Collector_Test extends \WP_UnitTestCase {
 		foreach ( $actual as $url ) {
 			$array_array_url[] = $url->to_array();
 		}
-		Model_Url_Handler::assert_array_model_url( $this, $expect_urls, $actual );
+		Model_Url_Comparer::assert_array_model_url( $this, $expect_urls, $actual );
 	}
 
 	/**

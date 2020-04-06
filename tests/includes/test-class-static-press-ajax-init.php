@@ -12,7 +12,7 @@ require_once dirname( __FILE__ ) . '/../testlibraries/class-expect-url.php';
 require_once dirname( __FILE__ ) . '/../testlibraries/class-mock-creator.php';
 require_once dirname( __FILE__ ) . '/../testlibraries/class-model-url.php';
 require_once dirname( __FILE__ ) . '/../testlibraries/class-model-url-creator.php';
-require_once dirname( __FILE__ ) . '/../testlibraries/class-model-url-handler.php';
+require_once dirname( __FILE__ ) . '/../testlibraries/class-model-url-comparer.php';
 require_once dirname( __FILE__ ) . '/../testlibraries/class-repository-for-test.php';
 use static_press\includes\Static_Press_Ajax_Init;
 use static_press\includes\Static_Press_Model_Url;
@@ -21,7 +21,7 @@ use static_press\tests\testlibraries\Die_Exception;
 use static_press\tests\testlibraries\Mock_Creator;
 use static_press\tests\testlibraries\Model_Url;
 use static_press\tests\testlibraries\Model_Url_Creator;
-use static_press\tests\testlibraries\Model_Url_Handler;
+use static_press\tests\testlibraries\Model_Url_Comparer;
 use static_press\tests\testlibraries\Repository_For_Test;
 /**
  * StaticPress test case.
@@ -63,7 +63,7 @@ class Static_Press_Ajax_Init_Test extends \WP_UnitTestCase {
 			$actual = $this->create_accessable_method( 'process_ajax_request', array() );
 		} catch ( Die_Exception $exception ) {
 			ob_get_clean();
-			Model_Url_Handler::assert_not_contains_urls( $this, $expect_database, Repository_For_Test::get_all_url() );
+			Model_Url_Comparer::assert_not_contains_urls( $this, $expect_database, Repository_For_Test::get_all_url() );
 			return;
 		}
 		$this->fail();

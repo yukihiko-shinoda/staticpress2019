@@ -1,6 +1,6 @@
 <?php
 /**
- * Model_Url_Handler
+ * Model_Url_Comparer
  *
  * @package static_press\tests\testlibraries
  */
@@ -12,9 +12,9 @@ use static_press\includes\Static_Press_Model_Url;
 use static_press\tests\testlibraries\Business_Logic_Exception;
 
 /**
- * Class Model_Url_Handler
+ * Class Model_Url_Comparer
  */
-class Model_Url_Handler {
+class Model_Url_Comparer {
 	/**
 	 * Asserts that URLs contains.
 	 * 
