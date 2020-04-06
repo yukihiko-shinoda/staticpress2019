@@ -1,21 +1,21 @@
 <?php
 /**
- * Class Static_Press_Transient_Service
+ * Class Static_Press_Repository_Progress
  *
  * @package static_press\includes
  */
 
 namespace static_press\includes;
 
-if ( ! class_exists( 'static_press\includes\Static_Press_Transient_Manager' ) ) {
-	require dirname( __FILE__ ) . '/class-static-press-transient-manager.php';
+if ( ! class_exists( 'static_press\includes\Static_Press_Adapter_Transient' ) ) {
+	require dirname( __FILE__ ) . '/class-static-press-adapter-transient.php';
 }
-use static_press\includes\Static_Press_Transient_Manager;
+use static_press\includes\Static_Press_Adapter_Transient;
 
 /**
  * Transient service.
  */
-class Static_Press_Transient_Service {
+class Static_Press_Repository_Progress {
 	/**
 	 * Date time factory.
 	 * 
@@ -37,7 +37,7 @@ class Static_Press_Transient_Service {
 	 * @return string
 	 */
 	public function fetch_start_time() {
-		$transient_manager = new Static_Press_Transient_Manager();
+		$transient_manager = new Static_Press_Adapter_Transient();
 		$param             = $transient_manager->get_transient();
 		if ( isset( $param['fetch_start_time'] ) ) {
 			return $param['fetch_start_time'];
@@ -56,7 +56,7 @@ class Static_Press_Transient_Service {
 	 * @return int Cached ID when $next_id is 0 or false, $next_id when $next_id is not 0 nor false.
 	 */
 	public static function fetch_last_id( $next_id = false ) {
-		$transient_manager = new Static_Press_Transient_Manager();
+		$transient_manager = new Static_Press_Adapter_Transient();
 		$param             = $transient_manager->get_transient();
 		$last_id           = isset( $param['fetch_last_id'] ) ? intval( $param['fetch_last_id'] ) : 0;
 		if ( $next_id ) {
@@ -71,6 +71,6 @@ class Static_Press_Transient_Service {
 	 * Deletes.
 	 */
 	public static function delete() {
-		Static_Press_Transient_Manager::delete_transient();
+		Static_Press_Adapter_Transient::delete_transient();
 	}
 }

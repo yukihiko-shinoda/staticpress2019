@@ -9,34 +9,37 @@ namespace static_press\tests\includes;
 
 require_once dirname( __FILE__ ) . '/../testlibraries/class-environment.php';
 require_once dirname( __FILE__ ) . '/../testlibraries/class-expect-url.php';
+require_once dirname( __FILE__ ) . '/../testlibraries/class-file-system-operator.php';
+require_once dirname( __FILE__ ) . '/../testlibraries/class-mock-creator.php';
 require_once dirname( __FILE__ ) . '/../testlibraries/class-model-url.php';
 require_once dirname( __FILE__ ) . '/../testlibraries/class-repository-for-test.php';
-require_once dirname( __FILE__ ) . '/../testlibraries/class-test-utility.php';
+require_once dirname( __FILE__ ) . '/../testlibraries/class-static-file-creator-for-test.php';
 require_once dirname( __FILE__ ) . '/../testlibraries/class-theme-switcher.php';
 use Mockery;
 use static_press\includes\Static_Press_Model_Url;
 use static_press\includes\Static_Press_Model_Url_Static_File;
 use static_press\includes\Static_Press_Model_Url_Succeed;
 use static_press\includes\Static_Press_Repository;
-use static_press\includes\Static_Press_Transient_Service;
+use static_press\includes\Static_Press_Repository_Progress;
 use static_press\includes\Static_Press_Url_Updater;
 use static_press\tests\testlibraries\Environment;
 use static_press\tests\testlibraries\Expect_Url;
+use static_press\tests\testlibraries\File_System_Operator;
+use static_press\tests\testlibraries\Mock_Creator;
 use static_press\tests\testlibraries\Model_Url;
 use static_press\tests\testlibraries\Repository_For_Test;
-use static_press\tests\testlibraries\Test_Utility;
+use static_press\tests\testlibraries\Static_File_Creator_For_Test;
 use static_press\tests\testlibraries\Theme_Switcher;
 
 /**
  * Static_Press_Url_Updater test case.
  */
 class Static_Press_Url_Updater_Test extends \WP_UnitTestCase {
-	const DATE_FOR_TEST = '2019-12-23 12:34:56';
 	/**
 	 * Puts up output directory, Mockery.
 	 */
 	public function tearDown() {
-		Test_Utility::delete_files();
+		File_System_Operator::delete_files();
 		Mockery::close();
 		parent::tearDown();
 	}
@@ -77,22 +80,22 @@ class Static_Press_Url_Updater_Test extends \WP_UnitTestCase {
 		);
 		$theme_switcher = new Theme_Switcher();
 		activate_plugin( 'akismet/akismet.php' );
-		$date_time_factory = Test_Utility::create_date_time_factory_mock( 'create_date', 'Y-m-d h:i:s' );
+		$date_time_factory = Mock_Creator::create_date_time_factory_mock( 'create_date', 'Y-m-d h:i:s' );
 		$urls              = array(
 			new Static_Press_Model_Url_Succeed( Static_Press_Model_Url::TYPE_OTHER_PAGE, '/test/', null, null, null, $date_time_factory ),
 			new Static_Press_Model_Url_Succeed( Static_Press_Model_Url::TYPE_OTHER_PAGE, '/', null, null, null, $date_time_factory ),
 			new Static_Press_Model_Url_Succeed( Static_Press_Model_Url::TYPE_OTHER_PAGE, '/test.php', null, null, null, $date_time_factory ),
 			new Static_Press_Model_Url_Succeed( Static_Press_Model_Url::TYPE_OTHER_PAGE, '/test?parameter=value', null, null, null, $date_time_factory ),
 			new Static_Press_Model_Url_Succeed( Static_Press_Model_Url::TYPE_OTHER_PAGE, '/wp-admin/', null, null, null, $date_time_factory ),
-			Test_Utility::create_static_file_readme(),
-			Test_Utility::create_static_file_not_exist(),
-			Test_Utility::create_static_file_active_plugin(),
+			Static_File_Creator_For_Test::create_static_file_readme(),
+			Static_File_Creator_For_Test::create_static_file_not_exist(),
+			Static_File_Creator_For_Test::create_static_file_active_plugin(),
 			$theme_switcher->create_static_file_active_theme(),
 			$theme_switcher->create_static_file_theme_parent_activated(),
 			$theme_switcher->create_static_file_non_active_theme(),
 		);
 		$repository        = new Static_Press_Repository();
-		$url_updater       = new Static_Press_Url_Updater( $repository, null, Test_Utility::create_docuemnt_root_getter_mock() );
+		$url_updater       = new Static_Press_Url_Updater( $repository, null, Mock_Creator::create_docuemnt_root_getter_mock() );
 		$url_updater->update( $urls );
 		$expect_urls_in_database = array(
 			new Expect_Url( Static_Press_Model_Url::TYPE_OTHER_PAGE, '/test/', '1' ),
@@ -128,7 +131,7 @@ class Static_Press_Url_Updater_Test extends \WP_UnitTestCase {
 		$repository              = new Static_Press_Repository();
 		$url_updater             = new Static_Press_Url_Updater( $repository, ABSPATH );
 		$url_updater->update( $urls );
-		$transient_service = new Static_Press_Transient_Service();
+		$transient_service = new Static_Press_Repository_Progress();
 		$start_time        = $transient_service->fetch_start_time();
 		$results           = $repository->get_all_url( $start_time );
 		Expect_Url::assert_url( $this, $expect_urls_in_database, $results );
@@ -138,14 +141,12 @@ class Static_Press_Url_Updater_Test extends \WP_UnitTestCase {
 	 * Function update() should save as disable when file is not updated after last dump.
 	 */
 	public function test_update_case_non_update_file() {
-		$urls                    = array(
-			Test_Utility::create_static_file_not_updated(),
-		);
+		$urls                    = array( Static_File_Creator_For_Test::create_static_file_not_updated() );
 		$expect_urls_in_database = array();
 		$repository              = new Static_Press_Repository();
-		$url_updater             = new Static_Press_Url_Updater( $repository, Test_Utility::OUTPUT_DIRECTORY );
+		$url_updater             = new Static_Press_Url_Updater( $repository, File_System_Operator::OUTPUT_DIRECTORY );
 		$url_updater->update( $urls );
-		$transient_service = new Static_Press_Transient_Service();
+		$transient_service = new Static_Press_Repository_Progress();
 		$start_time        = $transient_service->fetch_start_time();
 		$results           = $repository->get_all_url( $start_time );
 		Expect_Url::assert_url( $this, $expect_urls_in_database, $results );
@@ -155,12 +156,12 @@ class Static_Press_Url_Updater_Test extends \WP_UnitTestCase {
 	 * Function update() should save as disable when URL is not activated plugin's static file.
 	 */
 	public function test_update_case_non_active_plugin_static_file() {
-		$urls                    = array( Test_Utility::create_static_file_non_active_plugin() );
+		$urls                    = array( Static_File_Creator_For_Test::create_static_file_non_active_plugin() );
 		$expect_urls_in_database = array();
 		$repository              = new Static_Press_Repository();
 		$url_updater             = new Static_Press_Url_Updater( $repository, null );
 		$url_updater->update( $urls );
-		$transient_service = new Static_Press_Transient_Service();
+		$transient_service = new Static_Press_Repository_Progress();
 		$start_time        = $transient_service->fetch_start_time();
 		$results           = $repository->get_all_url( $start_time );
 		Expect_Url::assert_url( $this, $expect_urls_in_database, $results );
@@ -170,7 +171,7 @@ class Static_Press_Url_Updater_Test extends \WP_UnitTestCase {
 	 * Function update() should save as disable when URL is not activated plugin's static file nor theme's static file.
 	 */
 	public function test_update_case_static_file_not_plugin_nor_theme() {
-		$urls                    = array( Test_Utility::create_static_file_not_plugin_nor_theme() );
+		$urls                    = array( Static_File_Creator_For_Test::create_static_file_not_plugin_nor_theme() );
 		$expect_urls_in_database = array(
 			new Expect_Url(
 				Static_Press_Model_Url::TYPE_STATIC_FILE,
@@ -179,9 +180,9 @@ class Static_Press_Url_Updater_Test extends \WP_UnitTestCase {
 			),
 		);
 		$repository              = new Static_Press_Repository();
-		$url_updater             = new Static_Press_Url_Updater( $repository, null, Test_Utility::create_docuemnt_root_getter_mock() );
+		$url_updater             = new Static_Press_Url_Updater( $repository, null, Mock_Creator::create_docuemnt_root_getter_mock() );
 		$url_updater->update( $urls );
-		$transient_service = new Static_Press_Transient_Service();
+		$transient_service = new Static_Press_Repository_Progress();
 		$start_time        = $transient_service->fetch_start_time();
 		$results           = $repository->get_all_url( $start_time );
 		Expect_Url::assert_url( $this, $expect_urls_in_database, $results );

@@ -7,7 +7,7 @@
 
 namespace static_press\tests\includes;
 
-require_once dirname( __FILE__ ) . '/../testlibraries/class-model-url.php';
+require_once dirname( __FILE__ ) . '/../testlibraries/class-mock-creator.php';
 
 use static_press\includes\Static_Press_Factory_Static_File_Creator;
 use static_press\includes\Static_Press_Model_Url;
@@ -15,7 +15,7 @@ use static_press\includes\Static_Press_Repository;
 use static_press\includes\Static_Press_Static_File_Creator_Local;
 use static_press\includes\Static_Press_Static_File_Creator_Remote;
 use static_press\includes\Static_Press_Url_Collector;
-use static_press\tests\testlibraries\Test_Utility;
+use static_press\tests\testlibraries\Mock_Creator;
 
 /**
  * StaticPress test case.
@@ -34,8 +34,8 @@ class Static_Press_Factory_Static_File_Creator_Test extends \WP_UnitTestCase {
 			'',
 			'',
 			new Static_Press_Repository(),
-			Test_Utility::create_date_time_factory_mock( 'create_date', 'Y-m-d h:i:s' ),
-			new Static_Press_Url_Collector( Test_Utility::create_remote_getter_mock() )
+			Mock_Creator::create_date_time_factory_mock( 'create_date', 'Y-m-d h:i:s' ),
+			new Static_Press_Url_Collector( Mock_Creator::create_remote_getter_mock() )
 		);
 		$this->assertInstanceOf( $expect_class, $static_file_creator );
 	}

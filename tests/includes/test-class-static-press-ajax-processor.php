@@ -8,17 +8,19 @@
 namespace static_press\tests\includes;
 
 require_once dirname( __FILE__ ) . '/../testlibraries/class-die-exception.php';
-require_once dirname( __FILE__ ) . '/../testlibraries/class-model-url-handler.php';
-require_once dirname( __FILE__ ) . '/../testlibraries/class-test-utility.php';
-use Mockery;
+require_once dirname( __FILE__ ) . '/../testlibraries/class-environment.php';
+require_once dirname( __FILE__ ) . '/../testlibraries/class-file-system-operator.php';
+require_once dirname( __FILE__ ) . '/../testlibraries/class-mock-creator.php';
+require_once dirname( __FILE__ ) . '/../testlibraries/class-model-url-creator.php';
 use static_press\includes\Static_Press_Ajax_Init;
 use static_press\includes\Static_Press_Business_Logic_Exception;
 use static_press\includes\Static_Press_Model_Url;
 use static_press\includes\Static_Press_Repository;
 use static_press\tests\testlibraries\Die_Exception;
 use static_press\tests\testlibraries\Environment;
-use static_press\tests\testlibraries\Model_Url_Handler;
-use static_press\tests\testlibraries\Test_Utility;
+use static_press\tests\testlibraries\File_System_Operator;
+use static_press\tests\testlibraries\Mock_Creator;
+use static_press\tests\testlibraries\Model_Url_Creator;
 
 /**
  * StaticPress test case.
@@ -32,7 +34,7 @@ class Static_Press_Ajax_Processor_Test extends \WP_UnitTestCase {
 	public function tearDown() {
 		$directory = ABSPATH . 'wp-content/uploads/2020/';
 		if ( file_exists( $directory ) ) {
-			Test_Utility::delete_files( $directory );
+			File_System_Operator::delete_files( $directory );
 		}
 		parent::tearDown();
 	}
@@ -53,7 +55,7 @@ class Static_Press_Ajax_Processor_Test extends \WP_UnitTestCase {
 			null,
 			new Static_Press_Repository(),
 			null,
-			Test_Utility::create_terminator_mock()
+			Mock_Creator::create_terminator_mock()
 		);
 		$reflection   = new \ReflectionClass( get_class( $static_press ) );
 		$method       = $reflection->getMethod( 'json_output' );
@@ -83,15 +85,17 @@ class Static_Press_Ajax_Processor_Test extends \WP_UnitTestCase {
 	 * @throws ReflectionException When fail to create ReflectionClass instance.
 	 */
 	public function test_create_static_file( $http_status_code, $url, $file_type, $expect, $expect_file ) {
-		Test_Utility::create_file_with_directory( ABSPATH . 'wp-content/uploads/2020/03/test.txt' );
-		$remote_getter_mock = Mockery::mock( 'alias:Remote_Getter_Mock' );
-		$remote_getter_mock->shouldReceive( 'remote_get' )->andReturn( Test_Utility::create_response( '/', 'index-example.html', $http_status_code ) );
-		$url_fetched         = Model_Url_Handler::create_model_url_fetched( 1, $file_type, $url, 1 );
-		$static_file_creator = $this->create_accessable_method( 'create_static_file_creator_by_factory', array( $url_fetched ), $remote_getter_mock );
+		File_System_Operator::create_file_with_directory( ABSPATH . 'wp-content/uploads/2020/03/test.txt' );
+		$url_fetched         = Model_Url_Creator::create_model_url_fetched( 1, $file_type, $url, 1 );
+		$static_file_creator = $this->create_accessable_method(
+			'create_static_file_creator_by_factory',
+			array( $url_fetched ),
+			Mock_Creator::create_remote_getter_mock( $http_status_code )
+		);
 		$result              = $static_file_creator->create( $url );
 		$this->assertEquals( $expect, $result );
-		$path_to_expect_file = Test_Utility::OUTPUT_DIRECTORY . $expect_file;
-		$files               = Test_Utility::get_array_file_in_output_directory();
+		$path_to_expect_file = File_System_Operator::OUTPUT_DIRECTORY . $expect_file;
+		$files               = File_System_Operator::get_array_file_in_output_directory();
 		$message             = 'File ' . $path_to_expect_file . "doesn't exist.\nExisting file list:\n" . implode( "\n", $files );
 		$this->assertFileExists( $path_to_expect_file, $message );
 	}
@@ -105,15 +109,15 @@ class Static_Press_Ajax_Processor_Test extends \WP_UnitTestCase {
 	 */
 	public function provider_create_static_file() {
 		return array(
-			array( 200, '/', Static_Press_Model_Url::TYPE_FRONT_PAGE, Test_Utility::OUTPUT_DIRECTORY . 'index.html', '/index.html' ),
+			array( 200, '/', Static_Press_Model_Url::TYPE_FRONT_PAGE, File_System_Operator::OUTPUT_DIRECTORY . 'index.html', '/index.html' ),
 			array(
 				200,
 				'/' . Environment::DIRECTORY_NAME_WORD_PRESS . '/wp-content/uploads/2020/03/test.txt',
 				Static_Press_Model_Url::TYPE_STATIC_FILE,
-				Test_Utility::OUTPUT_DIRECTORY . Environment::DIRECTORY_NAME_WORD_PRESS . '/wp-content/uploads/2020/03/test.txt',
+				File_System_Operator::OUTPUT_DIRECTORY . Environment::DIRECTORY_NAME_WORD_PRESS . '/wp-content/uploads/2020/03/test.txt',
 				'/' . Environment::DIRECTORY_NAME_WORD_PRESS . '/wp-content/uploads/2020/03/test.txt',
 			),
-			array( 200, '/sitemap.xml', Static_Press_Model_Url::TYPE_SEO_FILES, Test_Utility::OUTPUT_DIRECTORY . 'sitemap.xml', '/sitemap.xml' ),
+			array( 200, '/sitemap.xml', Static_Press_Model_Url::TYPE_SEO_FILES, File_System_Operator::OUTPUT_DIRECTORY . 'sitemap.xml', '/sitemap.xml' ),
 		);
 	}
 
@@ -129,11 +133,13 @@ class Static_Press_Ajax_Processor_Test extends \WP_UnitTestCase {
 	 * @throws ReflectionException When fail to create ReflectionClass instance.
 	 */
 	public function test_create_static_file_exception( $http_status_code, $url, $file_type ) {
-		Test_Utility::create_file_with_directory( ABSPATH . 'wp-content/uploads/2020/03/test.txt' );
-		$remote_getter_mock = Mockery::mock( 'alias:Remote_Getter_Mock' );
-		$remote_getter_mock->shouldReceive( 'remote_get' )->andReturn( Test_Utility::create_response( '/', 'index-example.html', $http_status_code ) );
-		$url_fetched         = Model_Url_Handler::create_model_url_fetched( 1, $file_type, $url, 1 );
-		$static_file_creator = $this->create_accessable_method( 'create_static_file_creator_by_factory', array( $url_fetched ), $remote_getter_mock );
+		File_System_Operator::create_file_with_directory( ABSPATH . 'wp-content/uploads/2020/03/test.txt' );
+		$url_fetched         = Model_Url_Creator::create_model_url_fetched( 1, $file_type, $url, 1 );
+		$static_file_creator = $this->create_accessable_method(
+			'create_static_file_creator_by_factory',
+			array( $url_fetched ),
+			Mock_Creator::create_remote_getter_mock( $http_status_code )
+		);
 		// Reason: This project no longer support PHP 5.5 nor lower.
 		$this->expectException( Static_Press_Business_Logic_Exception::class ); // phpcs:ignore
 		$static_file_creator->create( $url );
@@ -163,12 +169,12 @@ class Static_Press_Ajax_Processor_Test extends \WP_UnitTestCase {
 	private function create_accessable_method( $method_name, $array_parameter, $remote_get_mock = null ) {
 		$static_press = new Static_Press_Ajax_Init(
 			null,
-			Test_Utility::OUTPUT_DIRECTORY,
+			File_System_Operator::OUTPUT_DIRECTORY,
 			new Static_Press_Repository(),
-			$remote_get_mock ? $remote_get_mock : Test_Utility::create_remote_getter_mock(),
-			Test_Utility::create_terminator_mock(),
-			Test_Utility::create_date_time_factory_mock( 'create_date', 'Y-m-d h:i:s' ),
-			Test_Utility::create_docuemnt_root_getter_mock()
+			$remote_get_mock ? $remote_get_mock : Mock_Creator::create_remote_getter_mock(),
+			Mock_Creator::create_terminator_mock(),
+			Mock_Creator::create_date_time_factory_mock( 'create_date', 'Y-m-d h:i:s' ),
+			Mock_Creator::create_docuemnt_root_getter_mock()
 		);
 		$reflection   = new \ReflectionClass( get_class( $static_press ) );
 		$method       = $reflection->getMethod( $method_name );

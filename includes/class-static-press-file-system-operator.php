@@ -1,6 +1,6 @@
 <?php
 /**
- * Class Static_Press_File_System_Utility
+ * Class Static_Press_File_System_Operator
  *
  * @package static_press\includes
  */
@@ -10,7 +10,7 @@ namespace static_press\includes;
 /**
  * File scanner.
  */
-class Static_Press_File_System_Utility {
+class Static_Press_File_System_Operator {
 	/**
 	 * Makes subdirectries.
 	 * 

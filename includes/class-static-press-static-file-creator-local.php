@@ -80,7 +80,7 @@ class Static_Press_Static_File_Creator_Local extends Static_Press_Static_File_Cr
 	 * @param string                         $file_source       File of source.
 	 */
 	private function create_static_file( $model_static_file, $file_source ) {
-		Static_Press_File_System_Utility::make_subdirectories( $model_static_file->file_dest );
+		Static_Press_File_System_Operator::make_subdirectories( $model_static_file->file_dest );
 		copy( $file_source, $model_static_file->file_dest );
 		$model_static_file->file_date = date( 'Y-m-d h:i:s', filemtime( $file_source ) );
 	}

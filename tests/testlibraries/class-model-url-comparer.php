@@ -1,6 +1,6 @@
 <?php
 /**
- * Model_Url_Handler
+ * Model_Url_Comparer
  *
  * @package static_press\tests\testlibraries
  */
@@ -8,102 +8,13 @@
 namespace static_press\tests\testlibraries;
 
 require_once dirname( __FILE__ ) . '/./class-business-logic-exception.php';
-require_once dirname( __FILE__ ) . '/./class-model-url.php';
 use static_press\includes\Static_Press_Model_Url;
-use static_press\includes\Static_Press_Model_Url_Author;
-use static_press\includes\Static_Press_Model_Url_Fetched;
-use static_press\includes\Static_Press_Model_Url_Single;
-use static_press\includes\Static_Press_Model_Url_Term;
-use static_press\includes\Static_Press_Repository;
 use static_press\tests\testlibraries\Business_Logic_Exception;
-use static_press\tests\testlibraries\Model_Url;
 
 /**
- * Class Model_Url_Handler
+ * Class Model_Url_Comparer
  */
-class Model_Url_Handler {
-	/**
-	 * Creates model URL term.
-	 * 
-	 * @return Static_Press_Model_Url_Term Model URL term.
-	 */
-	public static function create_model_url_term() {
-		$date_time_factory_mock = Test_Utility::create_date_time_factory_mock( 'create_date', 'Y-m-d h:i:s' );
-		$repository             = new Static_Press_Repository();
-		$category               = wp_insert_category(
-			array(
-				'cat_name' => 'category parent',
-			)
-		);
-		wp_insert_post(
-			array(
-				'post_title'    => 'Test Title',
-				'post_content'  => 'Test content.',
-				'post_status'   => 'publish',
-				'post_type'     => 'post',
-				'post_category' => array(
-					$category,
-				),
-			)
-		);
-		$taxonomies = get_taxonomies( array( 'public' => true ) );
-		$taxonomy   = $taxonomies['category'];
-		$terms      = get_terms( $taxonomy );
-		$term       = $terms[0];
-		get_term_link( $term->slug, $taxonomy );
-		return new Static_Press_Model_Url_Term( $term, $taxonomy, $repository, $date_time_factory_mock );
-	}
-
-	/**
-	 * Creates model URL author.
-	 * 
-	 * @return Static_Press_Model_Url_Author Model URL author.
-	 */
-	public static function create_model_url_author() {
-		wp_insert_post(
-			array(
-				'post_title'   => 'Post Title 1',
-				'post_content' => 'Post content 1.',
-				'post_status'  => 'publish',
-				'post_type'    => 'post',
-				'post_author'  => 1,
-			)
-		);
-		$post_types  = get_post_types( array( 'public' => true ) );
-		$repository  = new Static_Press_Repository();
-		$authors     = $repository->get_post_authors( $post_types );
-		$author      = $authors[1];
-		$author_data = get_userdata( $author->post_author );
-		return new Static_Press_Model_Url_Author( $author, $author_data );
-	}
-
-	/**
-	 * Creates model URL single.
-	 * 
-	 * @return Static_Press_Model_Url_Author Model URL single.
-	 */
-	public static function create_model_url_single() {
-		$post_types = get_post_types( array( 'public' => true ) );
-		$repository = new Static_Press_Repository();
-		$posts      = $repository->get_posts( $post_types );
-		$post       = $posts[0];
-		return new Static_Press_Model_Url_Single( $post );
-	}
-
-	/**
-	 * Creates model URL fetched.
-	 * 
-	 * @param int    $id        ID.
-	 * @param string $file_type File type.
-	 * @param string $url       URL.
-	 * @param int    $pages     Page.
-	 * @return Static_Press_Model_Url_Fetched Model URL fetched.
-	 */
-	public static function create_model_url_fetched( $id, $file_type, $url, $pages ) {
-		$url_object = new Model_Url( (string) $id, $file_type, $url, null, null, null, (string) $pages, null, null, null, null, null, null, null );
-		return new Static_Press_Model_Url_Fetched( $url_object );
-	}
-
+class Model_Url_Comparer {
 	/**
 	 * Asserts that URLs contains.
 	 * 
@@ -202,5 +113,26 @@ class Model_Url_Handler {
 	private static function debug_urls_instance_type( $expect, $actual ) {
 		return "EXPECT:\n" . get_class( $expect ) . "ACTUAL:\n" . get_class( $actual ) . "\n";
 	}
-}
 
+	/**
+	 * Asserts URLs.
+	 * 
+	 * @param PHPUnit_Framework_TestCase $test_case Test case.
+	 * @param Static_Press_Model_Url[]   $expect    Expect URLs.
+	 * @param Static_Press_Model_Url[]   $actual    Actual URLs.
+	 */
+	public static function assert_array_model_url( $test_case, $expect, $actual ) {
+		$length_expect = count( $expect );
+		$length_actual = count( $actual );
+		$test_case->assertEquals(
+			$length_expect,
+			$length_actual,
+			"Failed asserting that {$length_actual} matches expected {$length_expect}."
+		);
+		for ( $index = 0; $index < $length_expect; $index ++ ) {
+			$expect_url = $expect[ $index ];
+			$actual_url = $actual[ $index ];
+			$test_case->assertEquals( $expect_url, $actual_url );
+		}
+	}
+}

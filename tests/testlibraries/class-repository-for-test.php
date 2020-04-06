@@ -7,7 +7,10 @@
 
 namespace static_press\tests\testlibraries;
 
+require_once dirname( __FILE__ ) . '/../testlibraries/class-mock-creator.php';
+require_once dirname( __FILE__ ) . '/../testlibraries/class-model-url.php';
 use static_press\includes\Static_Press_Model_Url_Fetched;
+use static_press\tests\testlibraries\Mock_Creator;
 use static_press\tests\testlibraries\Model_Url;
 
 /**
@@ -191,5 +194,48 @@ class Repository_For_Test {
 			throw new Business_Logic_Exception();
 		}
 		return $columns[0];
+	}
+
+	/**
+	 * Gets post authors.
+	 * 
+	 * @param integer $author_id Author ID.
+	 * @param array   $post_types Post type.
+	 */
+	public function get_post_authors( $author_id, $post_types ) {
+		global $wpdb;
+		$date_for_test = Mock_Creator::DATE_FOR_TEST;
+
+		$concatenated_post_types = "'" . implode( "','", $post_types ) . "'";
+
+		$authors = $wpdb->get_results(
+			"SELECT DISTINCT post_author, COUNT(ID) AS count, MAX(post_modified) AS modified
+			FROM {$wpdb->posts}
+			WHERE post_status = 'publish'
+			and post_type in ({$concatenated_post_types})
+			and post_author = '{$author_id}'
+			and post_modified = '{$date_for_test}'
+			GROUP BY post_author
+			ORDER BY post_author"
+		);
+		return $authors[0];
+	}
+
+	/**
+	 * Gets attachment posts.
+	 * 
+	 * @param string $post_title Post title.
+	 */
+	public function get_attachment_post( $post_title ) {
+		global $wpdb;
+
+		$posts = $wpdb->get_results(
+			"SELECT ID, post_type, post_content, post_status, post_modified
+			FROM {$wpdb->posts}
+			WHERE (post_type = 'attachment' or post_status = 'publish')
+			and post_title = '{$post_title}'
+			ORDER BY ID"
+		);
+		return $posts[0];
 	}
 }

@@ -14,13 +14,12 @@ class Static_Press_Model_Url_Term extends Static_Press_Model_Url {
 	/**
 	 * Constructor.
 	 * 
-	 * @param Object                  $term              Term.
-	 * @param string                  $taxonomy          Taxonomy.
-	 * @param Static_Press_Repository $repository        Repository.
-	 * @param Date_Time_Factory       $date_time_factory Date time factory.
+	 * @param Object  $term     Term.
+	 * @param string  $taxonomy Taxonomy.
+	 * @param string  $modified Modified.
+	 * @param integer $count    count.
 	 */
-	public function __construct( $term, $taxonomy, $repository, $date_time_factory ) {
-		list( $modified, $page_count ) = $this->get_term_info( $term->term_id, $repository, $date_time_factory );
+	public function __construct( $term, $taxonomy, $modified, $count ) {
 		parent::__construct(
 			null,
 			Static_Press_Model_Url::TYPE_TERM_ARCHIVE,
@@ -28,7 +27,7 @@ class Static_Press_Model_Url_Term extends Static_Press_Model_Url {
 			intval( $term->term_id ),
 			$term->taxonomy,
 			$term->parent,
-			$page_count,
+			$this->calculate_page_count( $count ),
 			null,
 			null,
 			null,
@@ -38,23 +37,12 @@ class Static_Press_Model_Url_Term extends Static_Press_Model_Url {
 	}
 
 	/**
-	 * Gets term information.
+	 * Calculates page count.
 	 * 
-	 * @param int                     $term_id           Term ID.
-	 * @param Static_Press_Repository $repository        Repository.
-	 * @param Date_Time_Factory       $date_time_factory Date time factory.
+	 * @param integer $count Count.
 	 */
-	private function get_term_info( $term_id, $repository, $date_time_factory ) {
-		$result = $repository->get_term_info( $term_id, get_post_types( array( 'public' => true ) ) );
-		if ( ! is_wp_error( $result ) ) {
-			$modified = $result->last_modified;
-			$count    = $result->count;
-		} else {
-			$modified = $date_time_factory->create_date( 'Y-m-d h:i:s' );
-			$count    = 1;
-		}
-		$page_count = intval( $count / intval( get_option( 'posts_per_page' ) ) ) + 1;
-		return array( $modified, $page_count );
+	private function calculate_page_count( $count ) {
+		return intval( $count / intval( get_option( 'posts_per_page' ) ) ) + 1;
 	}
 
 	/**

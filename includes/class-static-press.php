@@ -25,8 +25,8 @@ if ( ! class_exists( 'static_press\includes\Static_Press_Content_Filter_Replace_
 if ( ! class_exists( 'static_press\includes\Static_Press_Date_Time_Factory' ) ) {
 	require dirname( __FILE__ ) . '/class-static-press-date-time-factory.php';
 }
-if ( ! class_exists( 'static_press\includes\Static_Press_File_System_Utility' ) ) {
-	require dirname( __FILE__ ) . '/class-static-press-file-system-utility.php';
+if ( ! class_exists( 'static_press\includes\Static_Press_File_System_Operator' ) ) {
+	require dirname( __FILE__ ) . '/class-static-press-file-system-operator.php';
 }
 if ( ! class_exists( 'static_press\includes\Static_Press_Remote_Getter' ) ) {
 	require dirname( __FILE__ ) . '/class-static-press-remote-getter.php';
@@ -49,7 +49,7 @@ use static_press\includes\Static_Press_Ajax_Init;
 use static_press\includes\Static_Press_Content_Filter;
 use static_press\includes\Static_Press_Content_Filter_Replace_Relative_Uri;
 use static_press\includes\Static_Press_Date_Time_Factory;
-use static_press\includes\Static_Press_File_System_Utility;
+use static_press\includes\Static_Press_File_System_Operator;
 use static_press\includes\Static_Press_Remote_Getter;
 use static_press\includes\Static_Press_Url_Filter;
 use static_press\includes\Static_Press_Repository;
@@ -128,7 +128,7 @@ class Static_Press {
 	) {
 		$this->static_site_url = $this->init_static_site_url( $url_static_home );
 		$this->dump_directory  = $this->init_dump_directory( $dump_directory );
-		Static_Press_File_System_Utility::make_subdirectories( $this->dump_directory );
+		Static_Press_File_System_Operator::make_subdirectories( $this->dump_directory );
 		$this->date_time_factory    = $date_time_factory ? $date_time_factory : new Static_Press_Date_Time_Factory();
 		$this->repository           = new Static_Press_Repository( $this->date_time_factory );
 		$this->content_filter       = new Static_Press_Content_Filter( $this->date_time_factory );

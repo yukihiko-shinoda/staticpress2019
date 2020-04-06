@@ -1,6 +1,6 @@
 <?php
 /**
- * Class Static_Press_Transient_Manager
+ * Class Static_Press_Adapter_Transient
  *
  * @package static_press\includes
  */
@@ -8,9 +8,9 @@
 namespace static_press\includes;
 
 /**
- * Transient manager.
+ * Adapter for Transient.
  */
-class Static_Press_Transient_Manager {
+class Static_Press_Adapter_Transient {
 	const EXPIRES       = 3600; // 60min * 60sec = 1hour
 	const TRANSIENT_KEY = 'static static';
 	/**

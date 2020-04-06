@@ -8,16 +8,19 @@
 namespace static_press\tests\includes;
 
 require_once dirname( __FILE__ ) . '/../testlibraries/class-die-exception.php';
+require_once dirname( __FILE__ ) . '/../testlibraries/class-environment.php';
+require_once dirname( __FILE__ ) . '/../testlibraries/class-file-system-operator.php';
+require_once dirname( __FILE__ ) . '/../testlibraries/class-mock-creator.php';
 require_once dirname( __FILE__ ) . '/../testlibraries/class-model-url.php';
 require_once dirname( __FILE__ ) . '/../testlibraries/class-repository-for-test.php';
-require_once dirname( __FILE__ ) . '/../testlibraries/class-test-utility.php';
 use static_press\includes\Static_Press;
 use static_press\includes\Static_Press_Model_Url;
 use static_press\tests\testlibraries\Die_Exception;
 use static_press\tests\testlibraries\Environment;
+use static_press\tests\testlibraries\File_System_Operator;
+use static_press\tests\testlibraries\Mock_Creator;
 use static_press\tests\testlibraries\Model_Url;
 use static_press\tests\testlibraries\Repository_For_Test;
-use static_press\tests\testlibraries\Test_Utility;
 
 /**
  * StaticPress database test case.
@@ -35,7 +38,7 @@ class Static_Press_Database_Test extends \WP_UnitTestCase {
 	 */
 	public function setUp() {
 		parent::setUp();
-		Test_Utility::delete_files();
+		File_System_Operator::delete_files();
 		remove_filter( 'query', array( $this, '_create_temporary_tables' ) );
 		remove_filter( 'query', array( $this, '_drop_temporary_tables' ) );
 	}
@@ -45,7 +48,7 @@ class Static_Press_Database_Test extends \WP_UnitTestCase {
 	public function tearDown() {
 		add_filter( 'query', array( $this, '_create_temporary_tables' ) );
 		add_filter( 'query', array( $this, '_drop_temporary_tables' ) );
-		Test_Utility::delete_files();
+		File_System_Operator::delete_files();
 		parent::tearDown();
 	}
 	/**
@@ -132,7 +135,7 @@ class Static_Press_Database_Test extends \WP_UnitTestCase {
 			Repository_For_Test::insert_url( $record );
 		}
 
-		$static_press = new Static_Press( '/', '', array(), null, Test_Utility::create_remote_getter_mock() );
+		$static_press = new Static_Press( '/', '', array(), null, Mock_Creator::create_remote_getter_mock() );
 		$this->assertEquals( $expect, $this->request_fetch( $static_press ) );
 	}
 
@@ -297,15 +300,15 @@ class Static_Press_Database_Test extends \WP_UnitTestCase {
 	 */
 	public function test_all() {
 		$resource_file_name = 'white.png';
-		Test_Utility::copy_test_resource( $resource_file_name, WP_CONTENT_DIR . '/uploads/2020/03/white.png' );
+		File_System_Operator::copy_test_resource( $resource_file_name, WP_CONTENT_DIR . '/uploads/2020/03/white.png' );
 		$this->sign_on_to_word_press();
 		$static_press = new Static_Press(
 			'/',
-			Test_Utility::OUTPUT_DIRECTORY,
+			File_System_Operator::OUTPUT_DIRECTORY,
 			array(),
 			null,
-			Test_Utility::set_up_seo_url( 'http://example.org/' ),
-			Test_Utility::create_docuemnt_root_getter_mock()
+			Mock_Creator::set_up_seo_url( 'http://example.org/' ),
+			Mock_Creator::create_docuemnt_root_getter_mock()
 		);
 		$array_json   = $this->request_init( $static_press );
 		$this->assertTrue( $array_json['result'] );
@@ -322,11 +325,11 @@ class Static_Press_Database_Test extends \WP_UnitTestCase {
 
 		$static_press = new Static_Press(
 			'/',
-			Test_Utility::OUTPUT_DIRECTORY,
+			File_System_Operator::OUTPUT_DIRECTORY,
 			array(),
 			null,
-			Test_Utility::create_remote_getter_mock(),
-			Test_Utility::create_docuemnt_root_getter_mock()
+			Mock_Creator::create_remote_getter_mock(),
+			Mock_Creator::create_docuemnt_root_getter_mock()
 		);
 		while ( true ) {
 			$response = $this->request_fetch( $static_press );
@@ -336,13 +339,13 @@ class Static_Press_Database_Test extends \WP_UnitTestCase {
 		}
 
 		$expect       = array( 'result' => true );
-		$static_press = new Static_Press( '/', Test_Utility::OUTPUT_DIRECTORY );
+		$static_press = new Static_Press( '/', File_System_Operator::OUTPUT_DIRECTORY );
 		$this->assertEquals( $expect, $this->request_finalyze( $static_press ) );
-		$path_to_expect_file = Test_Utility::OUTPUT_DIRECTORY . Environment::DIRECTORY_NAME_WORD_PRESS . '/wp-content/uploads/2020/03/white.png';
-		$files               = Test_Utility::get_array_file_in_output_directory();
+		$path_to_expect_file = File_System_Operator::OUTPUT_DIRECTORY . Environment::DIRECTORY_NAME_WORD_PRESS . '/wp-content/uploads/2020/03/white.png';
+		$files               = File_System_Operator::get_array_file_in_output_directory();
 		$message             = 'File ' . $path_to_expect_file . "doesn't exist.\nExisting file list:\n" . implode( "\n", $files );
 		$this->assertContains( $path_to_expect_file, $files, $message );
-		$this->assertEquals( Test_Utility::get_test_resource_content( $resource_file_name ), file_get_contents( $path_to_expect_file ) );
+		$this->assertEquals( File_System_Operator::get_test_resource_content( $resource_file_name ), file_get_contents( $path_to_expect_file ) );
 	}
 
 	/**
@@ -371,7 +374,7 @@ class Static_Press_Database_Test extends \WP_UnitTestCase {
 	private function request_init( $static_press ) {
 		return $this->request(
 			function() use ( $static_press ) {
-				$static_press->ajax_init( Test_Utility::create_terminator_mock() );
+				$static_press->ajax_init( Mock_Creator::create_terminator_mock() );
 			}
 		);
 	}
@@ -385,7 +388,7 @@ class Static_Press_Database_Test extends \WP_UnitTestCase {
 	private function request_fetch( $static_press ) {
 		return $this->request(
 			function() use ( $static_press ) {
-				$static_press->ajax_fetch( Test_Utility::create_terminator_mock() );
+				$static_press->ajax_fetch( Mock_Creator::create_terminator_mock() );
 			}
 		);
 	}
@@ -399,7 +402,7 @@ class Static_Press_Database_Test extends \WP_UnitTestCase {
 	private function request_finalyze( $static_press ) {
 		return $this->request(
 			function() use ( $static_press ) {
-				$static_press->ajax_finalyze( Test_Utility::create_terminator_mock() );
+				$static_press->ajax_finalyze( Mock_Creator::create_terminator_mock() );
 			}
 		);
 	}

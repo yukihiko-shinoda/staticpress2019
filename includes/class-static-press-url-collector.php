@@ -28,6 +28,9 @@ if ( ! class_exists( 'static_press\includes\Static_Press_Model_Url_Single' ) ) {
 if ( ! class_exists( 'static_press\includes\Static_Press_Model_Url_Static_File' ) ) {
 	require dirname( __FILE__ ) . '/class-static-press-model-url-static-file.php';
 }
+if ( ! class_exists( 'static_press\includes\Static_Press_Factory_Model_Url_Term' ) ) {
+	require dirname( __FILE__ ) . '/class-static-press-factory-model-url-term.php';
+}
 if ( ! class_exists( 'static_press\includes\Static_Press_Model_Url_Term' ) ) {
 	require dirname( __FILE__ ) . '/class-static-press-model-url-term.php';
 }
@@ -35,6 +38,8 @@ if ( ! class_exists( 'static_press\includes\Static_Press_Site_Dependency' ) ) {
 	require dirname( __FILE__ ) . '/class-static-press-site-dependency.php';
 }
 use static_press\includes\Static_Press_Content_Filter;
+use static_press\includes\Static_Press_Factory_Model_Url_Static_File;
+use static_press\includes\Static_Press_Factory_Model_Url_Term;
 use static_press\includes\Static_Press_File_Scanner;
 use static_press\includes\Static_Press_Model_Url_Author;
 use static_press\includes\Static_Press_Model_Url_Front_Page;
@@ -131,9 +136,9 @@ class Static_Press_Url_Collector {
 	 * @return Static_Press_Model_Url_Term[] Term URL.
 	 */
 	private function terms_url() {
-		$repository = new Static_Press_Repository();
-		$urls       = array();
-		$taxonomies = get_taxonomies( array( 'public' => true ) );
+		$url_factory = new Static_Press_Factory_Model_Url_Term( $this->date_time_factory );
+		$urls        = array();
+		$taxonomies  = get_taxonomies( array( 'public' => true ) );
 		foreach ( $taxonomies as $taxonomy ) {
 			$terms = get_terms( $taxonomy );
 			if ( is_wp_error( $terms ) ) {
@@ -144,7 +149,7 @@ class Static_Press_Url_Collector {
 				if ( is_wp_error( $termlink ) ) {
 					continue;
 				}
-				$urls[] = new Static_Press_Model_Url_Term( $term, $taxonomy, $repository, $this->date_time_factory );
+				$urls[] = $url_factory->create( $term, $taxonomy );
 
 				$termchildren = get_term_children( $term->term_id, $taxonomy );
 				if ( is_wp_error( $termchildren ) ) {
@@ -159,7 +164,7 @@ class Static_Press_Url_Collector {
 					if ( is_wp_error( $termlink ) ) {
 						continue;
 					}
-					$urls[] = new Static_Press_Model_Url_Term( $term, $taxonomy, $repository, $this->date_time_factory );
+					$urls[] = $url_factory->create( $term, $taxonomy );
 				}
 			}
 		}

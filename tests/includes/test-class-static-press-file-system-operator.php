@@ -1,18 +1,18 @@
 <?php
 /**
- * Class Static_Press_File_System_Utility_Test
+ * Class Static_Press_File_System_Operator_Test
  *
  * @package static_press\tests\includes
  */
 
 namespace static_press\tests\includes;
 
-use static_press\includes\Static_Press_File_System_Utility;
+use static_press\includes\Static_Press_File_System_Operator;
 
 /**
- * Static_Press_File_System_Utility test case.
+ * Static_Press_File_System_Operator test case.
  */
-class Static_Press_File_System_Utility_Test extends \WP_UnitTestCase {
+class Static_Press_File_System_Operator_Test extends \WP_UnitTestCase {
 	/**
 	 * Put up test directories.
 	 */
@@ -26,7 +26,7 @@ class Static_Press_File_System_Utility_Test extends \WP_UnitTestCase {
 	 */
 	public function test_make_subdirectories() {
 		$this->assertDirectoryNotExists( '/tmp/sub1' );
-		Static_Press_File_System_Utility::make_subdirectories( '/tmp/sub1/sub2/file' );
+		Static_Press_File_System_Operator::make_subdirectories( '/tmp/sub1/sub2/file' );
 		$this->assertDirectoryIsWritable( '/tmp' );
 		$this->assertDirectoryIsWritable( '/tmp/sub1' );
 		$this->assertDirectoryIsWritable( '/tmp/sub1/sub2' );
