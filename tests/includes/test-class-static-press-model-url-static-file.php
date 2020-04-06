@@ -13,7 +13,7 @@ use static_press\includes\Static_Press_Model_Url_Static_File;
 use static_press\tests\testlibraries\Environment;
 
 /**
- * StaticPress test case.
+ * Static_Press_File_Scanner test case.
  */
 class Static_Press_Model_Url_Static_File_Test extends \WP_UnitTestCase {
 	/**

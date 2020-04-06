@@ -12,7 +12,7 @@ use static_press\includes\Static_Press_Model_Url;
 use static_press\includes\Static_Press_Model_Url_Other;
 use static_press\tests\testlibraries\Mock_Creator;
 /**
- * StaticPress test case.
+ * Static_Press_Model_Url_Other test case.
  */
 class Static_Press_Model_Url_Other_Test extends \WP_UnitTestCase {
 	/**

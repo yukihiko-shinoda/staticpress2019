@@ -1,6 +1,6 @@
 <?php
 /**
- * Class Static_Press_Model_Url_Fetched
+ * Class Static_Press_Model_Url_Fetched_Test
  *
  * @package static_press\tests\includes
  */
@@ -12,7 +12,7 @@ use static_press\includes\Static_Press_Model_Url;
 use static_press\tests\testlibraries\Model_Url_Creator;
 
 /**
- * Reposistory test case.
+ * Static_Press_Model_Url_Fetched test case.
  */
 class Static_Press_Model_Url_Fetched_Test extends \WP_UnitTestCase {
 	/**

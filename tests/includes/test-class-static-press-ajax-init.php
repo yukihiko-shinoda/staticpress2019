@@ -7,7 +7,6 @@
 
 namespace static_press\tests\includes;
 
-require_once dirname( __FILE__ ) . '/../testlibraries/class-array-url-handler.php';
 require_once dirname( __FILE__ ) . '/../testlibraries/class-die-exception.php';
 require_once dirname( __FILE__ ) . '/../testlibraries/class-expect-url.php';
 require_once dirname( __FILE__ ) . '/../testlibraries/class-mock-creator.php';

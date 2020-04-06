@@ -20,7 +20,7 @@ use static_press\tests\testlibraries\Repository_For_Test;
 use static_press\tests\testlibraries\Mock_Creator;
 
 /**
- * Reposistory test case.
+ * Static_Press_Repository test case.
  */
 class Static_Press_Repository_Test extends \WP_UnitTestCase {
 	/**

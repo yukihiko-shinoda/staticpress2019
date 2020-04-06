@@ -8,7 +8,7 @@
 namespace static_press\tests\testlibraries;
 
 /**
- * URL Collector.
+ * Plugin switcher.
  */
 class Plugin_Switcher {
 	/**

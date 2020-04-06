@@ -8,9 +8,11 @@
 namespace static_press\tests\testlibraries;
 
 require_once dirname( __FILE__ ) . '/../testlibraries/class-die-exception.php';
+require_once dirname( __FILE__ ) . '/../testlibraries/class-environment.php';
 require_once dirname( __FILE__ ) . '/../testlibraries/class-file-system-operator.php';
 use Mockery;
 use static_press\tests\testlibraries\Die_Exception;
+use static_press\tests\testlibraries\Environment;
 use static_press\tests\testlibraries\File_System_Operator;
 /**
  * Mock creator.
