@@ -7,9 +7,9 @@
 
 namespace static_press\tests\testlibraries;
 
-require_once dirname( __FILE__ ) . '/./class-business-logic-exception.php';
+require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/exceptions/class-business-logic-exception.php';
 use static_press\includes\Static_Press_Model_Url;
-use static_press\tests\testlibraries\Business_Logic_Exception;
+use static_press\tests\testlibraries\exceptions\Business_Logic_Exception;
 
 /**
  * Class Model_Url_Comparer

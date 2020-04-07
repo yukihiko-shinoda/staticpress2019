@@ -38,11 +38,19 @@
  *     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
+if ( ! defined( 'STATIC_PRESS_PLUGIN_DIR' ) ) {
+	/**
+	 * Plugin Directory.
+	 *
+	 * @var string $STATIC_PRESS_PLUGIN_DIR Plugin folder directory path. Eg. `/var/www/html/web/app/plugins/staticpress2019/`
+	 */
+	define( 'STATIC_PRESS_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
+}
 if ( ! class_exists( 'Static_Press_Admin' ) ) {
-	require dirname( __FILE__ ) . '/includes/class-static-press-admin.php';
+	require STATIC_PRESS_PLUGIN_DIR . 'includes/class-static-press-admin.php';
 }
 if ( ! class_exists( 'static_press\includes\Static_Press' ) ) {
-	require dirname( __FILE__ ) . '/includes/class-static-press.php';
+	require STATIC_PRESS_PLUGIN_DIR . 'includes/class-static-press.php';
 }
 use static_press\includes\Static_Press;
 

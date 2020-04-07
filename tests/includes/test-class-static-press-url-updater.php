@@ -7,30 +7,29 @@
 
 namespace static_press\tests\includes;
 
-require_once dirname( __FILE__ ) . '/../testlibraries/class-environment.php';
-require_once dirname( __FILE__ ) . '/../testlibraries/class-expect-url.php';
-require_once dirname( __FILE__ ) . '/../testlibraries/class-file-system-operator.php';
-require_once dirname( __FILE__ ) . '/../testlibraries/class-mock-creator.php';
-require_once dirname( __FILE__ ) . '/../testlibraries/class-model-url.php';
-require_once dirname( __FILE__ ) . '/../testlibraries/class-repository-for-test.php';
-require_once dirname( __FILE__ ) . '/../testlibraries/class-static-file-creator-for-test.php';
-require_once dirname( __FILE__ ) . '/../testlibraries/class-theme-switcher.php';
+require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/infrastructure/class-environment.php';
+require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/infrastructure/class-file-system-operator.php';
+require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/creators/class-mock-creator.php';
+require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/creators/class-static-file-creator-for-test.php';
+require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/repositories/class-repository-for-test.php';
+require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/class-expect-url.php';
+require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/class-model-url.php';
+require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/class-theme-switcher.php';
 use Mockery;
-use static_press\includes\Static_Press_Model_Url;
-use static_press\includes\Static_Press_Model_Url_Static_File;
-use static_press\includes\Static_Press_Model_Url_Succeed;
-use static_press\includes\Static_Press_Repository;
-use static_press\includes\Static_Press_Repository_Progress;
+use static_press\includes\models\Static_Press_Model_Url;
+use static_press\includes\models\Static_Press_Model_Url_Static_File;
+use static_press\includes\models\Static_Press_Model_Url_Succeed;
+use static_press\includes\repositories\Static_Press_Repository;
+use static_press\includes\repositories\Static_Press_Repository_Progress;
 use static_press\includes\Static_Press_Url_Updater;
-use static_press\tests\testlibraries\Environment;
+use static_press\tests\testlibraries\infrastructure\Environment;
+use static_press\tests\testlibraries\infrastructure\File_System_Operator;
+use static_press\tests\testlibraries\creators\Mock_Creator;
+use static_press\tests\testlibraries\creators\Static_File_Creator_For_Test;
+use static_press\tests\testlibraries\repositories\Repository_For_Test;
 use static_press\tests\testlibraries\Expect_Url;
-use static_press\tests\testlibraries\File_System_Operator;
-use static_press\tests\testlibraries\Mock_Creator;
 use static_press\tests\testlibraries\Model_Url;
-use static_press\tests\testlibraries\Repository_For_Test;
-use static_press\tests\testlibraries\Static_File_Creator_For_Test;
 use static_press\tests\testlibraries\Theme_Switcher;
-
 /**
  * Static_Press_Url_Updater test case.
  */

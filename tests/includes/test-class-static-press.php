@@ -7,12 +7,12 @@
 
 namespace static_press\tests\includes;
 
-require_once dirname( __FILE__ ) . '/../testlibraries/class-file-system-operator.php';
-require_once dirname( __FILE__ ) . '/../testlibraries/class-mock-creator.php';
+require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/creators/class-mock-creator.php';
+require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/infrastructure/class-file-system-operator.php';
 use Mockery;
 use static_press\includes\Static_Press;
-use static_press\tests\testlibraries\File_System_Operator;
-use static_press\tests\testlibraries\Mock_Creator;
+use static_press\tests\testlibraries\creators\Mock_Creator;
+use static_press\tests\testlibraries\infrastructure\File_System_Operator;
 
 /**
  * StaticPress test case.

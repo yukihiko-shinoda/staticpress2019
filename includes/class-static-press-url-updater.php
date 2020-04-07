@@ -7,19 +7,22 @@
 
 namespace static_press\includes;
 
-if ( ! class_exists( 'static_press\includes\Static_Press_Business_Logic_Exception' ) ) {
-	require dirname( __FILE__ ) . '/class-static-press-business-logic-exception.php';
+if ( ! class_exists( 'static_press\includes\exceptions\Static_Press_Business_Logic_Exception' ) ) {
+	require STATIC_PRESS_PLUGIN_DIR . 'includes/exceptions/class-static-press-business-logic-exception.php';
+}
+if ( ! class_exists( 'static_press\includes\infrastructure\Static_Press_Document_Root_Getter' ) ) {
+	require STATIC_PRESS_PLUGIN_DIR . 'includes/infrastructure/class-static-press-document-root-getter.php';
+}
+if ( ! class_exists( 'static_press\includes\models\Static_Press_Model_Url' ) ) {
+	require STATIC_PRESS_PLUGIN_DIR . 'includes/models/class-static-press-model-url.php';
 }
 if ( ! class_exists( 'static_press\includes\Static_Press_Static_FIle_Judger' ) ) {
-	require dirname( __FILE__ ) . '/class-static-press-static-file-judger.php';
+	require STATIC_PRESS_PLUGIN_DIR . 'includes/class-static-press-static-file-judger.php';
 }
-if ( ! class_exists( 'static_press\includes\Static_Press_Model_Url' ) ) {
-	require dirname( __FILE__ ) . '/class-static-press-model-url.php';
-}
-use static_press\includes\Static_Press_Business_Logic_Exception;
-use static_press\includes\Static_Press_Static_FIle_Judger;
+use static_press\includes\exceptions\Static_Press_Business_Logic_Exception;
+use static_press\includes\infrastructure\Static_Press_Document_Root_Getter;
 use static_press\includes\Static_Press_Model_Url;
-
+use static_press\includes\Static_Press_Static_FIle_Judger;
 /**
  * URL Updater.
  */

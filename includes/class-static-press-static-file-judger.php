@@ -7,6 +7,10 @@
 
 namespace static_press\includes;
 
+if ( ! class_exists( 'static_press\includes\infrastructure\Static_Press_Document_Root_Getter' ) ) {
+	require STATIC_PRESS_PLUGIN_DIR . 'includes/infrastructure/class-static-press-document-root-getter.php';
+}
+use static_press\includes\infrastructure\Static_Press_Document_Root_Getter;
 /**
  * Model URL.
  */

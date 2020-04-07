@@ -7,52 +7,56 @@
 
 namespace static_press\includes;
 
-if ( ! class_exists( 'static_press\includes\Static_Press_Ajax_Fetch' ) ) {
-	require dirname( __FILE__ ) . '/class-static-press-ajax-fetch.php';
+if ( ! class_exists( 'static_press\includes\content_filters\Static_Press_Content_Filter' ) ) {
+	require STATIC_PRESS_PLUGIN_DIR . 'includes/content_filters/class-static-press-content-filter.php';
 }
-if ( ! class_exists( 'static_press\includes\Static_Press_Ajax_Finalyze' ) ) {
-	require dirname( __FILE__ ) . '/class-static-press-ajax-finalyze.php';
+if ( ! class_exists( 'static_press\includes\content_filters\Static_Press_Content_Filter_Replace_Relative_Uri' ) ) {
+	require STATIC_PRESS_PLUGIN_DIR . 'includes/content_filters/class-static-press-content-filter-replace-relative-uri.php';
 }
-if ( ! class_exists( 'static_press\includes\Static_Press_Ajax_Init' ) ) {
-	require dirname( __FILE__ ) . '/class-static-press-ajax-init.php';
+if ( ! class_exists( 'static_press\includes\controllers\Static_Press_Ajax_Fetch' ) ) {
+	require STATIC_PRESS_PLUGIN_DIR . 'includes/controllers/class-static-press-ajax-fetch.php';
 }
-if ( ! class_exists( 'static_press\includes\Static_Press_Content_Filter' ) ) {
-	require dirname( __FILE__ ) . '/class-static-press-content-filter.php';
+if ( ! class_exists( 'static_press\includes\controllers\Static_Press_Ajax_Finalyze' ) ) {
+	require STATIC_PRESS_PLUGIN_DIR . 'includes/controllers/class-static-press-ajax-finalyze.php';
 }
-if ( ! class_exists( 'static_press\includes\Static_Press_Content_Filter_Replace_Relative_Uri' ) ) {
-	require dirname( __FILE__ ) . '/class-static-press-content-filter-replace-relative-uri.php';
+if ( ! class_exists( 'static_press\includes\controllers\Static_Press_Ajax_Init' ) ) {
+	require STATIC_PRESS_PLUGIN_DIR . 'includes/controllers/class-static-press-ajax-init.php';
+}
+if ( ! class_exists( 'static_press\includes\infrastructure\Static_Press_Document_Root_Getter' ) ) {
+	require STATIC_PRESS_PLUGIN_DIR . 'includes/infrastructure/class-static-press-document-root-getter.php';
+}
+if ( ! class_exists( 'static_press\includes\infrastructure\Static_Press_File_System_Operator' ) ) {
+	require STATIC_PRESS_PLUGIN_DIR . 'includes/infrastructure/class-static-press-file-system-operator.php';
+}
+if ( ! class_exists( 'static_press\includes\repositories\Static_Press_Repository' ) ) {
+	require STATIC_PRESS_PLUGIN_DIR . 'includes/repositories/class-static-press-repository.php';
 }
 if ( ! class_exists( 'static_press\includes\Static_Press_Date_Time_Factory' ) ) {
-	require dirname( __FILE__ ) . '/class-static-press-date-time-factory.php';
-}
-if ( ! class_exists( 'static_press\includes\Static_Press_File_System_Operator' ) ) {
-	require dirname( __FILE__ ) . '/class-static-press-file-system-operator.php';
+	require STATIC_PRESS_PLUGIN_DIR . 'includes/class-static-press-date-time-factory.php';
 }
 if ( ! class_exists( 'static_press\includes\Static_Press_Remote_Getter' ) ) {
-	require dirname( __FILE__ ) . '/class-static-press-remote-getter.php';
+	require STATIC_PRESS_PLUGIN_DIR . 'includes/class-static-press-remote-getter.php';
 }
 if ( ! class_exists( 'static_press\includes\Static_Press_Terminator' ) ) {
-	require dirname( __FILE__ ) . '/class-static-press-terminator.php';
+	require STATIC_PRESS_PLUGIN_DIR . 'includes/class-static-press-terminator.php';
 }
 if ( ! class_exists( 'static_press\includes\Static_Press_Url_Filter' ) ) {
-	require dirname( __FILE__ ) . '/class-static-press-url-filter.php';
+	require STATIC_PRESS_PLUGIN_DIR . 'includes/class-static-press-url-filter.php';
 }
 if ( ! class_exists( 'static_press\includes\Static_Press_Site_Dependency' ) ) {
-	require dirname( __FILE__ ) . '/class-static-press-site-dependency.php';
+	require STATIC_PRESS_PLUGIN_DIR . 'includes/class-static-press-site-dependency.php';
 }
-if ( ! class_exists( 'static_press\includes\Static_Press_Repository' ) ) {
-	require dirname( __FILE__ ) . '/class-static-press-repository.php';
-}
-use static_press\includes\Static_Press_Ajax_Fetch;
-use static_press\includes\Static_Press_Ajax_Finalyze;
-use static_press\includes\Static_Press_Ajax_Init;
-use static_press\includes\Static_Press_Content_Filter;
-use static_press\includes\Static_Press_Content_Filter_Replace_Relative_Uri;
+use static_press\includes\content_filters\Static_Press_Content_Filter;
+use static_press\includes\content_filters\Static_Press_Content_Filter_Replace_Relative_Uri;
+use static_press\includes\controllers\Static_Press_Ajax_Fetch;
+use static_press\includes\controllers\Static_Press_Ajax_Finalyze;
+use static_press\includes\controllers\Static_Press_Ajax_Init;
+use static_press\includes\infrastructure\Static_Press_Document_Root_Getter;
+use static_press\includes\infrastructure\Static_Press_File_System_Operator;
+use static_press\includes\repositories\Static_Press_Repository;
 use static_press\includes\Static_Press_Date_Time_Factory;
-use static_press\includes\Static_Press_File_System_Operator;
 use static_press\includes\Static_Press_Remote_Getter;
 use static_press\includes\Static_Press_Url_Filter;
-use static_press\includes\Static_Press_Repository;
 use static_press\includes\Static_Press_Site_Dependency;
 use static_press\includes\Static_Press_Terminator;
 /**
