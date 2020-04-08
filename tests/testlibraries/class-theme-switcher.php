@@ -7,13 +7,12 @@
 
 namespace static_press\tests\testlibraries;
 
-require_once dirname( __FILE__ ) . '/../testlibraries/class-environment.php';
-require_once dirname( __FILE__ ) . '/../testlibraries/class-file-system-operator.php';
-use static_press\includes\Static_Press_Model_Url;
-use static_press\includes\Static_Press_Model_Url_Static_File;
-use static_press\tests\testlibraries\Environment;
-use static_press\tests\testlibraries\File_System_Operator;
-
+require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/infrastructure/class-environment.php';
+require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/infrastructure/class-file-system-operator.php';
+use static_press\includes\models\Static_Press_Model_Url;
+use static_press\includes\models\Static_Press_Model_Url_Static_File;
+use static_press\tests\testlibraries\infrastructure\Environment;
+use static_press\tests\testlibraries\infrastructure\File_System_Operator;
 /**
  * URL Collector.
  */
