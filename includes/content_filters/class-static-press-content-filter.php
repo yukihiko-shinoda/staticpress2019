@@ -62,7 +62,7 @@ class Static_Press_Content_Filter {
 	}
 
 	/**
-	 * Adds meta tag for last modified.
+	 * Adds <meta> tag for set last modified into top of HTML <head> tag.
 	 * 
 	 * @param string $content   Content.
 	 * @param int    $http_code HTTP responce code.
@@ -87,6 +87,7 @@ class Static_Press_Content_Filter {
 
 	/**
 	 * Rewrites generator tag.
+	 * This function seems to intend to add this plugin name and version into generator tag.
 	 * 
 	 * @param string $content   Content.
 	 * @param int    $http_code HTTP status code.
