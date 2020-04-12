@@ -7,9 +7,7 @@
 
 namespace static_press\includes\response_processors;
 
-if ( ! class_exists( 'static_press\includes\infrastructure\Static_Press_File_System_Operator' ) ) {
-	require STATIC_PRESS_PLUGIN_DIR . 'includes/infrastructure/class-static-press-file-system-operator.php';
-}
+require_once STATIC_PRESS_PLUGIN_DIR . 'includes/infrastructure/class-static-press-file-system-operator.php';
 use static_press\includes\infrastructure\Static_Press_File_System_Operator;
 
 /**

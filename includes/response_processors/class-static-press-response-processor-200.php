@@ -7,9 +7,7 @@
 
 namespace static_press\includes\response_processors;
 
-if ( ! class_exists( 'static_press\includes\response_processors\Static_Press_Response_Processor' ) ) {
-	require STATIC_PRESS_PLUGIN_DIR . 'includes/response_processors/class-static-press-response-processor.php';
-}
+require_once STATIC_PRESS_PLUGIN_DIR . 'includes/response_processors/class-static-press-response-processor.php';
 use static_press\includes\response_processors\Static_Press_Response_Processor;
 
 /**

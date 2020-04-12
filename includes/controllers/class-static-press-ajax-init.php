@@ -7,13 +7,8 @@
 
 namespace static_press\includes\controllers;
 
-if ( ! class_exists( 'static_press\includes\controllers\Static_Press_Ajax_Processor' ) ) {
-	require STATIC_PRESS_PLUGIN_DIR . 'includes/controllers/class-static-press-ajax_processor.php';
-}
-if ( ! class_exists( 'static_press\includes\Static_Press_Url_Updater' ) ) {
-	require STATIC_PRESS_PLUGIN_DIR . 'includes/class-static-press-url-updater.php';
-}
-
+require_once STATIC_PRESS_PLUGIN_DIR . 'includes/controllers/class-static-press-ajax-processor.php';
+require_once STATIC_PRESS_PLUGIN_DIR . 'includes/class-static-press-url-updater.php';
 use static_press\includes\controllers\Static_Press_Ajax_Processor;
 use static_press\includes\Static_Press_Url_Updater;
 

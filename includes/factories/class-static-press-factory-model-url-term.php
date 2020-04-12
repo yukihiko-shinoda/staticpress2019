@@ -7,12 +7,8 @@
 
 namespace static_press\includes\factories;
 
-if ( ! class_exists( 'static_press\includes\models\Static_Press_Model_Url_Term' ) ) {
-	require STATIC_PRESS_PLUGIN_DIR . 'includes/models/class-static-press-model-url-term.php';
-}
-if ( ! class_exists( 'static_press\includes\repositories\Static_Press_Repository' ) ) {
-	require STATIC_PRESS_PLUGIN_DIR . 'includes/repositories/class-static-press-repository.php';
-}
+require_once STATIC_PRESS_PLUGIN_DIR . 'includes/models/class-static-press-model-url-term.php';
+require_once STATIC_PRESS_PLUGIN_DIR . 'includes/repositories/class-static-press-repository.php';
 use static_press\includes\models\Static_Press_Model_Url_Term;
 use static_press\includes\repositories\Static_Press_Repository;
 

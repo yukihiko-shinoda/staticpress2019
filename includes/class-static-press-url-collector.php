@@ -7,51 +7,21 @@
 
 namespace static_press\includes;
 
-if ( ! class_exists( 'static_press\includes\content_filters\Static_Press_Content_Filter' ) ) {
-	require STATIC_PRESS_PLUGIN_DIR . 'includes/content_filters/class-static-press-content-filter.php';
-}
-if ( ! class_exists( 'static_press\includes\factories\Static_Press_Factory_Model_Url_Static_File' ) ) {
-	require STATIC_PRESS_PLUGIN_DIR . 'includes/factories/class-static-press-factory-model-url-static-file.php';
-}
-if ( ! class_exists( 'static_press\includes\factories\Static_Press_Factory_Model_Url_Term' ) ) {
-	require STATIC_PRESS_PLUGIN_DIR . 'includes/factories/class-static-press-factory-model-url-term.php';
-}
-if ( ! class_exists( 'static_press\includes\infrastructure\Static_Press_Document_Root_Getter' ) ) {
-	require STATIC_PRESS_PLUGIN_DIR . 'includes/infrastructure/class-static-press-document-root-getter.php';
-}
-if ( ! class_exists( 'static_press\includes\infrastructure\Static_Press_File_Scanner' ) ) {
-	require STATIC_PRESS_PLUGIN_DIR . 'includes/infrastructure/class-static-press-file-scanner.php';
-}
-if ( ! class_exists( 'static_press\includes\models\Static_Press_Model_Static_File' ) ) {
-	require STATIC_PRESS_PLUGIN_DIR . 'includes/models/class-static-press-model-static-file.php';
-}
-if ( ! class_exists( 'static_press\includes\models\Static_Press_Model_Url' ) ) {
-	require STATIC_PRESS_PLUGIN_DIR . 'includes/models/class-static-press-model-url.php';
-}
-if ( ! class_exists( 'static_press\includes\models\Static_Press_Model_Url_Author' ) ) {
-	require STATIC_PRESS_PLUGIN_DIR . 'includes/models/class-static-press-model-url-author.php';
-}
-if ( ! class_exists( 'static_press\includes\models\Static_Press_Model_Url_Front_Page' ) ) {
-	require STATIC_PRESS_PLUGIN_DIR . 'includes/models/class-static-press-model-url-front-page.php';
-}
-if ( ! class_exists( 'static_press\includes\models\Static_Press_Model_Url_Seo' ) ) {
-	require STATIC_PRESS_PLUGIN_DIR . 'includes/models/class-static-press-model-url-seo.php';
-}
-if ( ! class_exists( 'static_press\includes\models\Static_Press_Model_Url_Single' ) ) {
-	require STATIC_PRESS_PLUGIN_DIR . 'includes/models/class-static-press-model-url-single.php';
-}
-if ( ! class_exists( 'static_press\includes\models\Static_Press_Model_Url_Static_File' ) ) {
-	require STATIC_PRESS_PLUGIN_DIR . 'includes/models/class-static-press-model-url-static-file.php';
-}
-if ( ! class_exists( 'static_press\includes\models\Static_Press_Model_Url_Term' ) ) {
-	require STATIC_PRESS_PLUGIN_DIR . 'includes/models/class-static-press-model-url-term.php';
-}
-if ( ! class_exists( 'static_press\includes\repositories\Static_Press_Repository' ) ) {
-	require STATIC_PRESS_PLUGIN_DIR . 'includes/repositories/class-static-press-repository.php';
-}
-if ( ! class_exists( 'static_press\includes\Static_Press_Site_Dependency' ) ) {
-	require STATIC_PRESS_PLUGIN_DIR . 'includes/class-static-press-site-dependency.php';
-}
+require_once STATIC_PRESS_PLUGIN_DIR . 'includes/content_filters/class-static-press-content-filter.php';
+require_once STATIC_PRESS_PLUGIN_DIR . 'includes/factories/class-static-press-factory-model-url-static-file.php';
+require_once STATIC_PRESS_PLUGIN_DIR . 'includes/factories/class-static-press-factory-model-url-term.php';
+require_once STATIC_PRESS_PLUGIN_DIR . 'includes/infrastructure/class-static-press-document-root-getter.php';
+require_once STATIC_PRESS_PLUGIN_DIR . 'includes/infrastructure/class-static-press-file-scanner.php';
+require_once STATIC_PRESS_PLUGIN_DIR . 'includes/models/class-static-press-model-static-file.php';
+require_once STATIC_PRESS_PLUGIN_DIR . 'includes/models/class-static-press-model-url.php';
+require_once STATIC_PRESS_PLUGIN_DIR . 'includes/models/class-static-press-model-url-author.php';
+require_once STATIC_PRESS_PLUGIN_DIR . 'includes/models/class-static-press-model-url-front-page.php';
+require_once STATIC_PRESS_PLUGIN_DIR . 'includes/models/class-static-press-model-url-seo.php';
+require_once STATIC_PRESS_PLUGIN_DIR . 'includes/models/class-static-press-model-url-single.php';
+require_once STATIC_PRESS_PLUGIN_DIR . 'includes/models/class-static-press-model-url-static-file.php';
+require_once STATIC_PRESS_PLUGIN_DIR . 'includes/models/class-static-press-model-url-term.php';
+require_once STATIC_PRESS_PLUGIN_DIR . 'includes/repositories/class-static-press-repository.php';
+require_once STATIC_PRESS_PLUGIN_DIR . 'includes/class-static-press-site-dependency.php';
 use static_press\includes\content_filters\Static_Press_Content_Filter;
 use static_press\includes\factories\Static_Press_Factory_Model_Url_Static_File;
 use static_press\includes\factories\Static_Press_Factory_Model_Url_Term;

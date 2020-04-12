@@ -7,15 +7,9 @@
 
 namespace static_press\includes\models;
 
-if ( ! class_exists( 'static_press\includes\exceptions\Static_Press_Business_Logic_Exception' ) ) {
-	require STATIC_PRESS_PLUGIN_DIR . 'includes/class-static-press-business-logic-exception.php';
-}
-if ( ! class_exists( 'static_press\includes\models\Static_Press_Model_Url_Failed' ) ) {
-	require STATIC_PRESS_PLUGIN_DIR . 'includes/models/class-static-press-model-url-failed.php';
-}
-if ( ! class_exists( 'static_press\includes\models\Static_Press_Model_Url_Succeed' ) ) {
-	require STATIC_PRESS_PLUGIN_DIR . 'includes/models/class-static-press-model-url-succeed.php';
-}
+require_once STATIC_PRESS_PLUGIN_DIR . 'includes/exceptions/class-static-press-business-logic-exception.php';
+require_once STATIC_PRESS_PLUGIN_DIR . 'includes/models/class-static-press-model-url-failed.php';
+require_once STATIC_PRESS_PLUGIN_DIR . 'includes/models/class-static-press-model-url-succeed.php';
 use static_press\includes\exceptions\Static_Press_Business_Logic_Exception;
 use static_press\includes\models\Static_Press_Model_Url_Failed;
 use static_press\includes\models\Static_Press_Model_Url_Succeed;

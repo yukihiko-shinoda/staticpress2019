@@ -7,15 +7,9 @@
 
 namespace static_press\includes\factories;
 
-if ( ! class_exists( 'static_press\includes\infrastructure\Static_Press_Document_Root_Getter' ) ) {
-	require STATIC_PRESS_PLUGIN_DIR . 'includes/class-static-press-document-root-getter.php';
-}
-if ( ! class_exists( 'static_press\includes\models\Static_Press_Model_Url_Static_File' ) ) {
-	require STATIC_PRESS_PLUGIN_DIR . 'includes/models/class-static-press-model-url-static-file.php';
-}
-if ( ! class_exists( 'static_press\includes\Static_Press_Site_Dependency' ) ) {
-	require STATIC_PRESS_PLUGIN_DIR . 'includes/class-static-press-site-dependency.php';
-}
+require_once STATIC_PRESS_PLUGIN_DIR . 'includes/infrastructure/class-static-press-document-root-getter.php';
+require_once STATIC_PRESS_PLUGIN_DIR . 'includes/models/class-static-press-model-url-static-file.php';
+require_once STATIC_PRESS_PLUGIN_DIR . 'includes/class-static-press-site-dependency.php';
 use static_press\includes\infrastructure\Static_Press_Document_Root_Getter;
 use static_press\includes\models\Static_Press_Model_Url_Static_File;
 use static_press\includes\Static_Press_Site_Dependency;

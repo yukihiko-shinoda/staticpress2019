@@ -7,25 +7,12 @@
 
 namespace static_press\includes\controllers;
 
-if ( ! class_exists( 'static_press\includes\controllers\Static_Press_Ajax_Processor' ) ) {
-	require STATIC_PRESS_PLUGIN_DIR . 'includes/controllers/class-static-press-ajax_processor.php';
-}
-if ( ! class_exists( 'static_press\includes\exceptions\Static_Press_Business_Logic_Exception' ) ) {
-	require STATIC_PRESS_PLUGIN_DIR . 'includes/exceptions/class-static-press-business-logic-exception.php';
-}
-if ( ! class_exists( 'static_press\includes\response_processors\Static_Press_Response_Processor_200' ) ) {
-	require STATIC_PRESS_PLUGIN_DIR . 'includes/response_processors/class-static-press-response-processor-200.php';
-}
-if ( ! class_exists( 'static_press\includes\response_processors\Static_Press_Response_Processor_404_Dump' ) ) {
-	require STATIC_PRESS_PLUGIN_DIR . 'includes/response_processors/class-static-press-response-processor-404-dump.php';
-}
-if ( ! class_exists( 'static_press\includes\Static_Press_Site_Dependency' ) ) {
-	require STATIC_PRESS_PLUGIN_DIR . 'includes/class-static-press-site-dependency.php';
-}
-if ( ! class_exists( 'static_press\includes\repositories\Static_Press_Repository_Progress' ) ) {
-	require STATIC_PRESS_PLUGIN_DIR . 'includes/repositories/class-static-press-repository-progress.php';
-}
-
+require_once STATIC_PRESS_PLUGIN_DIR . 'includes/controllers/class-static-press-ajax-processor.php';
+require_once STATIC_PRESS_PLUGIN_DIR . 'includes/exceptions/class-static-press-business-logic-exception.php';
+require_once STATIC_PRESS_PLUGIN_DIR . 'includes/repositories/class-static-press-repository-progress.php';
+require_once STATIC_PRESS_PLUGIN_DIR . 'includes/response_processors/class-static-press-response-processor-200.php';
+require_once STATIC_PRESS_PLUGIN_DIR . 'includes/response_processors/class-static-press-response-processor-404-dump.php';
+require_once STATIC_PRESS_PLUGIN_DIR . 'includes/class-static-press-site-dependency.php';
 use static_press\includes\controllers\Static_Press_Ajax_Processor;
 use static_press\includes\exceptions\Static_Press_Business_Logic_Exception;
 use static_press\includes\repositories\Static_Press_Repository_Progress;

@@ -7,24 +7,12 @@
 
 namespace static_press\includes\controllers;
 
-if ( ! class_exists( 'static_press\includes\controllers\Static_Press_Ajax_Processor' ) ) {
-	require STATIC_PRESS_PLUGIN_DIR . 'includes/controllers/class-static-press-ajax-processor.php';
-}
-if ( ! class_exists( 'static_press\includes\exceptions\Static_Press_Business_Logic_Exception' ) ) {
-	require STATIC_PRESS_PLUGIN_DIR . 'includes/exceptions/class-static-press-business-logic-exception.php';
-}
-if ( ! class_exists( 'static_press\includes\models\Static_Press_Model_Url_Fetched' ) ) {
-	require STATIC_PRESS_PLUGIN_DIR . 'includes/models/class-static-press-model-url-fetched.php';
-}
-if ( ! class_exists( 'static_press\includes\repositories\Static_Press_Repository_Progress' ) ) {
-	require STATIC_PRESS_PLUGIN_DIR . 'includes/repositories/class-static-press-repository-progress.php';
-}
-if ( ! class_exists( 'static_press\includes\response_processors\Static_Press_Response_Processor_404' ) ) {
-	require STATIC_PRESS_PLUGIN_DIR . 'includes/response_processors/class-static-press-response-processor-404.php';
-}
-if ( ! class_exists( 'static_press\includes\Static_Press_Fetch_Result' ) ) {
-	require STATIC_PRESS_PLUGIN_DIR . 'includes/class-static-press-fetch-result.php';
-}
+require_once STATIC_PRESS_PLUGIN_DIR . 'includes/controllers/class-static-press-ajax-processor.php';
+require_once STATIC_PRESS_PLUGIN_DIR . 'includes/exceptions/class-static-press-business-logic-exception.php';
+require_once STATIC_PRESS_PLUGIN_DIR . 'includes/models/class-static-press-model-url-fetched.php';
+require_once STATIC_PRESS_PLUGIN_DIR . 'includes/repositories/class-static-press-repository-progress.php';
+require_once STATIC_PRESS_PLUGIN_DIR . 'includes/response_processors/class-static-press-response-processor-404.php';
+require_once STATIC_PRESS_PLUGIN_DIR . 'includes/class-static-press-fetch-result.php';
 use static_press\includes\controllers\Static_Press_Ajax_Processor;
 use static_press\includes\exceptions\Static_Press_Business_Logic_Exception;
 use static_press\includes\models\Static_Press_Model_Url_Fetched;

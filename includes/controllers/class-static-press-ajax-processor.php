@@ -7,33 +7,15 @@
 
 namespace static_press\includes\controllers;
 
-if ( ! class_exists( 'static_press\includes\factories\Static_Press_Factory_Static_File_Creator' ) ) {
-	require STATIC_PRESS_PLUGIN_DIR . 'includes/factories/class-static-press-factory-static-file-creator.php';
-}
-if ( ! class_exists( 'static_press\includes\models\Static_Press_Model_Url' ) ) {
-	require STATIC_PRESS_PLUGIN_DIR . 'includes/models/class-static-press-model-url.php';
-}
-if ( ! class_exists( 'static_press\includes\repositories\Static_Press_Repository_Progress' ) ) {
-	require STATIC_PRESS_PLUGIN_DIR . 'includes/repositories/class-static-press-repository-progress.php';
-}
-if ( ! class_exists( 'static_press\includes\response_processors\Static_Press_Response_Processor_200_Crawl' ) ) {
-	require STATIC_PRESS_PLUGIN_DIR . 'includes/response_processors/class-static-press-response-processor-200-crawl.php';
-}
-if ( ! class_exists( 'static_press\includes\static_file_creators\Static_Press_Static_File_Creator_Remote' ) ) {
-	require STATIC_PRESS_PLUGIN_DIR . 'includes/static_file_creators/class-static-press-static-file-creator-remote.php';
-}
-if ( ! class_exists( 'static_press\includes\Static_Press_Date_Time_Factory' ) ) {
-	require STATIC_PRESS_PLUGIN_DIR . 'includes/class-static-press-date-time-factory.php';
-}
-if ( ! class_exists( 'static_press\includes\infrastructure\Static_Press_Document_Root_Getter' ) ) {
-	require STATIC_PRESS_PLUGIN_DIR . 'includes/infrastructure/class-static-press-document-root-getter.php';
-}
-if ( ! class_exists( 'static_press\includes\Static_Press_Terminator' ) ) {
-	require STATIC_PRESS_PLUGIN_DIR . 'includes/class-static-press-terminator.php';
-}
-if ( ! class_exists( 'static_press\includes\Static_Press_Url_Collector' ) ) {
-	require STATIC_PRESS_PLUGIN_DIR . 'includes/class-static-press-url-collector.php';
-}
+require_once STATIC_PRESS_PLUGIN_DIR . 'includes/factories/class-static-press-factory-static-file-creator.php';
+require_once STATIC_PRESS_PLUGIN_DIR . 'includes/infrastructure/class-static-press-document-root-getter.php';
+require_once STATIC_PRESS_PLUGIN_DIR . 'includes/models/class-static-press-model-url.php';
+require_once STATIC_PRESS_PLUGIN_DIR . 'includes/repositories/class-static-press-repository-progress.php';
+require_once STATIC_PRESS_PLUGIN_DIR . 'includes/response_processors/class-static-press-response-processor-200-crawl.php';
+require_once STATIC_PRESS_PLUGIN_DIR . 'includes/static_file_creators/class-static-press-static-file-creator-remote.php';
+require_once STATIC_PRESS_PLUGIN_DIR . 'includes/class-static-press-date-time-factory.php';
+require_once STATIC_PRESS_PLUGIN_DIR . 'includes/class-static-press-terminator.php';
+require_once STATIC_PRESS_PLUGIN_DIR . 'includes/class-static-press-url-collector.php';
 use static_press\includes\factories\Static_Press_Factory_Static_File_Creator;
 use static_press\includes\infrastructure\Static_Press_Document_Root_Getter;
 use static_press\includes\models\Static_Press_Model_Url;

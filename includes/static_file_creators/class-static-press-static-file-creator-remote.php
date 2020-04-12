@@ -7,9 +7,7 @@
 
 namespace static_press\includes\static_file_creators;
 
-if ( ! class_exists( 'static_press\includes\static_file_creators\Static_Press_Static_File_Creator' ) ) {
-	require STATIC_PRESS_PLUGIN_DIR . 'includes/static_file_creators/class-static-press-static-file-creator.php';
-}
+require_once STATIC_PRESS_PLUGIN_DIR . 'includes/static_file_creators/class-static-press-static-file-creator.php';
 use static_press\includes\static_file_creators\Static_Press_Static_File_Creator;
 /**
  * Class Static_Press_Static_File_Creator_Remote

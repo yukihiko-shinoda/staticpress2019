@@ -7,12 +7,8 @@
 
 namespace static_press\includes\repositories;
 
-if ( ! class_exists( 'static_press\includes\models\Static_Press_Model_Url_Fetched' ) ) {
-	require STATIC_PRESS_PLUGIN_DIR . 'includes/models/class-static-press-model-url-fetched.php';
-}
-if ( ! class_exists( 'static_press\includes\Static_Press_Date_Time_Factory' ) ) {
-	require STATIC_PRESS_PLUGIN_DIR . 'includes/class-static-press-date-time-factory.php';
-}
+require_once STATIC_PRESS_PLUGIN_DIR . 'includes/models/class-static-press-model-url-fetched.php';
+require_once STATIC_PRESS_PLUGIN_DIR . 'includes/class-static-press-date-time-factory.php';
 use static_press\includes\models\Static_Press_Model_Url_Fetched;
 use static_press\includes\Static_Press_Date_Time_Factory;
 
