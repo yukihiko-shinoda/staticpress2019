@@ -5,7 +5,7 @@ Tags: static
 Requires at least: 4.3
 Tested up to: 5.4
 Requires PHP: 5.6
-Stable tag: 0.5.1
+Stable tag: 0.6.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -46,6 +46,10 @@ none
 3. Rebuild!
 
 == Changelog ==
+
+**0.6.0 - April 12, 2020**
+
+Support srcset attribute.
 
 **0.5.1 - April 6, 2020**
 
@@ -140,6 +144,9 @@ source code refactoring
 Initial release.
 
 == Upgrade Notice ==
+
+= 0.6.0 =
+This version supports srcset attribute.
 
 = 0.5.1 =
 This version fixes bug that rebuild stop in some case.
