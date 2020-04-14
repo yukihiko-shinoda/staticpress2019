@@ -63,7 +63,8 @@ class Static_Press_Content_Filter_Replace_Relative_Uri {
 			$content = $this->replace_dinamic_site_home_with_relative( $content );
 		}
 		$content = $this->replace_extra_realative_with_static_home( $content );
-		return $this->replace_backslashed( $content );
+		$content = $this->replace_backslashed( $content );
+		return $this->replace_url_encoded( $content );
 	}
 
 	/**
@@ -160,5 +161,15 @@ class Static_Press_Content_Filter_Replace_Relative_Uri {
 	 */
 	private function replace_backslashed( $content ) {
 		return str_replace( addcslashes( $this->url_dynamic, '/' ), addcslashes( $this->url_static, '/' ), $content );
+	}
+
+	/**
+	 * Replaces URL encoded absolute URL of dynamic site to URL encoded absolute URL of static site.
+	 * 
+	 * @param string $content Content.
+	 * @return string Content.
+	 */
+	private function replace_url_encoded( $content ) {
+		return str_replace( urlencode( $this->url_dynamic ), urlencode( $this->url_static ), $content );
 	}
 }
