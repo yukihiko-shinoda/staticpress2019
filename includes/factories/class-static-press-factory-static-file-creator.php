@@ -7,18 +7,11 @@
 
 namespace static_press\includes\factories;
 
-if ( ! class_exists( 'static_press\includes\response_processors\Static_Press_Response_Processor_200_Crawl' ) ) {
-	require STATIC_PRESS_PLUGIN_DIR . 'includes/response_processors/class-static-press-response-processor-200-crawl.php';
-}
-if ( ! class_exists( 'static_press\includes\response_processors\Static_Press_Response_Processor_404_Dump' ) ) {
-	require STATIC_PRESS_PLUGIN_DIR . 'includes/response_processors/class-static-press-response-processor-404-dump.php';
-}
-if ( ! class_exists( 'static_press\includes\static_file_creators\Static_Press_Static_File_Creator_Local' ) ) {
-	require STATIC_PRESS_PLUGIN_DIR . 'includes/static_file_creators/class-static-press-static-file-creator-local.php';
-}
-if ( ! class_exists( 'static_press\includes\static_file_creators\Static_Press_Static_File_Creator_Remote' ) ) {
-	require STATIC_PRESS_PLUGIN_DIR . 'includes/static_file_creators/class-static-press-static-file-creator-remote.php';
-}
+require_once STATIC_PRESS_PLUGIN_DIR . 'includes/models/class-static-press-model-url.php';
+require_once STATIC_PRESS_PLUGIN_DIR . 'includes/response_processors/class-static-press-response-processor-200-crawl.php';
+require_once STATIC_PRESS_PLUGIN_DIR . 'includes/response_processors/class-static-press-response-processor-404-dump.php';
+require_once STATIC_PRESS_PLUGIN_DIR . 'includes/static_file_creators/class-static-press-static-file-creator-local.php';
+require_once STATIC_PRESS_PLUGIN_DIR . 'includes/static_file_creators/class-static-press-static-file-creator-remote.php';
 use static_press\includes\models\Static_Press_Model_Url;
 use static_press\includes\response_processors\Static_Press_Response_Processor_200_Crawl;
 use static_press\includes\response_processors\Static_Press_Response_Processor_404_Dump;

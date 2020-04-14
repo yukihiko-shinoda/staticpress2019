@@ -7,12 +7,8 @@
 
 namespace static_press\includes\models;
 
-if ( ! class_exists( 'static_press\includes\exceptions\Static_Press_Business_Logic_Exception' ) ) {
-	require STATIC_PRESS_PLUGIN_DIR . 'includes/exceptions/class-static-press-business-logic-exception.php';
-}
-if ( ! class_exists( 'static_press\includes\repositories\Static_Press_Repository' ) ) {
-	require STATIC_PRESS_PLUGIN_DIR . 'includes/repositories/class-static-press-repository.php';
-}
+require_once STATIC_PRESS_PLUGIN_DIR . 'includes/exceptions/class-static-press-business-logic-exception.php';
+require_once STATIC_PRESS_PLUGIN_DIR . 'includes/repositories/class-static-press-repository.php';
 use static_press\includes\exceptions\Static_Press_Business_Logic_Exception;
 use static_press\includes\repositories\Static_Press_Repository;
 /**

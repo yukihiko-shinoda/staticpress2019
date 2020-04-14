@@ -7,9 +7,7 @@
 
 namespace static_press\includes\content_filters;
 
-if ( ! class_exists( 'static_press\includes\Static_Press_Plugin_Information' ) ) {
-	require STATIC_PRESS_PLUGIN_DIR . 'includes/class-static-press-plugin-information.php';
-}
+require_once STATIC_PRESS_PLUGIN_DIR . 'includes/class-static-press-plugin-information.php';
 use static_press\includes\Static_Press_Plugin_Information;
 /**
  * Content filter.

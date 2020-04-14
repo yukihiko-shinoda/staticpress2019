@@ -7,18 +7,10 @@
 
 namespace static_press\includes\static_file_creators;
 
-if ( ! class_exists( 'static_press\includes\exceptions\Static_Press_Business_Logic_Exception' ) ) {
-	require STATIC_PRESS_PLUGIN_DIR . 'includes/exceptions/class-static-press-business-logic-exception.php';
-}
-if ( ! class_exists( 'static_press\includes\infrastructure\Static_Press_Document_Root_Getter' ) ) {
-	require STATIC_PRESS_PLUGIN_DIR . 'includes/infrastructure/class-static-press-document-root-getter.php';
-}
-if ( ! class_exists( 'static_press\includes\infrastructure\Static_Press_File_System_Operator' ) ) {
-	require STATIC_PRESS_PLUGIN_DIR . 'includes/infrastructure/class-file-system-operator.php';
-}
-if ( ! class_exists( 'static_press\includes\static_file_creators\Static_Press_Static_File_Creator' ) ) {
-	require STATIC_PRESS_PLUGIN_DIR . 'includes/static_file_creators/class-static-press-static-file-creator.php';
-}
+require_once STATIC_PRESS_PLUGIN_DIR . 'includes/exceptions/class-static-press-business-logic-exception.php';
+require_once STATIC_PRESS_PLUGIN_DIR . 'includes/infrastructure/class-static-press-document-root-getter.php';
+require_once STATIC_PRESS_PLUGIN_DIR . 'includes/infrastructure/class-static-press-file-system-operator.php';
+require_once STATIC_PRESS_PLUGIN_DIR . 'includes/static_file_creators/class-static-press-static-file-creator.php';
 use static_press\includes\exceptions\Static_Press_Business_Logic_Exception;
 use static_press\includes\infrastructure\Static_Press_Document_Root_Getter;
 use static_press\includes\infrastructure\Static_Press_File_System_Operator;

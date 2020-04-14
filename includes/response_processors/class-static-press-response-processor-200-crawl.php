@@ -7,18 +7,10 @@
 
 namespace static_press\includes\response_processors;
 
-if ( ! class_exists( 'static_press\includes\models\Static_Press_Model_Url_Other' ) ) {
-	require STATIC_PRESS_PLUGIN_DIR . 'includes/models/class-static-press-model-url-other.php';
-}
-if ( ! class_exists( 'static_press\includes\response_processors\Static_Press_Response_Processor_200' ) ) {
-	require STATIC_PRESS_PLUGIN_DIR . 'includes/response_processors/class-static-press-response-processor-200.php';
-}
-if ( ! class_exists( 'static_press\includes\Static_Press_Site_Dependency' ) ) {
-	require STATIC_PRESS_PLUGIN_DIR . 'includes/class-static-press-site-dependency.php';
-}
-if ( ! class_exists( 'static_press\includes\Static_Press_Url_Updater' ) ) {
-	require STATIC_PRESS_PLUGIN_DIR . 'includes/class-static-press-url-updater.php';
-}
+require_once STATIC_PRESS_PLUGIN_DIR . 'includes/models/class-static-press-model-url-other.php';
+require_once STATIC_PRESS_PLUGIN_DIR . 'includes/response_processors/class-static-press-response-processor-200.php';
+require_once STATIC_PRESS_PLUGIN_DIR . 'includes/class-static-press-site-dependency.php';
+require_once STATIC_PRESS_PLUGIN_DIR . 'includes/class-static-press-url-updater.php';
 use static_press\includes\models\Static_Press_Model_Url_Other;
 use static_press\includes\response_processors\Static_Press_Response_Processor_200;
 use static_press\includes\Static_Press_Site_Dependency;

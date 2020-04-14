@@ -7,12 +7,8 @@
 
 namespace static_press\includes;
 
-if ( ! class_exists( 'static_press\includes\models\Static_Press_Model_Static_File' ) ) {
-	require STATIC_PRESS_PLUGIN_DIR . 'includes/models/class-static-press-model-static-file.php';
-}
-if ( ! class_exists( 'static_press\includes\Static_Press_Site_Dependency' ) ) {
-	require STATIC_PRESS_PLUGIN_DIR . 'includes/class-static-press-site-dependency.php';
-}
+require_once STATIC_PRESS_PLUGIN_DIR . 'includes/models/class-static-press-model-static-file.php';
+require_once STATIC_PRESS_PLUGIN_DIR . 'includes/class-static-press-site-dependency.php';
 use static_press\includes\models\Static_Press_Model_Static_File;
 use static_press\includes\Static_Press_Site_Dependency;
 /**

@@ -46,12 +46,8 @@ if ( ! defined( 'STATIC_PRESS_PLUGIN_DIR' ) ) {
 	 */
 	define( 'STATIC_PRESS_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 }
-if ( ! class_exists( 'Static_Press_Admin' ) ) {
-	require STATIC_PRESS_PLUGIN_DIR . 'includes/class-static-press-admin.php';
-}
-if ( ! class_exists( 'static_press\includes\Static_Press' ) ) {
-	require STATIC_PRESS_PLUGIN_DIR . 'includes/class-static-press.php';
-}
+require_once STATIC_PRESS_PLUGIN_DIR . 'includes/class-static-press-admin.php';
+require_once STATIC_PRESS_PLUGIN_DIR . 'includes/class-static-press.php';
 use static_press\includes\Static_Press;
 
 load_plugin_textdomain( Static_Press_Admin::TEXT_DOMAIN, false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );

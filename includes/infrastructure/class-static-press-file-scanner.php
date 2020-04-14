@@ -7,15 +7,9 @@
 
 namespace static_press\includes\infrastructure;
 
-if ( ! class_exists( 'static_press\includes\models\Static_Press_Model_Url' ) ) {
-	require STATIC_PRESS_PLUGIN_DIR . 'includes/models/class-static-press-model-url.php';
-}
-if ( ! class_exists( 'static_press\includes\models\Static_Press_Model_Url_Static_File' ) ) {
-	require STATIC_PRESS_PLUGIN_DIR . 'includes/models/class-static-press-model-url-static-file.php';
-}
-if ( ! class_exists( 'static_press\includes\factories\Static_Press_Factory_Model_Url_Static_File' ) ) {
-	require STATIC_PRESS_PLUGIN_DIR . 'includes/factories/class-static-press-factory-model-url-static-file.php';
-}
+require_once STATIC_PRESS_PLUGIN_DIR . 'includes/models/class-static-press-model-url.php';
+require_once STATIC_PRESS_PLUGIN_DIR . 'includes/models/class-static-press-model-url-static-file.php';
+require_once STATIC_PRESS_PLUGIN_DIR . 'includes/factories/class-static-press-factory-model-url-static-file.php';
 use static_press\includes\models\Static_Press_Model_Url;
 use static_press\includes\models\Static_Press_Model_Url_Static_File;
 use static_press\includes\factories\Static_Press_Factory_Model_Url_Static_File;
