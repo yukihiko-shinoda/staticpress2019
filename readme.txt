@@ -1,5 +1,5 @@
 === StaticPress2019 ===
-Contributors: wokamoto, megumitheme, amimotoami, yshinoda
+Contributors: wokamoto, amimotoami, yshinoda, pas5027, hideokamoto
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=9S8AJCY7XB8F4&lc=JP&item_name=WordPress%20Plugins&item_number=wp%2dplugins&currency_code=JPY&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted
 Tags: static
 Requires at least: 4.3
@@ -9,29 +9,22 @@ Stable tag: 0.6.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Transform your WordPress into static websites and blogs.
+Transforms your WordPress into static websites and blogs.
 
 == Description ==
 
+[StaticPress2019](https://wordpress.org/plugins/staticpress2019/) transforms your WordPress into static websites and blogs.
 
-This plugin is maintained by volunteers instead of the [original no longer maintained](https://wordpress.org/plugins/staticpress/).
+This plugin is a revival of [StaticPress](https://wordpress.org/plugins/staticpress/) by CI / CD pipeline and TDD, and maintained by volunteers instead of the original no longer maintained.
 
-Transform your WordPress into static websites and blogs.
-More documentation, you can find here: [StaticPress](http://en.staticpress.net/ "StaticPress")
-
-
-= Localization =
-"Static Press" has been translated into languages. Our thanks and appreciation must go to the following for their contributions:
-
-* Japanese (ja) - [OKAMOTO Wataru](http://dogmap.jp/ "dogmap.jp") (plugin author)
-* German (de) - [Olav Schettler](https://gist.github.com/oschettler/492541398b49d11cb746 "oschettler")
-
-If you have translated into your language, please let me know.
 
 == Installation ==
 
-1. Upload the entire `staticpress` folder to the `/wp-content/plugins/` directory.
-2. Activate the plugin through the 'Plugins' menu in WordPress.
+1. Go to Admin page on your WordPress.
+2. Click [Plugins] -> [Add New].
+3. Search by keyword: "staticpress2019".
+4. Click [Install Now] button.
+5. Click [Activate] button.
 
 == Frequently Asked Questions ==
 
