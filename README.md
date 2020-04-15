@@ -7,7 +7,7 @@
 [![WordPress Plugin: Required WP Version](https://img.shields.io/wordpress/plugin/wp-version/staticpress2019)](https://travis-ci.org/yukihiko-shinoda/staticpress2019)
 [![WordPress Plugin Active Installs](https://img.shields.io/wordpress/plugin/installs/staticpress2019)](https://wordpress.org/plugins/staticpress2019/advanced/)
 [![WordPress Plugin Downloads](https://img.shields.io/wordpress/plugin/dm/staticpress2019)](https://wordpress.org/plugins/staticpress2019/advanced/)
-[![Twitter URL](https://img.shields.io/twitter/url?style=social&url=https%3A%2F%2Fgithub.com%2Fyukihiko-shinoda%2Fstaticpress2019)](http://twitter.com/share?text=StaticPress2019&url=https://github.com/yukihiko-shinoda/staticpress&hashtags=staticpress2019)
+[![Twitter URL](https://img.shields.io/twitter/url?style=social&url=https%3A%2F%2Fgithub.com%2Fyukihiko-shinoda%2Fstaticpress2019)](http://twitter.com/share?text=StaticPress2019&url=https://github.com/yukihiko-shinoda/staticpress2019&hashtags=staticpress)
 
 Transforms your WordPress into static websites and blogs.
 
