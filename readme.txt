@@ -1,6 +1,6 @@
 === StaticPress2019 ===
-Contributors: wokamoto, amimotoami, yshinoda, pas5027, hideokamoto
-Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=9S8AJCY7XB8F4&lc=JP&item_name=WordPress%20Plugins&item_number=wp%2dplugins&currency_code=JPY&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted
+Contributors: yshinoda, wokamoto, amimotoami, pas5027, hideokamoto
+Donate link: https://www.amazon.co.jp/hz/wishlist/ls/7XDWZD7KHD56?ref_=wl_share
 Tags: static
 Requires at least: 4.3
 Tested up to: 5.4

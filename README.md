@@ -1,20 +1,13 @@
 # 🗽StaticPress2019🗿
 
-[![Build Status](https://travis-ci.org/yukihiko-shinoda/staticpress.svg?branch=master)](https://travis-ci.org/yukihiko-shinoda/staticpress)
+[![Build Status](https://travis-ci.org/yukihiko-shinoda/staticpress2019.svg?branch=master)](https://travis-ci.org/yukihiko-shinoda/staticpress2019)
 [![WordPress Plugin Version](https://img.shields.io/wordpress/plugin/v/staticpress2019)](https://wordpress.org/plugins/staticpress2019/)
-[![WordPress Plugin: Tested WP Version](https://img.shields.io/wordpress/plugin/tested/staticpress2019)](https://travis-ci.org/yukihiko-shinoda/staticpress)
-[![PHP from Travis config](https://img.shields.io/travis/php-v/yukihiko-shinoda/staticpress/master)](https://travis-ci.org/yukihiko-shinoda/staticpress)
-[![WordPress Plugin: Required WP Version](https://img.shields.io/wordpress/plugin/wp-version/staticpress2019)](https://travis-ci.org/yukihiko-shinoda/staticpress)
+[![WordPress Plugin: Tested WP Version](https://img.shields.io/wordpress/plugin/tested/staticpress2019)](https://travis-ci.org/yukihiko-shinoda/staticpress2019)
+[![PHP from Travis config](https://img.shields.io/travis/php-v/yukihiko-shinoda/staticpress2019/master)](https://travis-ci.org/yukihiko-shinoda/staticpress2019)
+[![WordPress Plugin: Required WP Version](https://img.shields.io/wordpress/plugin/wp-version/staticpress2019)](https://travis-ci.org/yukihiko-shinoda/staticpress2019)
 [![WordPress Plugin Active Installs](https://img.shields.io/wordpress/plugin/installs/staticpress2019)](https://wordpress.org/plugins/staticpress2019/advanced/)
 [![WordPress Plugin Downloads](https://img.shields.io/wordpress/plugin/dm/staticpress2019)](https://wordpress.org/plugins/staticpress2019/advanced/)
-
-## 🚚 Repository has moved
-
-New repository: [https://github.com/yukihiko-shinoda/staticpress2019](https://github.com/yukihiko-shinoda/staticpress2019)
-
-Details: [Move to new repository · Issue #28 · yukihiko-shinoda/staticpress](https://github.com/yukihiko-shinoda/staticpress/issues/28)
-
----
+[![Twitter URL](https://img.shields.io/twitter/url?style=social&url=https%3A%2F%2Fgithub.com%2Fyukihiko-shinoda%2Fstaticpress2019)](http://twitter.com/share?text=StaticPress2019&url=https://github.com/yukihiko-shinoda/staticpress&hashtags=staticpress2019)
 
 Transforms your WordPress into static websites and blogs.
 

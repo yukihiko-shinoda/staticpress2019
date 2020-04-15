@@ -3,10 +3,10 @@
  * StaticPress2019
  * 
  * @package     PluginPackage
+ * @author      Yukihiko Shinoda <yuk.hik.future@gmail.com>
  * @author      wokamoto
  * @author      megumitheme
  * @author      amimotoami
- * @author      Yukihiko Shinoda <yuk.hik.future@gmail.com>
  * @author      cat
  * @author      kazuaki.matsuhashi
  * @author      Olav Schettler
@@ -27,8 +27,8 @@
  * Plugin URI:  https://wordpress.org/plugins/staticpress2019/
  * Description: Transforms your WordPress into static websites and blogs.
  * Version:     0.6.2
- * Author:      wokamoto, amimotoami, yshinoda, pas5027, hideokamoto
- * Author URI:  http://www.digitalcube.jp/
+ * Author:      yshinoda, wokamoto, amimotoami, pas5027, hideokamoto
+ * Author URI:  https://github.com/yukihiko-shinoda
  * Text Domain: static-press
  * Domain Path: /languages
  * 
