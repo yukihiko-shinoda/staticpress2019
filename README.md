@@ -12,6 +12,8 @@
 
 New repository: [https://github.com/yukihiko-shinoda/staticpress2019](https://github.com/yukihiko-shinoda/staticpress2019)
 
+Details: [Move to new repository · Issue #28 · yukihiko-shinoda/staticpress](https://github.com/yukihiko-shinoda/staticpress/issues/28)
+
 ---
 
 Transforms your WordPress into static websites and blogs.
