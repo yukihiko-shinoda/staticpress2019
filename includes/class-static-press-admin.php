@@ -194,7 +194,9 @@ class Static_Press_Admin {
                                 update_option(self::OPTION_STATIC_DIR, $static_dir);
                                 $this->static_dir = $static_dir;
                         }
-                        if (is_wp_error($timeout)) {
+						update_option(self::OPTION_STATIC_BASIC, $basic_auth);
+						$this->basic_auth = $basic_auth;
+						if (is_wp_error($timeout)) {
                                 $e->add('error', $timeout->get_error_messages());
                         }else{
                                 update_option(self::OPTION_STATIC_TIMEOUT, $timeout);
