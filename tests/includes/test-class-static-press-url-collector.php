@@ -98,7 +98,7 @@ class Static_Press_Url_Collector_Test extends \WP_UnitTestCase {
 		file_put_contents( ABSPATH . 'test.txt', '' );
 		$expect_urls   = array_merge(
 			Model_Url_Creator::get_expect_urls_front_page(),
-			Model_Url_Creator::get_expect_urls_static_files( Mock_Creator::DATE_FOR_TEST ),
+			Model_Url_Creator::get_expect_urls_static_files(),
 			Model_Url_Creator::get_expect_urls_seo( Mock_Creator::DATE_FOR_TEST )
 		);
 		$url_collector = new Static_Press_Url_Collector(
@@ -161,7 +161,7 @@ class Static_Press_Url_Collector_Test extends \WP_UnitTestCase {
 	 */
 	public function test_static_files_url() {
 		file_put_contents( ABSPATH . 'test.txt', '' );
-		$expect = Model_Url_Creator::get_expect_urls_static_files( Mock_Creator::DATE_FOR_TEST );
+		$expect = Model_Url_Creator::get_expect_urls_static_files();
 		$actual = $this->create_accessable_method( null, 'static_files_url', array() );
 		Model_Url_Comparer::assert_contains_urls( $this, $expect, $actual );
 	}
