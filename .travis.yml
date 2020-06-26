@@ -31,7 +31,7 @@ matrix:
       env: WP_VERSION=latest
     - php: 7.3
       env: WP_VERSION=latest
-    # Because now PHP 7.2 is in the Active Support period and should be focused in development.
+    # Because now PHP 7.3 is in the Active Support period and should be focused in development.
     # @see https://www.php.net/supported-versions.php
     - php: 7.3
       env: WP_VERSION=trunk
