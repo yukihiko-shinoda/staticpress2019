@@ -7,17 +7,21 @@
 
 namespace static_press\tests\includes;
 
+require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/ajax_invokers/class-ajax-init-invoker.php';
+require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/ajax_invokers/class-ajax-fetch-invoker.php';
+require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/ajax_invokers/class-ajax-finalyze-invoker.php';
 require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/repositories/class-repository-for-test.php';
 require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/creators/class-mock-creator.php';
-require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/exceptions/class-die-exception.php';
 require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/infrastructure/class-environment.php';
 require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/infrastructure/class-file-system-operator.php';
 require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/class-model-url.php';
 use static_press\includes\Static_Press;
 use static_press\includes\models\Static_Press_Model_Url;
+use static_press\tests\testlibraries\ajax_invokers\Ajax_Init_Invoker;
+use static_press\tests\testlibraries\ajax_invokers\Ajax_Fetch_Invoker;
+use static_press\tests\testlibraries\ajax_invokers\Ajax_Finalyze_Invoker;
 use static_press\tests\testlibraries\repositories\Repository_For_Test;
 use static_press\tests\testlibraries\creators\Mock_Creator;
-use static_press\tests\testlibraries\exceptions\Die_Exception;
 use static_press\tests\testlibraries\infrastructure\Environment;
 use static_press\tests\testlibraries\infrastructure\File_System_Operator;
 use static_press\tests\testlibraries\Model_Url;
@@ -114,7 +118,8 @@ class Static_Press_Database_Test extends \WP_UnitTestCase {
 			'final'  => true,
 		);
 		$static_press = new Static_Press();
-		$array_json   = $this->request_fetch( $static_press );
+		$ajax_invoker = new Ajax_Fetch_Invoker( $this, $static_press );
+		$array_json   = $ajax_invoker->request();
 		$this->assertEquals( $expect, $array_json );
 	}
 
@@ -123,8 +128,8 @@ class Static_Press_Database_Test extends \WP_UnitTestCase {
 	 * 
 	 * @dataProvider provider_ajax_fetch_with_record
 	 * 
-	 * @param string $array_record   Array record.
-	 * @param string $expect         Expect return value.
+	 * @param Model_Url[] $array_record Array record.
+	 * @param string      $expect       Expect return value.
 	 * @runInSeparateProcess
 	 */
 	public function test_ajax_fetch_with_record( $array_record, $expect ) {
@@ -135,7 +140,8 @@ class Static_Press_Database_Test extends \WP_UnitTestCase {
 		}
 
 		$static_press = new Static_Press( '/', '', array(), null, Mock_Creator::create_remote_getter_mock() );
-		$this->assertEquals( $expect, $this->request_fetch( $static_press ) );
+		$ajax_invoker = new Ajax_Fetch_Invoker( $this, $static_press );
+		$this->assertEquals( $expect, $ajax_invoker->request() );
 	}
 
 	/**
@@ -289,7 +295,8 @@ class Static_Press_Database_Test extends \WP_UnitTestCase {
 		set_transient( "static static - {$user_id}", array( 'fetch_last_id' => 2 ), 3600 );
 		$expect       = array( 'result' => true );
 		$static_press = new Static_Press();
-		$this->assertEquals( $expect, $this->request_finalyze( $static_press ) );
+		$ajax_invoker = new Ajax_Finalyze_Invoker( $this, $static_press );
+		$this->assertEquals( $expect, $ajax_invoker->request() );
 	}
 
 	/**
@@ -309,7 +316,8 @@ class Static_Press_Database_Test extends \WP_UnitTestCase {
 			Mock_Creator::set_up_seo_url( 'http://example.org/' ),
 			Mock_Creator::create_docuemnt_root_getter_mock()
 		);
-		$array_json   = $this->request_init( $static_press );
+		$ajax_invoker = new Ajax_Init_Invoker( $this, $static_press );
+		$array_json   = $ajax_invoker->request();
 		$this->assertTrue( $array_json['result'] );
 		$array_urls_count  = $array_json['urls_count'];
 		$url_count_content = $array_urls_count[0];
@@ -331,7 +339,8 @@ class Static_Press_Database_Test extends \WP_UnitTestCase {
 			Mock_Creator::create_docuemnt_root_getter_mock()
 		);
 		while ( true ) {
-			$response = $this->request_fetch( $static_press );
+			$ajax_invoker = new Ajax_Fetch_Invoker( $this, $static_press );
+			$response     = $ajax_invoker->request();
 			if ( ! $response['result'] || $response['final'] ) {
 				break;
 			}
@@ -339,7 +348,8 @@ class Static_Press_Database_Test extends \WP_UnitTestCase {
 
 		$expect       = array( 'result' => true );
 		$static_press = new Static_Press( '/', File_System_Operator::OUTPUT_DIRECTORY );
-		$this->assertEquals( $expect, $this->request_finalyze( $static_press ) );
+		$ajax_invoker = new Ajax_Finalyze_Invoker( $this, $static_press );
+		$this->assertEquals( $expect, $ajax_invoker->request() );
 		$path_to_expect_file = File_System_Operator::OUTPUT_DIRECTORY . Environment::DIRECTORY_NAME_WORD_PRESS . '/wp-content/uploads/2020/03/white.png';
 		$files               = File_System_Operator::get_array_file_in_output_directory();
 		$message             = 'File ' . $path_to_expect_file . "doesn't exist.\nExisting file list:\n" . implode( "\n", $files );
@@ -362,65 +372,5 @@ class Static_Press_Database_Test extends \WP_UnitTestCase {
 		);
 		wp_set_current_user( $result->ID );
 		return $result->ID;
-	}
-
-	/**
-	 * Requests init.
-	 * 
-	 * @param Static_Press $static_press StaticPress.
-	 * @return array JSON responce.
-	 */
-	private function request_init( $static_press ) {
-		return $this->request(
-			function() use ( $static_press ) {
-				$static_press->ajax_init( Mock_Creator::create_terminator_mock() );
-			}
-		);
-	}
-
-	/**
-	 * Requests fetch.
-	 * 
-	 * @param Static_Press $static_press StaticPress.
-	 * @return array JSON responce.
-	 */
-	private function request_fetch( $static_press ) {
-		return $this->request(
-			function() use ( $static_press ) {
-				$static_press->ajax_fetch( Mock_Creator::create_terminator_mock() );
-			}
-		);
-	}
-
-	/**
-	 * Requests finalyze.
-	 * 
-	 * @param Static_Press $static_press StaticPress.
-	 * @return array JSON responce.
-	 */
-	private function request_finalyze( $static_press ) {
-		return $this->request(
-			function() use ( $static_press ) {
-				$static_press->ajax_finalyze( Mock_Creator::create_terminator_mock() );
-			}
-		);
-	}
-
-	/**
-	 * Requests.
-	 * 
-	 * @param callable $function StaticPress.
-	 * @return array JSON responce.
-	 */
-	private function request( $function ) {
-		ob_start();
-		try {
-			$function();
-		} catch ( Die_Exception $exception ) {
-			$output = ob_get_clean();
-			$this->assertEquals( 'Dead!', $exception->getMessage() );
-			return json_decode( $output, true );
-		}
-		$this->fail();
 	}
 }
