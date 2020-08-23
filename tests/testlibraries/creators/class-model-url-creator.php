@@ -10,6 +10,7 @@ namespace static_press\tests\testlibraries\creators;
 require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/creators/class-mock-creator.php';
 require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/class-expect-urls-static-files.php';
 require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/repositories/class-repository-for-test.php';
+require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/class-error-handler.php';
 require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/class-model-url.php';
 use static_press\includes\models\Static_Press_Model_Url;
 use static_press\includes\models\Static_Press_Model_Url_Author;
@@ -20,6 +21,7 @@ use static_press\includes\models\Static_Press_Model_Url_Single;
 use static_press\includes\models\Static_Press_Model_Url_Static_File;
 use static_press\includes\models\Static_Press_Model_Url_Term;
 use static_press\tests\testlibraries\creators\Mock_Creator;
+use static_press\tests\testlibraries\Error_Handler;
 use static_press\tests\testlibraries\Expect_Urls_Static_Files;
 use static_press\tests\testlibraries\Model_Url;
 use static_press\tests\testlibraries\repositories\Repository_For_Test;
@@ -127,15 +129,8 @@ class Model_Url_Creator {
 		 * 
 		 * @see https://stackoverflow.com/questions/1241728/can-i-try-catch-a-warning/1241751#1241751
 		 */
-		set_error_handler(
-			function( $errno, $errstr, $errfile, $errline, $errcontext ) {
-				// error was suppressed with the @-operator.
-				if ( 0 === error_reporting() ) {
-					return false;
-				}
-				throw new \LogicException( $errstr, $errno );
-			}
-		);
+		$error_handler = new Error_Handler();
+		set_error_handler( array( $error_handler, 'handle' ) );
 		$expect                = array();
 		$array_logic_exception = array();
 		foreach ( Expect_Urls_Static_Files::EXPECT_URLS as $expect_url ) {
