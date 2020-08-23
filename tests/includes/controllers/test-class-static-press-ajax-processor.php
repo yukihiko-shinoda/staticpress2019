@@ -42,6 +42,7 @@ class Static_Press_Ajax_Processor_Test extends \WP_UnitTestCase {
 	 * Function json_output() should die.
 	 * 
 	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
 	public function test_json_output() {
 		$argument     = array(

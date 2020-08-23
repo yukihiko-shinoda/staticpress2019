@@ -110,6 +110,7 @@ class Static_Press_Database_Test extends \WP_UnitTestCase {
 	 * Function ajax_fetch() should fail when record doesn't exist.
 	 * 
 	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
 	public function test_ajax_fetch_without_record() {
 		$this->sign_on_to_word_press();
@@ -131,6 +132,7 @@ class Static_Press_Database_Test extends \WP_UnitTestCase {
 	 * @param Model_Url[] $array_record Array record.
 	 * @param string      $expect       Expect return value.
 	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
 	public function test_ajax_fetch_with_record( $array_record, $expect ) {
 		$this->sign_on_to_word_press();
@@ -289,6 +291,7 @@ class Static_Press_Database_Test extends \WP_UnitTestCase {
 	 * Function ajax_finalyze() should response result.
 	 * 
 	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
 	public function test_ajax_finalyze() {
 		$user_id = $this->sign_on_to_word_press();
@@ -303,6 +306,7 @@ class Static_Press_Database_Test extends \WP_UnitTestCase {
 	 * Function ajax_init() should response record count per file type.
 	 * 
 	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
 	public function test_all() {
 		$resource_file_name = 'white.png';

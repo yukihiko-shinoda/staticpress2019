@@ -34,6 +34,7 @@ class Static_Press_Ajax_Init_Test extends \WP_UnitTestCase {
 	 * Function get_urls() should return urls of front page, static files, and SEO.
 	 * 
 	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
 	public function test_process_ajax_request_trancate() {
 		Repository_For_Test::insert_url(
