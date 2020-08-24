@@ -26,6 +26,8 @@ class Static_Press_Admin_Test extends \WP_UnitTestCase {
 
 	/**
 	 * Function admin_menu() should not throw any exception.
+	 * 
+	 * @doesNotPerformAssertions
 	 */
 	public function test_admin_menu() {
 		$static_press_admin = new \Static_Press_Admin( plugin_basename( __FILE__ ) );
