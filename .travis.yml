@@ -46,7 +46,7 @@ matrix:
     # count(): Parameter must be an array or an object that implements Countable
     # /wp-includes/kses.php:900
     - php: 7.1
-      env: WP_VERSION=4.3
+      env: WP_VERSION=4.3 PHPUNIT_REQUIRE="4.8.*|5.7.*"
       # Because WordPress 4.3 doesn't support MySQL 5.7.
       # WordPress database error Unknown system variable 'storage_engine' for query SET storage_engine = INNODB
       # in wordpress-test-lib/includes/install.php
@@ -85,7 +85,8 @@ before_script:
       # It seems to have to be not localhost but 127.0.0.1 on Ubuntu 18.04 .
       # @see https://stackoverflow.com/a/41997588
       bash bin/install-wp-tests.sh wordpress_test root '' 127.0.0.1 $WP_VERSION
-      composer global require "phpunit/phpunit:4.8.*|5.7.*" mockery/mockery:1.3.*
+      PHPUNIT_REQUIRE="${PHPUNIT_REQUIRE:-4.8.*|5.7.*|<8.0.0}"
+      composer global require "phpunit/phpunit:$PHPUNIT_REQUIRE" mockery/mockery:1.3.*
     fi
   - |
     if [[ "$WP_TRAVISCI" == "phpcs" ]] ; then
