@@ -73,7 +73,10 @@ matrix:
       env: WP_TRAVISCI=phpcs
 
 before_script:
-  - export PATH="$HOME/.composer/vendor/bin:$PATH"
+  # Travis CI introduced phpenv, composer global bin dir no longer refered without phpenv-composer plugin.
+  # @see https://ngyuki.hatenablog.com/entry/2014/03/09/054239
+  - git clone https://github.com/ngyuki/phpenv-composer.git ~/.phpenv/plugins/phpenv-composer
+  - phpenv rehash
   - |
     if [ -f ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/xdebug.ini ]; then
       phpenv config-rm xdebug.ini
