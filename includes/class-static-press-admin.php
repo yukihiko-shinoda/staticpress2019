@@ -272,13 +272,13 @@ class Static_Press_Admin {
 <script type="text/javascript">
 jQuery(function($){
 	var file_count = 0;
-	var loader = $('<div id="loader" style="line-height: 115px; text-align: center;"><img alt="activity indicator" src="<?php echo plugins_url( 'images/ajax-loader.gif' , dirname(__FILE__) ); ?>"></div>');
+	var loader = $('<div id="loader" style="line-height: 115px; text-align: center;"><img alt="activity indicator" src="<?php echo plugins_url( 'images/ajax-loader.gif', dirname( __FILE__ ) ); ?>"></div>');
 
 	function static_press_init(){
 		file_count = 0;
 		$('#rebuild').hide();
 		$('#rebuild-result')
-			.html('<p><strong><?php echo __('Initialyze...', self::TEXT_DOMAIN);?></strong></p>')
+			.html('<p><strong><?php echo __( 'Initialyze...', self::TEXT_DOMAIN ); ?></strong></p>')
 			.after(loader);
 		$.ajax('<?php echo $admin_ajax; ?>',{
 			data: {action: 'static_press_init'},
@@ -286,22 +286,26 @@ jQuery(function($){
 			dataType: 'json',
 			type: 'POST',
 			success: function(response){
-				<?php if (self::DEBUG_MODE) echo "console.log(response);\n" ?>
+				<?php
+				if ( self::DEBUG_MODE ) {
+					echo "console.log(response);\n";
+				}
+				?>
 				if (response.result) {
-					$('#rebuild-result').append('<p><strong><?php echo __('URLS', self::TEXT_DOMAIN);?></strong></p>')
+					$('#rebuild-result').append('<p><strong><?php echo __( 'URLS', self::TEXT_DOMAIN ); ?></strong></p>')
 					var ul = $('<ul></ul>');
 					$.each(response.urls_count, function(){
 						ul.append('<li>' + this.type + ' (' + this.count + ')</li>');
 					});
 					$('#rebuild-result').append('<p></p>').append(ul);
 				}
-				$('#rebuild-result').append('<p><strong><?php echo __('Fetch Start...', self::TEXT_DOMAIN);?></strong></p>');
+				$('#rebuild-result').append('<p><strong><?php echo __( 'Fetch Start...', self::TEXT_DOMAIN ); ?></strong></p>');
 				static_press_fetch();
 			},
 			error: function(){
 				$('#rebuild').show();
 				$('#loader').remove();
-				$('#rebuild-result').append('<p id="message"><strong><?php echo __('Error!', self::TEXT_DOMAIN);?></strong></p>');
+				$('#rebuild-result').append('<p id="message"><strong><?php echo __( 'Error!', self::TEXT_DOMAIN ); ?></strong></p>');
 				$('html,body').animate({scrollTop: $('#message').offset().top},'slow');
 				file_count = 0;
 			}
@@ -318,7 +322,11 @@ jQuery(function($){
 				if ($('#rebuild-result ul.result-list').size() == 0)
 					$('#rebuild-result').append('<p class="result-list-wrap"><ul class="result-list"></ul></p>');
 				if (response.result) {
-					<?php if (self::DEBUG_MODE) echo "console.log(response);\n" ?>
+					<?php
+					if ( self::DEBUG_MODE ) {
+						echo "console.log(response);\n";
+					}
+					?>
 					var ul = $('#rebuild-result ul.result-list');
 					$.each(response.files, function(){
 						if (this.static) {
@@ -340,7 +348,7 @@ jQuery(function($){
 			error: function(){
 				$('#rebuild').show();
 				$('#loader').remove();
-				$('#rebuild-result').append('<p id="message"><strong><?php echo __('Error!', self::TEXT_DOMAIN);?></strong></p>');
+				$('#rebuild-result').append('<p id="message"><strong><?php echo __( 'Error!', self::TEXT_DOMAIN ); ?></strong></p>');
 				$('html,body').animate({scrollTop: $('#message').offset().top},'slow');
 				file_count = 0;
 			}
@@ -354,17 +362,21 @@ jQuery(function($){
 			dataType: 'json',
 			type: 'POST',
 			success: function(response){
-				<?php if (self::DEBUG_MODE) echo "console.log(response);\n" ?>
+				<?php
+				if ( self::DEBUG_MODE ) {
+					echo "console.log(response);\n";
+				}
+				?>
 				$('#rebuild').show();
 				$('#loader').remove();
-				$('#rebuild-result').append('<p id="message"><strong><?php echo __('End',   self::TEXT_DOMAIN);?></strong></p>');
+				$('#rebuild-result').append('<p id="message"><strong><?php echo __( 'End', self::TEXT_DOMAIN ); ?></strong></p>');
 				$('html,body').animate({scrollTop: $('#message').offset().top},'slow');
 				file_count = 0;
 			},
 			error: function(){
 				$('#rebuild').show();
 				$('#loader').remove();
-				$('#rebuild-result').append('<p id="message"><strong><?php echo __('Error!',   self::TEXT_DOMAIN);?></strong></p>');
+				$('#rebuild-result').append('<p id="message"><strong><?php echo __( 'Error!', self::TEXT_DOMAIN ); ?></strong></p>');
 				$('html,body').animate({scrollTop: $('#message').offset().top},'slow');
 				file_count = 0;
 			}
