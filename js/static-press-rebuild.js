@@ -1,5 +1,6 @@
 jQuery(function ($) {
   const DEBUG_MODE_TRUE = "1";
+  var debug_mode = $("#debug-mode").text();
   var file_count = 0;
   var path_ajax_loader_gif = $("#path-ajax-loader-gif").text();
   var loader = $(
@@ -8,6 +9,17 @@ jQuery(function ($) {
       '"></div>'
   );
   var admin_ajax_php = $("#admin-ajax-php").text();
+
+  function error() {
+    $("#rebuild").show();
+    $("#loader").remove();
+    var text_error = $("#text-error").text();
+    $("#rebuild-result").append(
+      '<p id="message"><strong>' + text_error + "</strong></p>"
+    );
+    $("html,body").animate({ scrollTop: $("#message").offset().top }, "slow");
+    file_count = 0;
+  }
 
   function static_press_init() {
     file_count = 0;
@@ -22,7 +34,6 @@ jQuery(function ($) {
       dataType: "json",
       type: "POST",
       success: function (response) {
-        var debug_mode = $("#debug-mode").text();
         if (debug_mode == DEBUG_MODE_TRUE) {
           console.log(response);
         }
@@ -43,19 +54,7 @@ jQuery(function ($) {
         );
         static_press_fetch();
       },
-      error: function () {
-        $("#rebuild").show();
-        $("#loader").remove();
-        var text_error = $("#text-error").text();
-        $("#rebuild-result").append(
-          '<p id="message"><strong>' + text_error + "</strong></p>"
-        );
-        $("html,body").animate(
-          { scrollTop: $("#message").offset().top },
-          "slow"
-        );
-        file_count = 0;
-      },
+      error: error,
     });
   }
 
@@ -71,7 +70,6 @@ jQuery(function ($) {
             '<p class="result-list-wrap"><ul class="result-list"></ul></p>'
           );
         if (response.result) {
-          var debug_mode = $("#debug-mode").text();
           if (debug_mode == DEBUG_MODE_TRUE) {
             console.log(response);
           }
@@ -94,19 +92,7 @@ jQuery(function ($) {
           static_press_finalyze();
         }
       },
-      error: function () {
-        $("#rebuild").show();
-        $("#loader").remove();
-        var text_error = $("#text-error").text();
-        $("#rebuild-result").append(
-          '<p id="message"><strong>' + text_error + "</strong></p>"
-        );
-        $("html,body").animate(
-          { scrollTop: $("#message").offset().top },
-          "slow"
-        );
-        file_count = 0;
-      },
+      error: error,
     });
   }
 
@@ -117,7 +103,6 @@ jQuery(function ($) {
       dataType: "json",
       type: "POST",
       success: function (response) {
-        var debug_mode = $("#debug-mode").text();
         if (debug_mode == DEBUG_MODE_TRUE) {
           console.log(response);
         }
@@ -133,19 +118,7 @@ jQuery(function ($) {
         );
         file_count = 0;
       },
-      error: function () {
-        $("#rebuild").show();
-        $("#loader").remove();
-        var text_error = $("#text-error").text();
-        $("#rebuild-result").append(
-          '<p id="message"><strong>' + text_error + "</strong></p>"
-        );
-        $("html,body").animate(
-          { scrollTop: $("#message").offset().top },
-          "slow"
-        );
-        file_count = 0;
-      },
+      error: error,
     });
   }
 
