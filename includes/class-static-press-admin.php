@@ -257,6 +257,16 @@ class Static_Press_Admin {
 		<h2><?php echo esc_html( $title ); ?></h2>
 		<?php submit_button(__('Rebuild', self::TEXT_DOMAIN), 'primary', 'rebuild'); ?>
 		<div id="rebuild-result"></div>
+		<div>
+			<p hidden id="path-ajax-loader-gif"><?php echo plugins_url( 'images/ajax-loader.gif', dirname( __FILE__ ) ); ?></p>
+			<p hidden id="text-initialize"><?php echo __( 'Initialyze...', self::TEXT_DOMAIN ); ?></p>
+			<p hidden id="text-urls"><?php echo __( 'URLS', self::TEXT_DOMAIN ); ?></p>
+			<p hidden id="text-fetch-start"><?php echo __( 'Fetch Start...', self::TEXT_DOMAIN ); ?></p>
+			<p hidden id="text-error"><?php echo __( 'Error!', self::TEXT_DOMAIN ); ?></p>
+			<p hidden id="text-end"><?php echo __( 'End', self::TEXT_DOMAIN ); ?></p>
+			<p hidden id="admin-ajax-php"><?php echo admin_url( 'admin-ajax.php' ); ?></p>
+			<p hidden id="debug-mode"><?php echo self::DEBUG_MODE; ?></p>
+		</div>
 		</div>
 <?php
 
@@ -267,45 +277,50 @@ class Static_Press_Admin {
 	}
 
 	public function admin_footer(){
-		$admin_ajax = admin_url('admin-ajax.php');
 ?>
 <script type="text/javascript">
 jQuery(function($){
+	const DEBUG_MODE_TRUE = "1";
 	var file_count = 0;
-	var loader = $('<div id="loader" style="line-height: 115px; text-align: center;"><img alt="activity indicator" src="<?php echo plugins_url( 'images/ajax-loader.gif', dirname( __FILE__ ) ); ?>"></div>');
+	var path_ajax_loader_gif = $( "#path-ajax-loader-gif" ).text();
+	var loader = $('<div id="loader" style="line-height: 115px; text-align: center;"><img alt="activity indicator" src="' + path_ajax_loader_gif + '"></div>');
+	var admin_ajax_php = $( "#admin-ajax-php" ).text();
 
 	function static_press_init(){
 		file_count = 0;
 		$('#rebuild').hide();
+		var text_initialize = $( "#text-initialize" ).text();
 		$('#rebuild-result')
-			.html('<p><strong><?php echo __( 'Initialyze...', self::TEXT_DOMAIN ); ?></strong></p>')
+			.html('<p><strong>' + text_initialize + '</strong></p>')
 			.after(loader);
-		$.ajax('<?php echo $admin_ajax; ?>',{
+		$.ajax(admin_ajax_php,{
 			data: {action: 'static_press_init'},
 			cache: false,
 			dataType: 'json',
 			type: 'POST',
 			success: function(response){
-				<?php
-				if ( self::DEBUG_MODE ) {
-					echo "console.log(response);\n";
+				var debug_mode = $( "#debug-mode" ).text();
+				if (debug_mode == DEBUG_MODE_TRUE) {
+					console.log(response);
 				}
-				?>
 				if (response.result) {
-					$('#rebuild-result').append('<p><strong><?php echo __( 'URLS', self::TEXT_DOMAIN ); ?></strong></p>')
+					var text_urls = $( "#text-urls" ).text();
+					$('#rebuild-result').append('<p><strong>' + text_urls + '</strong></p>')
 					var ul = $('<ul></ul>');
 					$.each(response.urls_count, function(){
 						ul.append('<li>' + this.type + ' (' + this.count + ')</li>');
 					});
 					$('#rebuild-result').append('<p></p>').append(ul);
 				}
-				$('#rebuild-result').append('<p><strong><?php echo __( 'Fetch Start...', self::TEXT_DOMAIN ); ?></strong></p>');
+				var text_fetch_start = $( "#text-fetch-start" ).text();
+				$('#rebuild-result').append('<p><strong>' + text_fetch_start + '</strong></p>');
 				static_press_fetch();
 			},
 			error: function(){
 				$('#rebuild').show();
 				$('#loader').remove();
-				$('#rebuild-result').append('<p id="message"><strong><?php echo __( 'Error!', self::TEXT_DOMAIN ); ?></strong></p>');
+				var text_error = $( "#text-error" ).text();
+				$('#rebuild-result').append('<p id="message"><strong>' + text_error + '</strong></p>');
 				$('html,body').animate({scrollTop: $('#message').offset().top},'slow');
 				file_count = 0;
 			}
@@ -313,7 +328,7 @@ jQuery(function($){
 	}
 
 	function static_press_fetch(){
-		$.ajax('<?php echo $admin_ajax; ?>',{
+		$.ajax(admin_ajax_php,{
 			data: {action: 'static_press_fetch'},
 			cache: false,
 			dataType: 'json',
@@ -322,11 +337,10 @@ jQuery(function($){
 				if ($('#rebuild-result ul.result-list').size() == 0)
 					$('#rebuild-result').append('<p class="result-list-wrap"><ul class="result-list"></ul></p>');
 				if (response.result) {
-					<?php
-					if ( self::DEBUG_MODE ) {
-						echo "console.log(response);\n";
+					var debug_mode = $( "#debug-mode" ).text();
+					if (debug_mode == DEBUG_MODE_TRUE) {
+						console.log(response);
 					}
-					?>
 					var ul = $('#rebuild-result ul.result-list');
 					$.each(response.files, function(){
 						if (this.static) {
@@ -348,7 +362,8 @@ jQuery(function($){
 			error: function(){
 				$('#rebuild').show();
 				$('#loader').remove();
-				$('#rebuild-result').append('<p id="message"><strong><?php echo __( 'Error!', self::TEXT_DOMAIN ); ?></strong></p>');
+				var text_error = $( "#text-error" ).text();
+				$('#rebuild-result').append('<p id="message"><strong>' + text_error + '</strong></p>');
 				$('html,body').animate({scrollTop: $('#message').offset().top},'slow');
 				file_count = 0;
 			}
@@ -356,27 +371,28 @@ jQuery(function($){
 	}
 
 	function static_press_finalyze(){
-		$.ajax('<?php echo $admin_ajax; ?>',{
+		$.ajax(admin_ajax_php,{
 			data: {action: 'static_press_finalyze'},
 			cache: false,
 			dataType: 'json',
 			type: 'POST',
 			success: function(response){
-				<?php
-				if ( self::DEBUG_MODE ) {
-					echo "console.log(response);\n";
+				var debug_mode = $( "#debug-mode" ).text();
+				if (debug_mode == DEBUG_MODE_TRUE) {
+					console.log(response);
 				}
-				?>
 				$('#rebuild').show();
 				$('#loader').remove();
-				$('#rebuild-result').append('<p id="message"><strong><?php echo __( 'End', self::TEXT_DOMAIN ); ?></strong></p>');
+				var text_end = $( "#text-end" ).text();
+				$('#rebuild-result').append('<p id="message"><strong>' + text_end + '</strong></p>');
 				$('html,body').animate({scrollTop: $('#message').offset().top},'slow');
 				file_count = 0;
 			},
 			error: function(){
 				$('#rebuild').show();
 				$('#loader').remove();
-				$('#rebuild-result').append('<p id="message"><strong><?php echo __( 'Error!', self::TEXT_DOMAIN ); ?></strong></p>');
+				var text_error = $( "#text-error" ).text();
+				$('#rebuild-result').append('<p id="message"><strong>' + text_error + '</strong></p>');
 				$('html,body').animate({scrollTop: $('#message').offset().top},'slow');
 				file_count = 0;
 			}
