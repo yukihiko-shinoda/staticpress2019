@@ -5,18 +5,15 @@
  * @package static_press\includes
  */
 
-if ( ! class_exists( 'InputValidator' ) )
-	require dirname( __FILE__ ) . '/class-input-validator.php';
+namespace static_press\includes;
 
+require_once STATIC_PRESS_PLUGIN_DIR . 'includes/class-static-press-adapter-option.php';
+use static_press\includes\Static_Press_Adapter_Option;
 /**
  * StaticPress Admin page.
  */
 class Static_Press_Admin {
-	const OPTION_STATIC_URL     = 'StaticPress::static url';
-	const OPTION_STATIC_DIR     = 'StaticPress::static dir';
-	const OPTION_STATIC_BASIC   = 'StaticPress::basic auth';
-	const OPTION_STATIC_TIMEOUT = 'StaticPress::timeout';
-	const OPTION_PAGE           = 'static-press';
+	const OPTION_PAGE = 'static-press';
 	/**
 	 * Plugin name.
 	 * 
@@ -25,8 +22,6 @@ class Static_Press_Admin {
 	const TEXT_DOMAIN  = 'static-press';
 	const DEBUG_MODE   = false;
 	const ACCESS_LEVEL = 'manage_options';
-
-	static $instance;
 
 	/**
 	 * The result of plugin_basename( __FILE__ ) at plugin main file.
@@ -40,11 +35,11 @@ class Static_Press_Admin {
 	 * @var string
 	 */
 	private $translated_plugin_name_option;
-
-	private $static_url;
-	private $static_dir;
-	private $basic_auth;
-	private $timeout;
+	/**
+	 * URL to Settings page of StaticPress.
+	 * 
+	 * @var string
+	 */
 	private $admin_action;
 
 	/**
@@ -53,12 +48,6 @@ class Static_Press_Admin {
 	 * @param string $plugin_basename The result of plugin_basename( __FILE__ ) at plugin main file.
 	 */
 	public function __construct( $plugin_basename ) {
-		self::$instance = $this;
-
-		$this->static_url      = self::static_url();
-		$this->static_dir      = self::static_dir();
-		$this->basic_auth      = self::basic_auth();
-		$this->timeout         = self::timeout();
 		$this->plugin_basename = $plugin_basename;
 		$this->admin_action    = admin_url( '/admin.php' ) . '?page=' . self::OPTION_PAGE . '-options';
 
@@ -70,40 +59,46 @@ class Static_Press_Admin {
 		add_action( 'admin_head', array( $this, 'add_admin_head' ), 99 );
 	}
 
-	static public function static_url(){
-		return get_option(self::OPTION_STATIC_URL, self::get_site_url().'static/');
+	/**
+	 * Gets option: Static URL.
+	 */
+	public static function static_url() {
+		return Static_Press_Adapter_Option::static_url();
 	}
 
-	static public function static_dir(){
-		return get_option(self::OPTION_STATIC_DIR, ABSPATH);
+	/**
+	 * Gets option: Save DIR (Document root).
+	 */
+	public static function static_dir() {
+		return Static_Press_Adapter_Option::static_dir();
 	}
 
-	static public function basic_auth(){
-		return get_option(self::OPTION_STATIC_BASIC, false);
+	/**
+	 * Gets option: BASIC Auth User and BASIC Auth Password.
+	 */
+	public static function basic_auth() {
+		return Static_Press_Adapter_Option::basic_auth();
 	}
 
-	static public function timeout() {
-		return get_option(self::OPTION_STATIC_TIMEOUT, 5);
+	/**
+	 * Gets option: Request Timeout.
+	 */
+	public static function timeout() {
+		return Static_Press_Adapter_Option::timeout();
 	}
 
-	static public function remote_get_option(){
-		$options = array();
-		if ($basic_auth = self::basic_auth()) {
-			$options['headers'] = array('Authorization' => 'Basic '.$basic_auth);
-		}
-		if ($timeout = self::timeout()) {
-			$options['timeout'] = (int) $timeout;
-		}
-		return $options;
+	/**
+	 * Gets options of wp_remote_get().
+	 */
+	public static function remote_get_option() {
+		return Static_Press_Adapter_Option::remote_get_option();
 	}
 
-	static public function get_site_url(){
-		global $current_blog;
-		return trailingslashit(
-			isset($current_blog)
-			? get_home_url($current_blog->blog_id)
-			: get_home_url()
-			);
+	/**
+	 * Gets site URL.
+	 */
+	public static function get_site_url() {
+		return Static_Press_Adapter_Option::get_site_url();
 	}
 
 	/**
@@ -169,82 +164,37 @@ class Static_Press_Admin {
 		$nonce_action = 'update_options';
 		$nonce_name   = '_wpnonce_update_options';
 
-		$iv = new InputValidator( 'POST' );
-		$iv->set_rules($nonce_name, 'required');
-		$iv->set_rules('static_url', array('trim','esc_html','url','required'));
-		$iv->set_rules('static_dir', array('trim','esc_html','required'));
-		$iv->set_rules('basic_usr',  array('trim','esc_html'));
-		$iv->set_rules('basic_pwd',  array('trim','esc_html'));
-		$iv->set_rules('timeout',    array('numeric','required'));
-
-		// Update options.
-		if (!is_wp_error($iv->input($nonce_name)) && check_admin_referer($nonce_action, $nonce_name)) {
-			// Get posted options.
-			$static_url = $iv->input('static_url');
-			$static_dir = $iv->input('static_dir');
-			$basic_usr  = $iv->input('basic_usr');
-			$basic_pwd  = $iv->input('basic_pwd');
-			$timeout    = $iv->input('timeout');
-			$basic_auth =
-				($basic_usr && $basic_pwd)
-				? base64_encode("{$basic_usr}:{$basic_pwd}")
-				: false;
-
-			// Update options.
-			$e = new WP_Error();
-			if (is_wp_error($static_url)) {
-				$e->add('error', $static_url->get_error_messages());
-			}else{
-				update_option(self::OPTION_STATIC_URL, $static_url);
-				$this->static_url = $static_url;
+		$adapter_option = new Static_Press_Adapter_Option( $nonce_action, $nonce_name );
+		$validate = $adapter_option->validate();
+		if ( $validate ) {
+			$errors = $adapter_option->error->get_error_messages( 'error' );
+			echo '<div id="message" class="error"><p><strong>';
+			foreach ( $errors as $error ) {
+				$err_message = $error[0];
+				echo "$err_message" . '<br />';
 			}
-			if (is_wp_error($static_dir)) {
-				$e->add('error', $static_dir->get_error_messages());
-			}else{
-				update_option(self::OPTION_STATIC_DIR, $static_dir);
-				$this->static_dir = $static_dir;
-			}
-			update_option(self::OPTION_STATIC_BASIC, $basic_auth);
-			$this->basic_auth = $basic_auth;
-			if (is_wp_error($timeout)) {
-				$e->add('error', $timeout->get_error_messages());
-			}else{
-				update_option(self::OPTION_STATIC_TIMEOUT, $timeout);
-				$this->timeout    = $timeout;
-			}
-
-			if ($e->get_error_code()){
-				$errors = $e->get_error_messages('error');
-				echo '<div id="message" class="error"><p><strong>';
-				foreach( $errors as $error ) {
-					$err_message = $error[0];
-					echo "$err_message" . '<br />';
-				}
-				echo '</strong></p></div>';
-			}else{
-				printf(
-					'<div id="message" class="updated fade"><p><strong>%s</strong></p></div>'."\n", __('Done!', 'static-press')
-				);
-			}
+			echo '</strong></p></div>';
+		} elseif ( null !== $validate ) {
+			printf(
+				'<div id="message" class="updated fade"><p><strong>%s</strong></p></div>' . "\n",
+				__( 'Done!', 'static-press' )
+			);
 		}
-		do_action('StaticPress::options_save');
 
-		$basic_usr = '';
-		$basic_pwd = '';
-		if ( $this->basic_auth ) {
-			list( $basic_usr, $basic_pwd ) = explode( ':', base64_decode( $this->basic_auth ) );
-		}
+		do_action( 'StaticPress::options_save' );
+
+		list( $basic_usr, $basic_pwd ) = $adapter_option->get_basic_auth_decoded();
 		?>
 		<div class="wrap" id="<?php echo self::OPTION_PAGE; ?>-options">
 		<h2><?php echo esc_html( $this->translated_plugin_name_option ); ?></h2>
 		<form method="post" action="<?php echo $this->admin_action; ?>">
 		<?php echo wp_nonce_field( $nonce_action, $nonce_name, true, false ) . "\n"; ?>
 		<table class="wp-list-table fixed"><tbody>
-		<?php $this->input_field( 'static_url', __( 'Static URL', 'static-press' ), $this->static_url ); ?>
-		<?php $this->input_field( 'static_dir', __( 'Save DIR (Document root)', 'static-press' ), $this->static_dir ); ?>
+		<?php $this->input_field( 'static_url', __( 'Static URL', 'static-press' ), $adapter_option->static_url() ); ?>
+		<?php $this->input_field( 'static_dir', __( 'Save DIR (Document root)', 'static-press' ), $adapter_option->static_dir() ); ?>
 		<?php $this->input_field( 'basic_usr', __( '(OPTION) BASIC Auth User', 'static-press' ), $basic_usr ); ?>
 		<?php $this->input_field( 'basic_pwd', __( '(OPTION) BASIC Auth Password', 'static-press' ), $basic_pwd, 'password' ); ?>
-		<?php $this->input_field( 'timeout', __( '(OPTION) Request Timeout', 'static-press' ), $this->timeout ); ?>
+		<?php $this->input_field( 'timeout', __( '(OPTION) Request Timeout', 'static-press' ), $adapter_option->timeout() ); ?>
 		</tbody></table>
 		<?php submit_button(); ?>
 		</form>
