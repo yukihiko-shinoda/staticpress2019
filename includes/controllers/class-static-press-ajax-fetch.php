@@ -28,14 +28,14 @@ class Static_Press_Ajax_Fetch extends Static_Press_Ajax_Processor {
 
 	/**
 	 * Fetch result.
-	 * 
+	 *
 	 * @var Static_Press_Fetch_Result $fetch_result
 	 */
 	private $fetch_result;
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param string                            $static_site_url      Absolute URL of static site.
 	 * @param string                            $dump_directory       Directory to dump static files.
 	 * @param Static_Press_Repository           $repository           Database access instance.
@@ -51,7 +51,8 @@ class Static_Press_Ajax_Fetch extends Static_Press_Ajax_Processor {
 
 	/**
 	 * Fetches URL from database and crate static files.
-	 * 
+	 *
+	 * @return array JSON response.
 	 * @throws \LogicException Fetched URL has Inbalid file type.
 	 */
 	protected function process_ajax_request() {
@@ -69,12 +70,12 @@ class Static_Press_Ajax_Fetch extends Static_Press_Ajax_Processor {
 				'final'  => true,
 			);
 		}
-		$this->json_output( apply_filters( 'StaticPress::ajax_fetch', $result, $url ) );
+		return apply_filters( 'StaticPress::ajax_fetch', $result, $url );
 	}
 
 	/**
 	 * Fetches.
-	 * 
+	 *
 	 * @return Static_Press_Model_Url_Fetched $url URL.
 	 * @throws Static_Press_Business_Logic_Exception Case when fail to fetch first URL.
 	 * @throws \LogicException Fetched URL has Inbalid file type.
@@ -103,7 +104,7 @@ class Static_Press_Ajax_Fetch extends Static_Press_Ajax_Processor {
 
 	/**
 	 * Fetches first URL.
-	 * 
+	 *
 	 * @param Static_Press_Model_Url_Fetched $url URL.
 	 * @throws \LogicException URL has Inbalid file type.
 	 */
@@ -119,7 +120,7 @@ class Static_Press_Ajax_Fetch extends Static_Press_Ajax_Processor {
 
 	/**
 	 * Cretes static file for pages.
-	 * 
+	 *
 	 * @param Static_Press_Model_Url_Fetched $url URL.
 	 */
 	private function create_static_file_for_pages( $url ) {
@@ -145,7 +146,7 @@ class Static_Press_Ajax_Fetch extends Static_Press_Ajax_Processor {
 
 	/**
 	 * Fetches URL.
-	 * 
+	 *
 	 * @return Static_Press_Model_Url_Fetched Fetched URL when exist in database table, false when not exist in database table.
 	 * @throws Static_Press_Business_Logic_Exception Case when fail to fetch URL.
 	 */

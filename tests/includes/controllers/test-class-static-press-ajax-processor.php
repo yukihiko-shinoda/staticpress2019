@@ -40,32 +40,34 @@ class Static_Press_Ajax_Processor_Test extends \WP_UnitTestCase {
 
 	/**
 	 * Function json_output() should die.
-	 * 
+	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
 	 */
 	public function test_json_output() {
-		$argument     = array(
+		$argument                = array(
 			'result'     => true,
 			'urls_count' => array( 'test' ),
 		);
-		$expect       = '{"result":true,"urls_count":["test"]}';
-		$static_press = new Static_Press_Ajax_Init(
+		$expect_json             = '{"result":true,"urls_count":["test"]}';
+		$expect_http_status_code = 200;
+		$actual_json             = null;
+		$actual_http_status_code = null;
+		$static_press            = new Static_Press_Ajax_Init(
 			null,
 			null,
 			new Static_Press_Repository(),
 			null,
-			Mock_Creator::create_terminator_mock()
+			Mock_Creator::create_terminator_mock( $actual_json, $actual_http_status_code )
 		);
-		$reflection   = new \ReflectionClass( get_class( $static_press ) );
-		$method       = $reflection->getMethod( 'json_output' );
+		$reflection              = new \ReflectionClass( get_class( $static_press ) );
+		$method                  = $reflection->getMethod( 'json_output' );
 		$method->setAccessible( true );
-		ob_start();
 		try {
 			$method->invokeArgs( $static_press, array( $argument ) );
 		} catch ( Die_Exception $exception ) {
-			$output = ob_get_clean();
-			$this->assertEquals( $expect, $output );
+			$this->assertEquals( $expect_json, $actual_json );
+			$this->assertEquals( $expect_http_status_code, $actual_http_status_code );
 			return;
 		}
 		$this->fail();
@@ -104,7 +106,7 @@ class Static_Press_Ajax_Processor_Test extends \WP_UnitTestCase {
 	 * Function create_static_file() should create home page.
 	 * Function create_static_file() should create static file.
 	 * Function create_static_file() should create seo files.
-	 * 
+	 *
 	 * @return array[]
 	 */
 	public function provider_create_static_file() {
@@ -148,7 +150,7 @@ class Static_Press_Ajax_Processor_Test extends \WP_UnitTestCase {
 	/**
 	 * Function create_static_file() should throw exception when HTTP status code is not 200.
 	 * Function create_static_file() should throw exception when static file doesn't exist.
-	 * 
+	 *
 	 * @return array[]
 	 */
 	public function provider_create_static_file_exception() {
@@ -160,7 +162,7 @@ class Static_Press_Ajax_Processor_Test extends \WP_UnitTestCase {
 
 	/**
 	 * Creates accessable method.
-	 * 
+	 *
 	 * @param  string        $method_name     Method name.
 	 * @param  array         $array_parameter Array of parameter.
 	 * @param  MockInterface $remote_get_mock Mock interface for Remote get.

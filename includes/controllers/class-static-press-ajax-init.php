@@ -18,11 +18,13 @@ use static_press\includes\Static_Press_Url_Updater;
 class Static_Press_Ajax_Init extends Static_Press_Ajax_Processor {
 	/**
 	 * List all URL into database table and render JSON responce.
+	 *
+	 * @return array JSON response.
 	 */
 	protected function process_ajax_request() {
 		$this->repository->truncate_table();
 		$this->insert_all_url();
-		$this->json_output( apply_filters( 'StaticPress::ajax_init', $this->count_url_per_type() ) );
+		return apply_filters( 'StaticPress::ajax_init', $this->count_url_per_type() );
 	}
 
 	/**
@@ -35,8 +37,8 @@ class Static_Press_Ajax_Init extends Static_Press_Ajax_Processor {
 
 	/**
 	 * Counts number of URLs per type.
-	 * 
-	 * @return array 
+	 *
+	 * @return array
 	 */
 	private function count_url_per_type() {
 		$all_urls = $this->repository->count_url_per_type( $this->fetch_start_time() );
@@ -45,7 +47,7 @@ class Static_Press_Ajax_Init extends Static_Press_Ajax_Processor {
 
 	/**
 	 * Creates response.
-	 * 
+	 *
 	 * @param array $all_urls All URLs.
 	 * @return array Response.
 	 */

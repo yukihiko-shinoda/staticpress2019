@@ -59,15 +59,8 @@ class Static_Press_Ajax_Init_Test extends \WP_UnitTestCase {
 			Model_Url_Creator::create_model_url_fetched( 1, Static_Press_Model_Url::TYPE_OTHER_PAGE, '/test/', 1 ),
 		);
 		$this->assertEquals( $expect_database, Repository_For_Test::get_all_url() );
-		ob_start();
-		try {
-			$actual = $this->create_accessable_method( 'process_ajax_request', array() );
-		} catch ( Die_Exception $exception ) {
-			ob_get_clean();
-			Model_Url_Comparer::assert_not_contains_urls( $this, $expect_database, Repository_For_Test::get_all_url() );
-			return;
-		}
-		$this->fail();
+		$this->create_accessable_method( 'process_ajax_request', array() );
+		Model_Url_Comparer::assert_not_contains_urls( $this, $expect_database, Repository_For_Test::get_all_url() );
 	}
 
 	/**

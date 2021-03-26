@@ -18,8 +18,8 @@ jQuery(function ($) {
     this.file_count = 0;
     this.dom = $('<ul class="result-list"></ul>');
     var dom_p = $('<p class="result-list-wrap"></p>');
-    dom_p.append(this.dom)
-    dom.append(dom_p)
+    dom_p.append(this.dom);
+    dom.append(dom_p);
     this.display_file = function (files) {
       var ul = this.dom;
       var file_count = this.file_count;
@@ -29,7 +29,7 @@ jQuery(function ($) {
           ul.append("<li>" + file_count + " : " + this.static + "</li>");
         }
       });
-      this.dom = ul
+      this.dom = ul;
       this.file_count = file_count;
       if (!($("li:last-child", this.dom).offset() === void 0)) {
         $("html,body").animate(
@@ -53,9 +53,23 @@ jQuery(function ($) {
       this.dom.append('<p id="message"><strong>' + text + "</strong></p>");
       $("html,body").animate({ scrollTop: $("#message").offset().top }, "slow");
     };
-    this.display_error = function () {
+    this.display_error = function (jqxhr, textStatus) {
       this.loader.remove();
       this.display_message(this.text_error);
+      if (textStatus !== null) {
+        this.dom.append("<p><strong>" + textStatus + "</strong></p>");
+      }
+      if (
+        jqxhr.hasOwnProperty("responseJSON") &&
+        jqxhr.responseJSON.hasOwnProperty("representation")
+      ) {
+        this.dom.append(
+          // see:
+          //   - Answer: javascript - How do I replace all line breaks in a string with <br /> elements? - Stack Overflow
+          //     https://stackoverflow.com/a/784547/12721873
+          "<p><strong>" + jqxhr.responseJSON.representation.replace(/(?:\r\n|\r|\n)/g, '<br>') + "</strong></p>"
+        );
+      }
     };
     this.initialize = function () {
       this.loader.append_after(
@@ -100,9 +114,10 @@ jQuery(function ($) {
   var rebuild_result = new RebuildResult();
   var debug_logger = new DebugLogger();
 
-  function error() {
+  function error(jqxhr, textStatus) {
+    debug_logger.log(jqxhr);
     $("#rebuild").show();
-    rebuild_result.display_error();
+    rebuild_result.display_error(jqxhr, textStatus);
   }
 
   function static_press_init() {
