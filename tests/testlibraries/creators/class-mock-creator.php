@@ -10,43 +10,46 @@ namespace static_press\tests\testlibraries\creators;
 require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/exceptions/class-die-exception.php';
 require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/infrastructure/class-environment.php';
 require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/infrastructure/class-file-system-operator.php';
+
 use Mockery;
 use static_press\tests\testlibraries\exceptions\Die_Exception;
 use static_press\tests\testlibraries\infrastructure\Environment;
 use static_press\tests\testlibraries\infrastructure\File_System_Operator;
+
 /**
  * Mock creator.
  */
 class Mock_Creator {
+
 	const DATE_FOR_TEST = '2019-12-23 12:34:56';
 	/**
 	 * Sets up for testing seo_url().
-	 * 
+	 *
 	 * @param string $url URL.
 	 */
 	public static function set_up_seo_url( $url ) {
 		$remote_getter_mock = Mockery::mock( 'alias:Remote_Getter_Mock' );
 		$remote_getter_mock->shouldReceive( 'remote_get' )
-		->with( $url . 'robots.txt' )
-		->andReturn( self::create_response( '/robots.txt', 'robots.txt' ) );
+			->with( $url . 'robots.txt' )
+			->andReturn( self::create_response( '/robots.txt', 'robots.txt' ) );
 		$remote_getter_mock->shouldReceive( 'remote_get' )
-		->with( $url . 'sitemap.xml' )
-		->andReturn( self::create_response( '/sitemap.xml', 'sitemap.xml' ) );
+			->with( $url . 'sitemap.xml' )
+			->andReturn( self::create_response( '/sitemap.xml', 'sitemap.xml' ) );
 		$remote_getter_mock->shouldReceive( 'remote_get' )
-		->with( $url . 'sitemap-misc.xml' )
-		->andReturn( self::create_response( '/sitemap-misc.xml', 'sitemap-misc.xml' ) );
+			->with( $url . 'sitemap-misc.xml' )
+			->andReturn( self::create_response( '/sitemap-misc.xml', 'sitemap-misc.xml' ) );
 		$remote_getter_mock->shouldReceive( 'remote_get' )
-		->with( $url . 'sitemap-tax-category.xml' )
-		->andReturn( self::create_response( '/sitemap-tax-category.xml', 'sitemap-tax-category.xml' ) );
+			->with( $url . 'sitemap-tax-category.xml' )
+			->andReturn( self::create_response( '/sitemap-tax-category.xml', 'sitemap-tax-category.xml' ) );
 		$remote_getter_mock->shouldReceive( 'remote_get' )
-		->with( $url . 'sitemap-pt-post-2020-02.xml' )
-		->andReturn( self::create_response( '/sitemap-pt-post-2020-02.xml', 'sitemap-pt-post-2020-02.xml' ) );
+			->with( $url . 'sitemap-pt-post-2020-02.xml' )
+			->andReturn( self::create_response( '/sitemap-pt-post-2020-02.xml', 'sitemap-pt-post-2020-02.xml' ) );
 		return $remote_getter_mock;
 	}
 
 	/**
 	 * Creates mock for Remote Getter to prevent to call wp_remote_get since web server is not running in PHPUnit environment.
-	 * 
+	 *
 	 * @param integer $status_code Status code.
 	 * @return MockInterface Mock interface.
 	 */
@@ -58,7 +61,7 @@ class Mock_Creator {
 
 	/**
 	 * Creates response.
-	 * 
+	 *
 	 * @param string $url         URL.
 	 * @param string $file_name   File name.
 	 * @param int    $status_code HTTP status code.
@@ -108,18 +111,22 @@ class Mock_Creator {
 
 	/**
 	 * Creates mock for Terminator to prevent to call die().
-	 * 
+	 *
+	 * @param array|null $json             Capture of JSON.
+	 * @param int|null   $http_status_code Capture of HTTP status code.
 	 * @return MockInterface Mock interface.
 	 */
-	public static function create_terminator_mock() {
+	public static function create_terminator_mock( &$json = null, &$http_status_code = null ) {
 		$terminator_mock = Mockery::mock( 'alias:Terminator_Mock' );
-		$terminator_mock->shouldReceive( 'terminate' )->andThrow( new Die_Exception( 'Dead!' ) );
+		$terminator_mock->shouldReceive( 'terminate' )
+			->with( Mockery::capture( $json ), Mockery::capture( $http_status_code ) )
+			->andThrow( new Die_Exception( 'Dead!' ) );
 		return $terminator_mock;
 	}
 
 	/**
 	 * Creates mock for Date time factory to fix date time.
-	 * 
+	 *
 	 * @param string $function_name Function name.
 	 * @param string $parameter     Parameter.
 	 * @param mixed  $return_value  Return value.
@@ -127,14 +134,14 @@ class Mock_Creator {
 	public static function create_date_time_factory_mock( $function_name, $parameter, $return_value = self::DATE_FOR_TEST ) {
 		$date_time_factory_mock = Mockery::mock( 'alias:Date_Time_Factory_Mock' );
 		$date_time_factory_mock->shouldReceive( $function_name )
-		->with( $parameter )
-		->andReturn( $return_value );
+			->with( $parameter )
+			->andReturn( $return_value );
 		return $date_time_factory_mock;
 	}
 
 	/**
 	 * Creates mock for Date time factory to fix date time.
-	 * 
+	 *
 	 * @param string $return_value Return value.
 	 */
 	public static function create_docuemnt_root_getter_mock( $return_value = null ) {

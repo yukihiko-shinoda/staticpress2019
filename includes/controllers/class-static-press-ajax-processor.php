@@ -16,6 +16,8 @@ require_once STATIC_PRESS_PLUGIN_DIR . 'includes/static_file_creators/class-stat
 require_once STATIC_PRESS_PLUGIN_DIR . 'includes/class-static-press-date-time-factory.php';
 require_once STATIC_PRESS_PLUGIN_DIR . 'includes/class-static-press-terminator.php';
 require_once STATIC_PRESS_PLUGIN_DIR . 'includes/class-static-press-url-collector.php';
+
+use static_press\includes\exceptions\Static_Press_Business_Logic_Exception;
 use static_press\includes\factories\Static_Press_Factory_Static_File_Creator;
 use static_press\includes\infrastructure\Static_Press_Document_Root_Getter;
 use static_press\includes\models\Static_Press_Model_Url;
@@ -31,50 +33,50 @@ use static_press\includes\Static_Press_Url_Collector;
 abstract class Static_Press_Ajax_Processor {
 	/**
 	 * Absolute URL of static site.
-	 * 
+	 *
 	 * @var string
 	 */
 	protected $static_site_url;
 	/**
 	 * Directory to dump static files.
-	 * 
+	 *
 	 * @var string
 	 */
 	protected $dump_directory;
 	/**
 	 * Database access instance.
-	 * 
+	 *
 	 * @var Static_Press_Repository
 	 */
 	protected $repository;
 	/**
 	 * URL collector instance.
-	 * 
+	 *
 	 * @var Static_Press_Url_Collector
 	 */
 	protected $url_collector;
 	/**
 	 * Terminator instance.
-	 * 
+	 *
 	 * @var Static_Press_Terminator
 	 */
 	private $terminator;
 	/**
 	 * Date time factory instance.
-	 * 
+	 *
 	 * @var Static_Press_Date_Time_Factory
 	 */
 	private $date_time_factory;
 	/**
 	 * Document root getter.
-	 * 
+	 *
 	 * @var Static_Press_Document_Root_Getter
 	 */
 	protected $document_root_getter;
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param string                            $static_site_url      Absolute URL of static site.
 	 * @param string                            $dump_directory       Directory to dump static files.
 	 * @param Static_Press_Repository           $repository           Database access instance.
@@ -92,27 +94,52 @@ abstract class Static_Press_Ajax_Processor {
 		$this->date_time_factory    = $date_time_factory ? $date_time_factory : new Static_Press_Date_Time_Factory();
 		$this->document_root_getter = $document_root_getter ? $document_root_getter : new Static_Press_Document_Root_Getter();
 	}
+
 	/**
 	 * Executes to process ajax request.
 	 */
 	public function execute() {
 		if ( ! is_user_logged_in() ) {
-			wp_die( 'Forbidden' );
+			$this->json_output( $this->convert_exception_to_array( new Static_Press_Business_Logic_Exception( 'Forbidden' ) ), 403 );
 		}
 		if ( ! defined( 'WP_DEBUG_DISPLAY' ) ) {
 			define( 'WP_DEBUG_DISPLAY', false );
 		}
-		$this->process_ajax_request();
+		try {
+			$json_array = $this->process_ajax_request();
+		} catch ( Static_Press_Business_Logic_Exception $exception ) {
+			$this->json_output( $this->convert_exception_to_array( $exception ), 400 );
+		} catch ( \Exception $exception ) {
+			$this->json_output( $this->convert_exception_to_array( $exception ), 500 );
+		}
+		$this->json_output( $json_array );
+	}
+
+	/**
+	 * Converts exception to array.
+	 *
+	 * @param  Exception $exception Exception.
+	 * @return array     Array.
+	 */
+	private function convert_exception_to_array( $exception ) {
+		return array(
+			'file'           => $exception->getFile(),
+			'line'           => $exception->getLine(),
+			'message'        => $exception->getMessage(),
+			'representation' => $exception->__toString(),
+		);
 	}
 
 	/**
 	 * Executes to process ajax request.
+	 *
+	 * @return array JSON response.
 	 */
 	abstract protected function process_ajax_request();
 
 	/**
 	 * Fetches start time.
-	 * 
+	 *
 	 * @return string
 	 */
 	protected function fetch_start_time() {
@@ -122,18 +149,18 @@ abstract class Static_Press_Ajax_Processor {
 
 	/**
 	 * Dumps JSON responce.
-	 * 
-	 * @param array $content Content.
+	 *
+	 * @param array   $content          Content.
+	 * @param intefer $http_status_code HTTP status code.
 	 */
-	protected function json_output( $content ) {
+	protected function json_output( $content, $http_status_code = 200 ) {
 		header( 'Content-Type: application/json; charset=' . get_option( 'blog_charset' ) );
-		echo json_encode( $content );
-		$this->terminator->terminate();
+		$this->terminator->terminate( json_encode( $content ), $http_status_code );
 	}
 
 	/**
 	 * Creates static file creator remote.
-	 * 
+	 *
 	 * @param Static_Press_Response_Processor_200 $response_processor_200 Response processor for HTTP status code 200.
 	 * @param Static_Press_Response_Processor_404 $response_processor_404 Response processor for HTTP status code 404.
 	 * @return Static_Press_Static_File_Creator_Remote Static file creator remote.
@@ -153,7 +180,7 @@ abstract class Static_Press_Ajax_Processor {
 
 	/**
 	 * Creates static file creator by factory.
-	 * 
+	 *
 	 * @param Static_Press_Model_Url_Fetched $url URL.
 	 * @return Static_Press_Static_File_Creator Static file creator.
 	 * @throws \LogicException URL has Inbalid file type.
@@ -172,7 +199,7 @@ abstract class Static_Press_Ajax_Processor {
 
 	/**
 	 * Creates response processor 200 crawl.
-	 * 
+	 *
 	 * @return Static_Press_Response_Processor_200_Crawl Response processor 200 crawl.
 	 */
 	protected function create_response_porcessor_200_crawl() {

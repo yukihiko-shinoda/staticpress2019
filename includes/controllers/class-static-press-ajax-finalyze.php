@@ -25,7 +25,9 @@ use static_press\includes\Static_Press_Site_Dependency;
  */
 class Static_Press_Ajax_Finalyze extends Static_Press_Ajax_Processor {
 	/**
-	 * Creates 404 error page html static file, 
+	 * Creates 404 error page html static file,
+	 *
+	 * @return array JSON response.
 	 */
 	protected function process_ajax_request() {
 		$static_file_creator = $this->create_static_file_creator_remote(
@@ -40,7 +42,6 @@ class Static_Press_Ajax_Finalyze extends Static_Press_Ajax_Processor {
 		}
 		Static_Press_Repository_Progress::delete();
 
-		$result = array( 'result' => true );
-		$this->json_output( apply_filters( 'StaticPress::ajax_finalyze', $result ) );
+		return apply_filters( 'StaticPress::ajax_finalyze', array( 'result' => true ) );
 	}
 }

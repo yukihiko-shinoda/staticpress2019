@@ -18,14 +18,15 @@ if ( ! defined( 'STATIC_PRESS_PLUGIN_DIR' ) ) {
 	 */
 	define( 'STATIC_PRESS_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 }
-require_once STATIC_PRESS_PLUGIN_DIR . 'includes/class-static-press-admin.php';
+require_once STATIC_PRESS_PLUGIN_DIR . 'includes/class-static-press-adapter-option.php';
 require_once STATIC_PRESS_PLUGIN_DIR . 'includes/repositories/class-static-press-repository.php';
+use static_press\includes\Static_Press_Adapter_Option;
 use static_press\includes\repositories\Static_Press_Repository;
 
-delete_option( Static_Press_Admin::OPTION_STATIC_URL );
-delete_option( Static_Press_Admin::OPTION_STATIC_DIR );
-delete_option( Static_Press_Admin::OPTION_STATIC_BASIC );
-delete_option( Static_Press_Admin::OPTION_STATIC_TIMEOUT );
+delete_option( Static_Press_Adapter_Option::OPTION_STATIC_URL );
+delete_option( Static_Press_Adapter_Option::OPTION_STATIC_DIR );
+delete_option( Static_Press_Adapter_Option::OPTION_STATIC_BASIC );
+delete_option( Static_Press_Adapter_Option::OPTION_STATIC_TIMEOUT );
 
 $static_press_repository = new Static_Press_Repository();
 $static_press_repository->drop_table_if_exists();
