@@ -5,7 +5,7 @@ Tags: static
 Requires at least: 4.3
 Tested up to: 5.7
 Requires PHP: 5.6
-Stable tag: 0.6.3
+Stable tag: 0.7.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -38,6 +38,10 @@ none
 3. Rebuild!
 
 == Changelog ==
+
+**0.7.0 - March 29, 2021**
+Support WordPress 5.6, 5.7.
+Display error message as much as possible when build.
 
 **0.6.3 - June 19, 2020**
 Fix bug that can't authenticate by basic authentication.
@@ -123,6 +127,9 @@ source code refactoring
 Initial release.
 
 == Upgrade Notice ==
+
+= 0.7.0 =
+This version supports WordPress 5.6, 5.7, display error message as much as possible when build.
 
 = 0.6.3 =
 This version fixes bug that can't authenticate by basic authentication.
