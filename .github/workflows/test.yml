@@ -9,6 +9,13 @@ on:
 jobs:
   e2e:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+       include:
+         - wordpress-image-tag: latest
+           modernity: modern
+         - wordpress-image-tag: 4.3-apache
+           modernity: legacy
     steps:
       - uses: actions/checkout@v2
         with:
@@ -32,3 +39,5 @@ jobs:
         working-directory: ${{ github.workspace }}/docker-compose-jest-puppeteer-staticpress2019
         env:
           PATH_TO_PLUGIN_DIRECTORY: ${{ github.workspace }}/plugins
+          WORDPRESS_IMAGE_TAG: ${{ matrix.wordpress-image-tag }}
+          MODERNITY: ${{ matrix.modernity }}
