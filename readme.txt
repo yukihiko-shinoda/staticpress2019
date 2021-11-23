@@ -3,7 +3,7 @@ Contributors: yshinoda, wokamoto, amimotoami, pas5027, hideokamoto
 Donate link: https://www.amazon.co.jp/hz/wishlist/ls/7XDWZD7KHD56?ref_=wl_share
 Tags: static
 Requires at least: 4.3
-Tested up to: 5.7
+Tested up to: 5.8
 Requires PHP: 5.6
 Stable tag: 0.7.0
 License: GPLv2 or later
