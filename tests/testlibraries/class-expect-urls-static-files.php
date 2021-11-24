@@ -609,7 +609,6 @@ class Expect_Urls_Static_Files {
 		'/wp-content/plugins/akismet/_inc/img/logo-full-2x.png',
 		'/wp-content/plugins/akismet/_inc/akismet.css',
 		'/wp-content/plugins/akismet/_inc/akismet.js',
-		'/wp-content/plugins/akismet/_inc/form.js',
 		'/wp-content/plugins/akismet/LICENSE.txt',
 		'/wp-content/plugins/akismet/readme.txt',
 	);

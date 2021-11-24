@@ -251,9 +251,9 @@ class Static_Press_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Test steps for test_replace_relative_URI().
+	 * Test steps for test_replace_relative_uri().
 	 *
-	 * @dataProvider provider_replace_relative_URI
+	 * @dataProvider provider_replace_relative_uri2
 	 *
 	 * @param string $content argument.
 	 * @param string $expect Expect return value.
@@ -264,11 +264,11 @@ class Static_Press_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Function replace_relative_URI() should replace site URL to the static URL.
-	 * Function replace_relative_URI() should replace relative path in the attributes to the static path.
-	 * Function replace_relative_URI() should not replace external URL starts with "//".
+	 * Function replace_relative_uri() should replace site URL to the static URL.
+	 * Function replace_relative_uri() should replace relative path in the attributes to the static path.
+	 * Function replace_relative_uri() should not replace external URL starts with "//".
 	 */
-	public function provider_replace_relative_URI() {
+	public function provider_replace_relative_uri2() {
 		return array(
 			array(
 				'http://example.org/foo/bar/',
@@ -277,6 +277,46 @@ class Static_Press_Test extends \WP_UnitTestCase {
 			array(
 				'<a href="/foo/bar/"></a>',
 				'<a href="/static/foo/bar/"></a>',
+			),
+			array(
+				'<a href="//example.test/foo/bar/"></a>',
+				'<a href="//example.test/foo/bar/"></a>',
+			),
+		);
+	}
+
+	/**
+	 * Test steps for test_replace_relative_uri().
+	 *
+	 * @dataProvider provider_replace_relative_uri3
+	 *
+	 * @param string $content argument.
+	 * @param string $expect Expect return value.
+	 */
+	public function test_replace_relative_uri3( $content, $expect ) {
+		update_option( 'home', 'https://dynamic-site.com/sub/' );
+		$static_press = new Static_Press( 'http://example.org' );
+		$this->assertEquals( $expect, $static_press->replace_relative_uri( $content ) );
+	}
+
+	/**
+	 * Function replace_relative_uri() should replace site URL to the static URL.
+	 * Function replace_relative_uri() should replace relative path in the attributes to the static path.
+	 * Function replace_relative_uri() should not replace external URL starts with "//".
+	 */
+	public function provider_replace_relative_uri3() {
+		return array(
+			array(
+				'https://dynamic-site.com/sub/foo/bar/',
+				'http://example.org/foo/bar/',
+			),
+			array(
+				'<a href="https://dynamic-site.com/sub"></a>',
+				'<a href="/"></a>',
+			),
+			array(
+				'<a href="https://dynamic-site.com/sub/foo/bar/"></a>',
+				'<a href="/foo/bar/"></a>',
 			),
 			array(
 				'<a href="//example.test/foo/bar/"></a>',

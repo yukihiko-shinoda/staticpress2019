@@ -62,6 +62,7 @@ class Static_Press_Content_Filter_Replace_Relative_Uri {
 		if ( $this->url_dynamic_home !== $this->url_static_home ) {
 			$content = $this->replace_dinamic_site_home_with_relative( $content );
 		}
+		$content = $this->replace_empty_href_with_slash( $content );
 		$content = $this->replace_extra_realative_with_static_home( $content );
 		$content = $this->replace_backslashed( $content );
 		return $this->replace_url_encoded( $content );
@@ -132,6 +133,21 @@ class Static_Press_Content_Filter_Replace_Relative_Uri {
 			"# (href|src|srcset|action)='" . preg_quote( $this->url_dynamic_home ) . "([^']*)'#ism",
 		);
 		return preg_replace( $pattern, ' $1="$2"', $content );
+	}
+
+	/**
+	 * Replaces URL "" to "/" since Google Search Console reports following error:
+	 *   Missing field "item"
+	 * 
+	 * @param string $content Content.
+	 * @return string Content.
+	 */
+	private function replace_empty_href_with_slash( $content ) {
+		$pattern = array(
+			'# (href|action)=""#ism',
+			"# (href|action)=''#ism",
+		);
+		return preg_replace( $pattern, ' $1="/"', $content );
 	}
 
 	/**

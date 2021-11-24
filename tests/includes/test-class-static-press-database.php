@@ -86,12 +86,12 @@ class Static_Press_Database_Test extends \WP_UnitTestCase {
 		$static_press->activate();
 		$this->assertTrue( Repository_For_Test::column_enable_exists() );
 		$column = Repository_For_Test::get_column_enable();
-		$this->assertEquals( 'enable', $column->Field );         // phpcs:ignore
-		$this->assertEquals( 'int(1) unsigned', $column->Type ); // phpcs:ignore
-		$this->assertEquals( 'NO', $column->Null );              // phpcs:ignore
-		$this->assertEquals( '', $column->Key );                 // phpcs:ignore
-		$this->assertEquals( '1', $column->Default );            // phpcs:ignore
-		$this->assertEquals( '', $column->Extra );               // phpcs:ignore
+		$this->assertEquals( 'enable', $column->Field );                  // phpcs:ignore
+		$this->assertRegExp( '/int(\(1\))*\sunsigned/', $column->Type );  // phpcs:ignore
+		$this->assertEquals( 'NO', $column->Null );                       // phpcs:ignore
+		$this->assertEquals( '', $column->Key );                          // phpcs:ignore
+		$this->assertEquals( '1', $column->Default );                     // phpcs:ignore
+		$this->assertEquals( '', $column->Extra );                        // phpcs:ignore
 	}
 
 	/**

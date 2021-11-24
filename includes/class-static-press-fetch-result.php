@@ -20,7 +20,7 @@ class Static_Press_Fetch_Result {
 	/**
 	 * File count.
 	 * 
-	 * @var array
+	 * @var int
 	 */
 	public $file_count;
 
