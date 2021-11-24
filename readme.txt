@@ -5,7 +5,7 @@ Tags: static
 Requires at least: 4.3
 Tested up to: 5.8
 Requires PHP: 5.6
-Stable tag: 0.7.0
+Stable tag: 0.7.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -38,6 +38,10 @@ none
 3. Rebuild!
 
 == Changelog ==
+
+**0.7.1 - November 24, 2021**
+Fix issue that Google search console reports link to home on static HTML as error 'Missing field "item"'.
+Support WordPress 5.8.
 
 **0.7.0 - March 29, 2021**
 Support WordPress 5.6, 5.7.
@@ -127,6 +131,9 @@ source code refactoring
 Initial release.
 
 == Upgrade Notice ==
+
+= 0.7.1 =
+This version fix issue that Google search console reports link to home on static HTML as error 'Missing field "item"', supports WordPress 5.8.
 
 = 0.7.0 =
 This version supports WordPress 5.6, 5.7, display error message as much as possible when build.

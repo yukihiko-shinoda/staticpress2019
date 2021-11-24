@@ -26,7 +26,7 @@
  * Plugin Name: StaticPress2019
  * Plugin URI:  https://wordpress.org/plugins/staticpress2019/
  * Description: Transforms your WordPress into static websites and blogs.
- * Version:     0.7.0
+ * Version:     0.7.1
  * Author:      yshinoda, wokamoto, amimotoami, pas5027, hideokamoto
  * Author URI:  https://github.com/yukihiko-shinoda
  * Text Domain: static-press
