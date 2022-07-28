@@ -25,17 +25,16 @@ cache:
 
 matrix:
   include:
-    # Because current PHP recommended version is 7.3+.
+    # Because current PHP recommended version is 7.4+.
     # @see https://wordpress.org/support/article/requirements/
     - php: 7.4
       env: WP_VERSION=latest
-    - php: 7.3
-      env: WP_VERSION=latest
-    # Because now PHP 7.3 is in the Active Support period and should be focused in development.
+    # Because now PHP 8.0 is in the Active Support period and should be focused in development.
     # @see https://www.php.net/supported-versions.php
-    - php: 7.3
+    # However, PHPUnit 7 doesn't support PHP 8.0
+    - php: 7.4
       env: WP_VERSION=trunk
-    - php: 7.3
+    - php: 7.4
       env: WP_TRAVISCI=phpcs
     # Because 3.7 is the version which start support for auto background update. However, test can't work.
     # 3.7 - 3.8: When init database before running PHPUnit, wp-includes/wp-db.php db_connect() calls mysql_connect().
@@ -52,6 +51,8 @@ matrix:
       # in wordpress-test-lib/includes/install.php
       # @see https://docs.travis-ci.com/user/database-setup/#mysql
       dist: trusty
+    - php: 7.3
+      env: WP_VERSION=latest
     - php: 7.2
       env: WP_VERSION=latest
     - php: 7.1
@@ -69,7 +70,7 @@ matrix:
   allow_failures:
     # Because there are too match errors and warnings,
     # however now it needs to leave codes to prioritize merging commits from other forked repositories.
-    - php: 7.3
+    - php: 7.4
       env: WP_TRAVISCI=phpcs
 
 before_script:
