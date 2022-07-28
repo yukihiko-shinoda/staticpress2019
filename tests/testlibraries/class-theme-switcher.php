@@ -45,10 +45,14 @@ class Theme_Switcher {
 			$this->theme_to_not_activate  = 'twentyfourteen';
 			$this->theme_parent_activated = 'twentyfifteen';
 			$this->theme_to_activate      = 'twentyfifteen-child';
-		} else {
+		} elseif ( version_compare( $wp_version, '6.0.0', '<' ) ) {
 			$this->theme_to_not_activate  = 'twentynineteen';
 			$this->theme_parent_activated = 'twentytwenty';
 			$this->theme_to_activate      = 'twentytwenty-child';
+		} else {
+			$this->theme_to_not_activate  = 'twentytwenty';
+			$this->theme_parent_activated = 'twentytwentytwo';
+			$this->theme_to_activate      = 'twentytwentytwo-child';
 		}
 		$this->switch_theme();
 	}
