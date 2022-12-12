@@ -50,8 +50,8 @@ class Static_Press_File_Scanner_Test extends \WP_UnitTestCase {
 	/**
 	 * Removes test files and directories.
 	 */
-	public function setUp() {
-		parent::setUp();
+	public function set_up() {
+		parent::set_up();
 		if ( ! file_exists( self::DIRECTORY_STATIC_SUB_SUB ) ) {
 			mkdir( self::DIRECTORY_STATIC_SUB_SUB, 0755, true );
 		}
@@ -69,10 +69,10 @@ class Static_Press_File_Scanner_Test extends \WP_UnitTestCase {
 	/**
 	 * Removes test files and directories.
 	 */
-	public function tearDown() {
+	public function tear_down() {
 		self::rmdir( self::DIRECTORY_STATIC );
 		self::rmdir( self::DIRECTORY_CONTENT );
-		parent::tearDown();
+		parent::tear_down();
 	}
 
 	/**

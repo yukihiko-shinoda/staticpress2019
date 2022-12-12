@@ -20,8 +20,8 @@ class Plugin_Test extends \WP_UnitTestCase {
 	/**
 	 * Sets path to plugin file and require.
 	 */
-	public function setUp() {
-		parent::setUp();
+	public function set_up() {
+		parent::set_up();
 		$this->path_to_plugin_file = dirname( dirname( __FILE__ ) ) . '/plugin.php';
 		require $this->path_to_plugin_file;
 		remove_all_filters( 'StaticPress::get_url' );

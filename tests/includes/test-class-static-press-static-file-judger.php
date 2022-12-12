@@ -46,8 +46,8 @@ class Static_Press_Static_FIle_Jugder_Test extends \WP_UnitTestCase {
 	 * Ensure file existance.
 	 * Activbate plugin and theme.
 	 */
-	public function setUp() {
-		parent::setUp();
+	public function set_up() {
+		parent::set_up();
 		Static_File_Creator_For_Test::create_static_file_readme();
 		Static_File_Creator_For_Test::create_static_file_not_exist();
 		Static_File_Creator_For_Test::create_static_file_not_updated();
@@ -61,12 +61,12 @@ class Static_Press_Static_FIle_Jugder_Test extends \WP_UnitTestCase {
 	/**
 	 * Puts up output directory, Mockery.
 	 */
-	public function tearDown() {
+	public function tear_down() {
 		File_System_Operator::delete_files();
 		File_System_Operator::delete_files( ABSPATH . 'wp-content/uploads/' );
 		File_System_Operator::delete_files( WP_CONTENT_DIR . '/app/uploads/' );
 		Mockery::close();
-		parent::tearDown();
+		parent::tear_down();
 	}
 
 	/**

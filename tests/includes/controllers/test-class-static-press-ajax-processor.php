@@ -30,12 +30,12 @@ class Static_Press_Ajax_Processor_Test extends \WP_UnitTestCase {
 	/**
 	 * Deletes files in content directory if exist.
 	 */
-	public function tearDown() {
+	public function tear_down() {
 		$directory = ABSPATH . 'wp-content/uploads/2020/';
 		if ( file_exists( $directory ) ) {
 			File_System_Operator::delete_files( $directory );
 		}
-		parent::tearDown();
+		parent::tear_down();
 	}
 
 	/**

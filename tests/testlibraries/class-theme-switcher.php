@@ -49,8 +49,12 @@ class Theme_Switcher {
 			$this->theme_to_not_activate  = 'twentynineteen';
 			$this->theme_parent_activated = 'twentytwenty';
 			$this->theme_to_activate      = 'twentytwenty-child';
-		} else {
+		} elseif ( version_compare( $wp_version, '6.1.0', '<' ) ) {
 			$this->theme_to_not_activate  = 'twentytwenty';
+			$this->theme_parent_activated = 'twentytwentytwo';
+			$this->theme_to_activate      = 'twentytwentytwo-child';
+		} else {
+			$this->theme_to_not_activate  = 'twentytwentyone';
 			$this->theme_parent_activated = 'twentytwentytwo';
 			$this->theme_to_activate      = 'twentytwentytwo-child';
 		}

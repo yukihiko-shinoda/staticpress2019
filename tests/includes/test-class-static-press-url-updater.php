@@ -37,10 +37,10 @@ class Static_Press_Url_Updater_Test extends \WP_UnitTestCase {
 	/**
 	 * Puts up output directory, Mockery.
 	 */
-	public function tearDown() {
+	public function tear_down() {
 		File_System_Operator::delete_files();
 		Mockery::close();
-		parent::tearDown();
+		parent::tear_down();
 	}
 
 	/**

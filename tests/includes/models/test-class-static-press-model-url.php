@@ -62,7 +62,7 @@ class Static_Press_Model_Url_Test extends \WP_UnitTestCase {
 	/**
 	 * Insert post.
 	 */
-	public function setUp() {
+	public function set_up() {
 		$this->fixture_category_parent = new Fixture_Category( Category_Array_Creator::create_parent() );
 		$this->fixture_post_single     = new Fixture_Post_Single( Post_Array_Creator::create_single() );
 		$this->fixture_post_author     = new Fixture_Post_Author( Post_Array_Creator::create_author( 1 ) );
@@ -72,7 +72,7 @@ class Static_Press_Model_Url_Test extends \WP_UnitTestCase {
 	/**
 	 * Delete post.
 	 */
-	public function tearDown() {
+	public function tear_down() {
 		$this->fixture_post_term->delete();
 		$this->fixture_post_author->delete();
 		$this->fixture_post_single->delete();

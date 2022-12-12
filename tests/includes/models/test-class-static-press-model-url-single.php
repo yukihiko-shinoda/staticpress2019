@@ -31,14 +31,14 @@ class Static_Press_Model_Url_Single_Test extends \WP_UnitTestCase {
 	/**
 	 * Insert post.
 	 */
-	public function setUp() {
+	public function set_up() {
 		$this->fixture_post_single = new Fixture_Post_Single( Post_Array_Creator::create_single() );
 	}
 
 	/**
 	 * Delete post.
 	 */
-	public function tearDown() {
+	public function tear_down() {
 		$this->fixture_post_single->delete();
 	}
 	/**
@@ -70,7 +70,7 @@ class Static_Press_Model_Url_Single_Test extends \WP_UnitTestCase {
 		}
 		$array_url = Model_Url_Creator::create_model_url_single( $this->fixture_post_single )->to_array();
 		$this->assertEquals( Static_Press_Model_Url::TYPE_SINGLE, $array_url['type'] );
-		$this->assertRegExp( '/\/\?attachment_id=[0-9]*\//i', $array_url['url'] );
+		$this->assertMatchesRegularExpression( '/\/\?attachment_id=[0-9]*\//i', $array_url['url'] );
 		$this->assertTrue( is_int( $array_url['object_id'] ) );
 		$this->assertEquals( 'attachment', $array_url['object_type'] );
 		$this->assertEquals( 1, $array_url['pages'] );

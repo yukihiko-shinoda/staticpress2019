@@ -20,8 +20,8 @@ class Static_Press_Admin_Test extends \WP_UnitTestCase {
 	 *
 	 * @see https://wordpress.stackexchange.com/a/207363
 	 */
-	public function setUp() {
-		parent::setUp();
+	public function set_up() {
+		parent::set_up();
 		$user_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
 		wp_set_current_user( $user_id );
 	}

@@ -42,8 +42,8 @@ class Static_Press_Site_Dependency_Test extends \WP_UnitTestCase {
 	/**
 	 * Creates another blog.
 	 */
-	public function setUp() {
-		parent::setUp();
+	public function set_up() {
+		parent::set_up();
 		global $wp_version;
 		if ( defined( 'MULTISITE' ) && MULTISITE === true && version_compare( $wp_version, '5.0.0', '>=' ) ) {
 			/**
@@ -78,7 +78,7 @@ class Static_Press_Site_Dependency_Test extends \WP_UnitTestCase {
 	/**
 	 * Removes another blog.
 	 */
-	public function tearDown() {
+	public function tear_down() {
 		global $wp_rewrite;
 		$wp_rewrite->set_permalink_structure( false );
 		global $wp_version;
@@ -92,7 +92,7 @@ class Static_Press_Site_Dependency_Test extends \WP_UnitTestCase {
 			add_filter( 'query', array( $this, '_create_temporary_tables' ) );
 			add_filter( 'query', array( $this, '_drop_temporary_tables' ) );
 		}
-		parent::tearDown();
+		parent::tear_down();
 	}
 
 	/**

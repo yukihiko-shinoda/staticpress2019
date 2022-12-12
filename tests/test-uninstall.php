@@ -19,8 +19,8 @@ class Uninstall_Test extends \WP_UnitTestCase {
 	 *
 	 * @see https://wordpress.stackexchange.com/a/207363
 	 */
-	public function setUp() {
-		parent::setUp();
+	public function set_up() {
+		parent::set_up();
 		remove_filter( 'query', array( $this, '_drop_temporary_tables' ) );
 		update_option( self::OPTION_STATIC_URL, 'a' );
 		update_option( self::OPTION_STATIC_DIR, 'b' );
@@ -33,13 +33,13 @@ class Uninstall_Test extends \WP_UnitTestCase {
 	 *
 	 * @see https://wordpress.stackexchange.com/a/207363
 	 */
-	public function tearDown() {
+	public function tear_down() {
 		delete_option( self::OPTION_STATIC_URL );
 		delete_option( self::OPTION_STATIC_DIR );
 		delete_option( self::OPTION_STATIC_BASIC );
 		delete_option( self::OPTION_STATIC_TIMEOUT );
 		add_filter( 'query', array( $this, '_drop_temporary_tables' ) );
-		parent::tearDown();
+		parent::tear_down();
 	}
 
 	/**

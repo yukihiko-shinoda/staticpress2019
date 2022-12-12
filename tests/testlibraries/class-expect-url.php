@@ -63,7 +63,7 @@ class Expect_Url {
 		for ( $index = 0; $index < $length_expect; $index ++ ) {
 			$expect_url = $expect[ $index ];
 			$actual_url = $actual[ $index ];
-			$test_case->assertInternalType( 'string', $actual_url->get_id_fetched() );
+			$test_case->assertIsString( $actual_url->get_id_fetched() );
 			$test_case->assertNotEquals( 0, intval( $actual_url->get_id_fetched() ) );
 			$test_case->assertEquals( $expect_url->type, $actual_url->get_type_fetched() );
 			$test_case->assertEquals( $expect_url->url, $actual_url->get_url() );

@@ -37,14 +37,14 @@ class Static_Press_Model_Url_Term_Test extends \WP_UnitTestCase {
 	/**
 	 * Insert post.
 	 */
-	public function setUp() {
+	public function set_up() {
 		$this->fixture_post_term = new Fixture_Post( Post_Array_Creator::create_term( $this->fixture_category_parent ) );
 	}
 
 	/**
 	 * Delete post.
 	 */
-	public function tearDown() {
+	public function tear_down() {
 		$this->fixture_post_term->delete();
 	}
 

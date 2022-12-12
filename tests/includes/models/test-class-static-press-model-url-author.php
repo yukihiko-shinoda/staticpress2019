@@ -30,14 +30,14 @@ class Static_Press_Model_Url_Author_Test extends \WP_UnitTestCase {
 	/**
 	 * Insert post.
 	 */
-	public function setUp() {
+	public function set_up() {
 		$this->fixture_post_author = new Fixture_Post_Author( Post_Array_Creator::create_author( 1 ) );
 	}
 
 	/**
 	 * Delete post.
 	 */
-	public function tearDown() {
+	public function tear_down() {
 		$this->fixture_post_author->delete();
 	}
 	/**

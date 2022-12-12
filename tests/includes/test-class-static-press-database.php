@@ -39,8 +39,8 @@ class Static_Press_Database_Test extends \WP_UnitTestCase {
 	 * @see https://stackoverflow.com/questions/45989601/wordpress-develop-unit-testing-couldnt-fetch-mysqli/51098542#51098542
 	 * @see https://make.wordpress.org/cli/handbook/plugin-unit-tests/#running-tests-locally
 	 */
-	public function setUp() {
-		parent::setUp();
+	public function set_up() {
+		parent::set_up();
 		File_System_Operator::delete_files();
 		remove_filter( 'query', array( $this, '_create_temporary_tables' ) );
 		remove_filter( 'query', array( $this, '_drop_temporary_tables' ) );
@@ -48,11 +48,11 @@ class Static_Press_Database_Test extends \WP_UnitTestCase {
 	/**
 	 * Restore filters.
 	 */
-	public function tearDown() {
+	public function tear_down() {
 		add_filter( 'query', array( $this, '_create_temporary_tables' ) );
 		add_filter( 'query', array( $this, '_drop_temporary_tables' ) );
 		File_System_Operator::delete_files();
-		parent::tearDown();
+		parent::tear_down();
 	}
 	/**
 	 * Function activate() should ensure that database table which list URL exists.
@@ -87,7 +87,7 @@ class Static_Press_Database_Test extends \WP_UnitTestCase {
 		$this->assertTrue( Repository_For_Test::column_enable_exists() );
 		$column = Repository_For_Test::get_column_enable();
 		$this->assertEquals( 'enable', $column->Field );                  // phpcs:ignore
-		$this->assertRegExp( '/int(\(1\))*\sunsigned/', $column->Type );  // phpcs:ignore
+		$this->assertMatchesRegularExpression( '/int(\(1\))*\sunsigned/', $column->Type );  // phpcs:ignore
 		$this->assertEquals( 'NO', $column->Null );                       // phpcs:ignore
 		$this->assertEquals( '', $column->Key );                          // phpcs:ignore
 		$this->assertEquals( '1', $column->Default );                     // phpcs:ignore

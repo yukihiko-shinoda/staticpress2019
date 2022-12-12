@@ -19,8 +19,8 @@ class Static_Press_Model_Url_Static_File_Test extends \WP_UnitTestCase {
 	/**
 	 * Prepares file.
 	 */
-	public function setUp() {
-		parent::setUp();
+	public function set_up() {
+		parent::set_up();
 		file_put_contents( trailingslashit( Environment::get_document_root() ) . 'test.txt', '' );
 		file_put_contents( trailingslashit( WP_CONTENT_DIR ) . 'test.txt', '' );
 	}
@@ -28,7 +28,7 @@ class Static_Press_Model_Url_Static_File_Test extends \WP_UnitTestCase {
 	/**
 	 * Puts up file.
 	 */
-	public function tearDown() {
+	public function tear_down() {
 		unlink( trailingslashit( WP_CONTENT_DIR ) . 'test.txt' );
 		unlink( trailingslashit( Environment::get_document_root() ) . 'test.txt' );
 	}
