@@ -7,6 +7,7 @@
 
 namespace static_press\tests\includes;
 
+require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/class-polyfill-wp-unit-test-case.php';
 require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/ajax_invokers/class-ajax-init-invoker.php';
 require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/ajax_invokers/class-ajax-fetch-invoker.php';
 require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/ajax_invokers/class-ajax-finalyze-invoker.php';
@@ -17,6 +18,7 @@ require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/infrastructure/class
 require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/class-model-url.php';
 use static_press\includes\Static_Press;
 use static_press\includes\models\Static_Press_Model_Url;
+use static_press\tests\testlibraries\Polyfill_WP_UnitTestCase;
 use static_press\tests\testlibraries\ajax_invokers\Ajax_Init_Invoker;
 use static_press\tests\testlibraries\ajax_invokers\Ajax_Fetch_Invoker;
 use static_press\tests\testlibraries\ajax_invokers\Ajax_Finalyze_Invoker;
@@ -30,7 +32,7 @@ use static_press\tests\testlibraries\Model_Url;
  *
  * @noinspection PhpUndefinedClassInspection
  */
-class Static_Press_Database_Test extends \WP_UnitTestCase {
+class Static_Press_Database_Test extends Polyfill_WP_UnitTestCase {
 	/**
 	 * Remove filters.
 	 * Running StaticPress test in separate process causes mysqli_errno(): Couldn't fetch mysqli.
@@ -87,7 +89,12 @@ class Static_Press_Database_Test extends \WP_UnitTestCase {
 		$this->assertTrue( Repository_For_Test::column_enable_exists() );
 		$column = Repository_For_Test::get_column_enable();
 		$this->assertEquals( 'enable', $column->Field );                  // phpcs:ignore
-		$this->assertMatchesRegularExpression( '/int(\(1\))*\sunsigned/', $column->Type );  // phpcs:ignore
+		global $wp_version;
+		if ( version_compare( $wp_version, '5.9.0', '<' ) ) {
+			$this->assertRegExp( '/int(\(1\))*\sunsigned/', $column->Type );  // phpcs:ignore
+		} else {
+			$this->assertMatchesRegularExpression( '/int(\(1\))*\sunsigned/', $column->Type );  // phpcs:ignore
+		}
 		$this->assertEquals( 'NO', $column->Null );                       // phpcs:ignore
 		$this->assertEquals( '', $column->Key );                          // phpcs:ignore
 		$this->assertEquals( '1', $column->Default );                     // phpcs:ignore

@@ -7,15 +7,17 @@
 
 namespace static_press\tests\includes\models;
 
+require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/class-polyfill-wp-unit-test-case.php';
 require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/infrastructure/class-environment.php';
 use static_press\includes\models\Static_Press_Model_Url;
 use static_press\includes\models\Static_Press_Model_Url_Static_File;
+use static_press\tests\testlibraries\Polyfill_WP_UnitTestCase;
 use static_press\tests\testlibraries\infrastructure\Environment;
 
 /**
  * Static_Press_File_Scanner test case.
  */
-class Static_Press_Model_Url_Static_File_Test extends \WP_UnitTestCase {
+class Static_Press_Model_Url_Static_File_Test extends Polyfill_WP_UnitTestCase {
 	/**
 	 * Prepares file.
 	 */

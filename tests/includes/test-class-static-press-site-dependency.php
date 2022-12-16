@@ -7,12 +7,14 @@
 
 namespace static_press\tests\includes;
 
+require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/class-polyfill-wp-unit-test-case.php';
 use static_press\includes\Static_Press_Site_Dependency;
+use static_press\tests\testlibraries\Polyfill_WP_UnitTestCase;
 
 /**
  * Reposistory test case.
  */
-class Static_Press_Site_Dependency_Test extends \WP_UnitTestCase {
+class Static_Press_Site_Dependency_Test extends Polyfill_WP_UnitTestCase {
 	const DOMAIN_ANOTHER_BLOG = 'something.example.com';
 	const PATH_ANOTHER_BLOG   = '/';
 	/**

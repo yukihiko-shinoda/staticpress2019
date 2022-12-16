@@ -7,29 +7,31 @@
 
 namespace static_press\tests\includes;
 
+require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/class-model-url-comparer.php';
+require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/class-polyfill-wp-unit-test-case.php';
 require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/creators/class-category-array-creator.php';
+require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/creators/class-mock-creator.php';
+require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/creators/class-model-url-creator.php';
+require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/creators/class-post-array-creator.php';
 require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/fixtures/class-fixture-category.php';
 require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/fixtures/class-fixture-post.php';
 require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/fixtures/class-fixture-post-author.php';
 require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/fixtures/class-fixture-post-single.php';
-require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/creators/class-mock-creator.php';
-require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/creators/class-model-url-creator.php';
-require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/class-model-url-comparer.php';
-require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/creators/class-post-array-creator.php';
 use static_press\includes\Static_Press_Url_Collector;
+use static_press\tests\testlibraries\Model_Url_Comparer;
+use static_press\tests\testlibraries\Polyfill_WP_UnitTestCase;
 use static_press\tests\testlibraries\creators\Category_Array_Creator;
+use static_press\tests\testlibraries\creators\Mock_Creator;
+use static_press\tests\testlibraries\creators\Model_Url_Creator;
+use static_press\tests\testlibraries\creators\Post_Array_Creator;
 use static_press\tests\testlibraries\fixtures\Fixture_Category;
 use static_press\tests\testlibraries\fixtures\Fixture_Post;
 use static_press\tests\testlibraries\fixtures\Fixture_Post_Author;
 use static_press\tests\testlibraries\fixtures\Fixture_Post_Single;
-use static_press\tests\testlibraries\creators\Mock_Creator;
-use static_press\tests\testlibraries\creators\Model_Url_Creator;
-use static_press\tests\testlibraries\Model_Url_Comparer;
-use static_press\tests\testlibraries\creators\Post_Array_Creator;
 /**
  * Reposistory test case.
  */
-class Static_Press_Url_Collector_Test extends \WP_UnitTestCase {
+class Static_Press_Url_Collector_Test extends Polyfill_WP_UnitTestCase {
 	/**
 	 * Fixture category parent.
 	 * 

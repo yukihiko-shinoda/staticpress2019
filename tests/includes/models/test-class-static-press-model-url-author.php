@@ -7,11 +7,13 @@
 
 namespace static_press\tests\includes\models;
 
+require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/class-polyfill-wp-unit-test-case.php';
 require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/creators/class-model-url-creator.php';
 require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/creators/class-post-array-creator.php';
 require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/fixtures/class-fixture-post-author.php';
 require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/creators/class-mock-creator.php';
 use static_press\includes\models\Static_Press_Model_Url;
+use static_press\tests\testlibraries\Polyfill_WP_UnitTestCase;
 use static_press\tests\testlibraries\creators\Model_Url_Creator;
 use static_press\tests\testlibraries\creators\Post_Array_Creator;
 use static_press\tests\testlibraries\fixtures\Fixture_Post_Author;
@@ -19,7 +21,7 @@ use static_press\tests\testlibraries\creators\Mock_Creator;
 /**
  * Static_Press_Model_Url_Author test case.
  */
-class Static_Press_Model_Url_Author_Test extends \WP_UnitTestCase {
+class Static_Press_Model_Url_Author_Test extends Polyfill_WP_UnitTestCase {
 	/**
 	 * Fixture post author.
 	 * 

@@ -5,10 +5,13 @@
  * @package static_press\tests
  */
 
+require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/class-polyfill-wp-unit-test-case.php';
+use static_press\tests\testlibraries\Polyfill_WP_UnitTestCase;
+
 /**
  * Uninstall test case.
  */
-class Uninstall_Test extends \WP_UnitTestCase {
+class Uninstall_Test extends Polyfill_WP_UnitTestCase {
 	const UNINSTALL_PHP         = 'uninstall.php';
 	const OPTION_STATIC_URL     = 'StaticPress::static url';
 	const OPTION_STATIC_DIR     = 'StaticPress::static dir';

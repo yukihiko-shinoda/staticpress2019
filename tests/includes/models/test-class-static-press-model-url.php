@@ -7,6 +7,7 @@
 
 namespace static_press\tests\includes\models;
 
+require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/class-polyfill-wp-unit-test-case.php';
 require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/creators/class-category-array-creator.php';
 require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/creators/class-mock-creator.php';
 require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/creators/class-post-array-creator.php';
@@ -21,6 +22,7 @@ use static_press\includes\models\Static_Press_Model_Url_Other;
 use static_press\includes\models\Static_Press_Model_Url_Seo;
 use static_press\includes\models\Static_Press_Model_Url_Static_File;
 use static_press\includes\exceptions\Static_Press_Business_Logic_Exception;
+use static_press\tests\testlibraries\Polyfill_WP_UnitTestCase;
 use static_press\tests\testlibraries\creators\Category_Array_Creator;
 use static_press\tests\testlibraries\creators\Mock_Creator;
 use static_press\tests\testlibraries\creators\Post_Array_Creator;
@@ -33,7 +35,7 @@ use static_press\tests\testlibraries\fixtures\Fixture_Post_Single;
 /**
  * StaticPress test case.
  */
-class Static_Press_Model_Url_Test extends \WP_UnitTestCase {
+class Static_Press_Model_Url_Test extends Polyfill_WP_UnitTestCase {
 	/**
 	 * Fixture category parent.
 	 * 

@@ -28,7 +28,12 @@ class Static_Press_Repository_Test extends \WP_UnitTestCase {
 	 */
 	public function test_constructor() {
 		$repository = new Static_Press_Repository();
-		$this->assertSame( Repository_For_Test::url_table(), $this->getPropertyValue( $repository, 'url_table' ) );
+		global $wp_version;
+		if ( version_compare( $wp_version, '5.9.0', '<' ) ) {
+			$this->assertAttributeEquals( Repository_For_Test::url_table(), 'url_table', $repository );
+		} else {
+			$this->assertSame( Repository_For_Test::url_table(), $this->getPropertyValue( $repository, 'url_table' ) );
+		}
 	}
 
 	/**

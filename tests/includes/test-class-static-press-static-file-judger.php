@@ -7,6 +7,7 @@
 
 namespace static_press\tests\includes;
 
+require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/class-polyfill-wp-unit-test-case.php';
 require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/creators/class-mock-creator.php';
 require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/creators/class-static-file-creator-for-test.php';
 require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/infrastructure/class-file-system-operator.php';
@@ -19,12 +20,13 @@ use static_press\includes\Static_Press_Static_FIle_Judger;
 use static_press\tests\testlibraries\creators\Mock_Creator;
 use static_press\tests\testlibraries\creators\Static_File_Creator_For_Test;
 use static_press\tests\testlibraries\infrastructure\File_System_Operator;
+use static_press\tests\testlibraries\Polyfill_WP_UnitTestCase;
 use static_press\tests\testlibraries\Theme_Switcher;
 
 /**
  * Static_Press_Static_FIle_Jugder test case.
  */
-class Static_Press_Static_FIle_Jugder_Test extends \WP_UnitTestCase {
+class Static_Press_Static_FIle_Jugder_Test extends Polyfill_WP_UnitTestCase {
 	/**
 	 * Theme switcher.
 	 * 
