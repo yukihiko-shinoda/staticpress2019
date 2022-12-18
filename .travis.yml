@@ -33,7 +33,12 @@ matrix:
       env: WP_VERSION=latest PHPUNIT_REQUIRE="*" MOCKERY_REQUIRE="*"
     # Because now PHP 8.0 is in the Active Support period and should be focused in development.
     # @see https://www.php.net/supported-versions.php
-    - php: 8.1
+    # According to commit message of this definition,
+    # the trunk version seems to should be tested by current major support PHP version.
+    # @see:
+    # - Rebuild `.travis.yml` file · wp-cli/scaffold-command@fe11bcc
+    #   https://github.com/wp-cli/scaffold-command/commit/fe11bcc02a2ee164c987e2cb14fcb08dfe73663b
+    - php: 8.0
       env: WP_VERSION=trunk PHPUNIT_REQUIRE="*" MOCKERY_REQUIRE="*"
     - php: 8.0
       env: WP_TRAVISCI=phpcs
