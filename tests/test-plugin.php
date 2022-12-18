@@ -5,12 +5,15 @@
  * @package static_press\tests
  */
 
+require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/class-polyfill-wp-unittestcase.php';
+use static_press\tests\testlibraries\Polyfill_WP_UnitTestCase;
+
 /**
  * Plugin test case.
  *
  * @noinspection PhpUndefinedClassInspection
  */
-class Plugin_Test extends \WP_UnitTestCase {
+class Plugin_Test extends Polyfill_WP_UnitTestCase {
 	/**
 	 * Path to plugin.php file.
 	 * 
@@ -20,8 +23,8 @@ class Plugin_Test extends \WP_UnitTestCase {
 	/**
 	 * Sets path to plugin file and require.
 	 */
-	public function setUp() {
-		parent::setUp();
+	public function set_up() {
+		parent::set_up();
 		$this->path_to_plugin_file = dirname( dirname( __FILE__ ) ) . '/plugin.php';
 		require $this->path_to_plugin_file;
 		remove_all_filters( 'StaticPress::get_url' );

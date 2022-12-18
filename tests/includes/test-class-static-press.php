@@ -23,9 +23,9 @@ class Static_Press_Test extends \WP_UnitTestCase {
 	/**
 	 * Puts up Mockery.
 	 */
-	public function tearDown() {
+	public function tear_down() {
 		Mockery::close();
-		parent::tearDown();
+		parent::tear_down();
 	}
 
 	/**

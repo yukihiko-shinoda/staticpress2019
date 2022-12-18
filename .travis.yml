@@ -27,14 +27,20 @@ matrix:
   include:
     # Because current PHP recommended version is 7.4+.
     # @see https://wordpress.org/support/article/requirements/
-    - php: 7.4
-      env: WP_VERSION=latest
+    # PHP 7.4 is already end of life.
+    # @see https://www.php.net/supported-versions.php
+    - php: 8.0
+      env: WP_VERSION=latest PHPUNIT_REQUIRE="*" MOCKERY_REQUIRE="*"
     # Because now PHP 8.0 is in the Active Support period and should be focused in development.
     # @see https://www.php.net/supported-versions.php
-    # However, PHPUnit 7 doesn't support PHP 8.0
-    - php: 7.4
-      env: WP_VERSION=trunk
-    - php: 7.4
+    # According to commit message of this definition,
+    # the trunk version seems to should be tested by current major support PHP version.
+    # @see:
+    # - Rebuild `.travis.yml` file · wp-cli/scaffold-command@fe11bcc
+    #   https://github.com/wp-cli/scaffold-command/commit/fe11bcc02a2ee164c987e2cb14fcb08dfe73663b
+    - php: 8.0
+      env: WP_VERSION=trunk PHPUNIT_REQUIRE="*" MOCKERY_REQUIRE="*"
+    - php: 8.0
       env: WP_TRAVISCI=phpcs
     # Because 3.7 is the version which start support for auto background update. However, test can't work.
     # 3.7 - 3.8: When init database before running PHPUnit, wp-includes/wp-db.php db_connect() calls mysql_connect().
@@ -51,6 +57,8 @@ matrix:
       # in wordpress-test-lib/includes/install.php
       # @see https://docs.travis-ci.com/user/database-setup/#mysql
       dist: trusty
+    - php: 7.4
+      env: WP_VERSION=latest
     - php: 7.3
       env: WP_VERSION=latest
     - php: 7.2
@@ -70,7 +78,7 @@ matrix:
   allow_failures:
     # Because there are too match errors and warnings,
     # however now it needs to leave codes to prioritize merging commits from other forked repositories.
-    - php: 7.4
+    - php: 8.0
       env: WP_TRAVISCI=phpcs
 
 before_script:
@@ -90,7 +98,8 @@ before_script:
       # @see https://stackoverflow.com/a/41997588
       bash bin/install-wp-tests.sh wordpress_test root '' 127.0.0.1 $WP_VERSION
       PHPUNIT_REQUIRE="${PHPUNIT_REQUIRE:-4.8.*|5.7.*|<8.0.0}"
-      composer global require "phpunit/phpunit:$PHPUNIT_REQUIRE" yoast/phpunit-polyfills mockery/mockery:1.3.*
+      MOCKERY_REQUIRE="${MOCKERY_REQUIRE:-1.3.*}"
+      composer global require "phpunit/phpunit:$PHPUNIT_REQUIRE" yoast/phpunit-polyfills "mockery/mockery:$MOCKERY_REQUIRE"
       phpenv rehash
     fi
   - |

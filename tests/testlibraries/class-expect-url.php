@@ -53,6 +53,7 @@ class Expect_Url {
 	 * @param Static_Press_Model_Url_Fetched[]|object|null $actual    Actual url data.
 	 */
 	public static function assert_url( $test_case, $expect, $actual ) {
+		global $wp_version;
 		$length_expect = count( $expect );
 		$length_actual = count( $actual );
 		$test_case->assertEquals(
@@ -63,7 +64,11 @@ class Expect_Url {
 		for ( $index = 0; $index < $length_expect; $index ++ ) {
 			$expect_url = $expect[ $index ];
 			$actual_url = $actual[ $index ];
-			$test_case->assertInternalType( 'string', $actual_url->get_id_fetched() );
+			if ( version_compare( $wp_version, '5.9.0', '<' ) ) {
+				$test_case->assertInternalType( 'string', $actual_url->get_id_fetched() );
+			} else {
+				$test_case->assertIsString( $actual_url->get_id_fetched() );
+			}
 			$test_case->assertNotEquals( 0, intval( $actual_url->get_id_fetched() ) );
 			$test_case->assertEquals( $expect_url->type, $actual_url->get_type_fetched() );
 			$test_case->assertEquals( $expect_url->url, $actual_url->get_url() );

@@ -7,6 +7,7 @@
 
 namespace static_press\tests\includes\infrastructure;
 
+require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/class-polyfill-wp-unittestcase.php';
 require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/creators/class-mock-creator.php';
 require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/infrastructure/class-environment.php';
 use static_press\includes\factories\Static_Press_Factory_Model_Url_Static_File;
@@ -14,12 +15,13 @@ use static_press\includes\infrastructure\Static_Press_File_Scanner;
 use static_press\includes\models\Static_Press_Model_Static_File;
 use static_press\includes\models\Static_Press_Model_Url;
 use static_press\includes\models\Static_Press_Model_Url_Static_File;
+use static_press\tests\testlibraries\Polyfill_WP_UnitTestCase;
 use static_press\tests\testlibraries\creators\Mock_Creator;
 use static_press\tests\testlibraries\infrastructure\Environment;
 /**
  * StaticPress test case.
  */
-class Static_Press_File_Scanner_Test extends \WP_UnitTestCase {
+class Static_Press_File_Scanner_Test extends Polyfill_WP_UnitTestCase {
 	// Reason: This project no longer support PHP 5.5 nor lower.
 	const DIRECTORY_STATIC          = ABSPATH . 'test';                                         // phpcs:ignore
 	const DIRECTORY_STATIC_SUB      = ABSPATH . 'test/sub_directory';                           // phpcs:ignore
@@ -50,8 +52,8 @@ class Static_Press_File_Scanner_Test extends \WP_UnitTestCase {
 	/**
 	 * Removes test files and directories.
 	 */
-	public function setUp() {
-		parent::setUp();
+	public function set_up() {
+		parent::set_up();
 		if ( ! file_exists( self::DIRECTORY_STATIC_SUB_SUB ) ) {
 			mkdir( self::DIRECTORY_STATIC_SUB_SUB, 0755, true );
 		}
@@ -69,10 +71,10 @@ class Static_Press_File_Scanner_Test extends \WP_UnitTestCase {
 	/**
 	 * Removes test files and directories.
 	 */
-	public function tearDown() {
+	public function tear_down() {
 		self::rmdir( self::DIRECTORY_STATIC );
 		self::rmdir( self::DIRECTORY_CONTENT );
-		parent::tearDown();
+		parent::tear_down();
 	}
 
 	/**

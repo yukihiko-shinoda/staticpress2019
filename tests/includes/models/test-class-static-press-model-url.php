@@ -7,6 +7,7 @@
 
 namespace static_press\tests\includes\models;
 
+require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/class-polyfill-wp-unittestcase.php';
 require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/creators/class-category-array-creator.php';
 require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/creators/class-mock-creator.php';
 require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/creators/class-post-array-creator.php';
@@ -21,6 +22,7 @@ use static_press\includes\models\Static_Press_Model_Url_Other;
 use static_press\includes\models\Static_Press_Model_Url_Seo;
 use static_press\includes\models\Static_Press_Model_Url_Static_File;
 use static_press\includes\exceptions\Static_Press_Business_Logic_Exception;
+use static_press\tests\testlibraries\Polyfill_WP_UnitTestCase;
 use static_press\tests\testlibraries\creators\Category_Array_Creator;
 use static_press\tests\testlibraries\creators\Mock_Creator;
 use static_press\tests\testlibraries\creators\Post_Array_Creator;
@@ -33,7 +35,7 @@ use static_press\tests\testlibraries\fixtures\Fixture_Post_Single;
 /**
  * StaticPress test case.
  */
-class Static_Press_Model_Url_Test extends \WP_UnitTestCase {
+class Static_Press_Model_Url_Test extends Polyfill_WP_UnitTestCase {
 	/**
 	 * Fixture category parent.
 	 * 
@@ -62,7 +64,7 @@ class Static_Press_Model_Url_Test extends \WP_UnitTestCase {
 	/**
 	 * Insert post.
 	 */
-	public function setUp() {
+	public function set_up() {
 		$this->fixture_category_parent = new Fixture_Category( Category_Array_Creator::create_parent() );
 		$this->fixture_post_single     = new Fixture_Post_Single( Post_Array_Creator::create_single() );
 		$this->fixture_post_author     = new Fixture_Post_Author( Post_Array_Creator::create_author( 1 ) );
@@ -72,7 +74,7 @@ class Static_Press_Model_Url_Test extends \WP_UnitTestCase {
 	/**
 	 * Delete post.
 	 */
-	public function tearDown() {
+	public function tear_down() {
 		$this->fixture_post_term->delete();
 		$this->fixture_post_author->delete();
 		$this->fixture_post_single->delete();

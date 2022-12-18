@@ -5,10 +5,13 @@
  * @package static_press\tests
  */
 
+require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/class-polyfill-wp-unittestcase.php';
+use static_press\tests\testlibraries\Polyfill_WP_UnitTestCase;
+
 /**
  * Uninstall test case.
  */
-class Uninstall_Test extends \WP_UnitTestCase {
+class Uninstall_Test extends Polyfill_WP_UnitTestCase {
 	const UNINSTALL_PHP         = 'uninstall.php';
 	const OPTION_STATIC_URL     = 'StaticPress::static url';
 	const OPTION_STATIC_DIR     = 'StaticPress::static dir';
@@ -19,8 +22,8 @@ class Uninstall_Test extends \WP_UnitTestCase {
 	 *
 	 * @see https://wordpress.stackexchange.com/a/207363
 	 */
-	public function setUp() {
-		parent::setUp();
+	public function set_up() {
+		parent::set_up();
 		remove_filter( 'query', array( $this, '_drop_temporary_tables' ) );
 		update_option( self::OPTION_STATIC_URL, 'a' );
 		update_option( self::OPTION_STATIC_DIR, 'b' );
@@ -33,13 +36,13 @@ class Uninstall_Test extends \WP_UnitTestCase {
 	 *
 	 * @see https://wordpress.stackexchange.com/a/207363
 	 */
-	public function tearDown() {
+	public function tear_down() {
 		delete_option( self::OPTION_STATIC_URL );
 		delete_option( self::OPTION_STATIC_DIR );
 		delete_option( self::OPTION_STATIC_BASIC );
 		delete_option( self::OPTION_STATIC_TIMEOUT );
 		add_filter( 'query', array( $this, '_drop_temporary_tables' ) );
-		parent::tearDown();
+		parent::tear_down();
 	}
 
 	/**

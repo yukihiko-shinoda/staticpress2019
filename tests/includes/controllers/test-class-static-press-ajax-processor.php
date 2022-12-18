@@ -7,6 +7,7 @@
 
 namespace static_press\tests\includes\controllers;
 
+require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/class-polyfill-wp-unittestcase.php';
 require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/exceptions/class-die-exception.php';
 require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/infrastructure/class-environment.php';
 require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/infrastructure/class-file-system-operator.php';
@@ -16,6 +17,7 @@ use static_press\includes\controllers\Static_Press_Ajax_Init;
 use static_press\includes\models\Static_Press_Model_Url;
 use static_press\includes\exceptions\Static_Press_Business_Logic_Exception;
 use static_press\includes\repositories\Static_Press_Repository;
+use static_press\tests\testlibraries\Polyfill_WP_UnitTestCase;
 use static_press\tests\testlibraries\exceptions\Die_Exception;
 use static_press\tests\testlibraries\infrastructure\Environment;
 use static_press\tests\testlibraries\infrastructure\File_System_Operator;
@@ -26,16 +28,16 @@ use static_press\tests\testlibraries\creators\Model_Url_Creator;
  *
  * @noinspection PhpUndefinedClassInspection
  */
-class Static_Press_Ajax_Processor_Test extends \WP_UnitTestCase {
+class Static_Press_Ajax_Processor_Test extends Polyfill_WP_UnitTestCase {
 	/**
 	 * Deletes files in content directory if exist.
 	 */
-	public function tearDown() {
+	public function tear_down() {
 		$directory = ABSPATH . 'wp-content/uploads/2020/';
 		if ( file_exists( $directory ) ) {
 			File_System_Operator::delete_files( $directory );
 		}
-		parent::tearDown();
+		parent::tear_down();
 	}
 
 	/**

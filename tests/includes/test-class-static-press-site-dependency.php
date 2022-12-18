@@ -7,12 +7,14 @@
 
 namespace static_press\tests\includes;
 
+require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/class-polyfill-wp-unittestcase.php';
 use static_press\includes\Static_Press_Site_Dependency;
+use static_press\tests\testlibraries\Polyfill_WP_UnitTestCase;
 
 /**
  * Reposistory test case.
  */
-class Static_Press_Site_Dependency_Test extends \WP_UnitTestCase {
+class Static_Press_Site_Dependency_Test extends Polyfill_WP_UnitTestCase {
 	const DOMAIN_ANOTHER_BLOG = 'something.example.com';
 	const PATH_ANOTHER_BLOG   = '/';
 	/**
@@ -42,8 +44,8 @@ class Static_Press_Site_Dependency_Test extends \WP_UnitTestCase {
 	/**
 	 * Creates another blog.
 	 */
-	public function setUp() {
-		parent::setUp();
+	public function set_up() {
+		parent::set_up();
 		global $wp_version;
 		if ( defined( 'MULTISITE' ) && MULTISITE === true && version_compare( $wp_version, '5.0.0', '>=' ) ) {
 			/**
@@ -78,7 +80,7 @@ class Static_Press_Site_Dependency_Test extends \WP_UnitTestCase {
 	/**
 	 * Removes another blog.
 	 */
-	public function tearDown() {
+	public function tear_down() {
 		global $wp_rewrite;
 		$wp_rewrite->set_permalink_structure( false );
 		global $wp_version;
@@ -92,7 +94,7 @@ class Static_Press_Site_Dependency_Test extends \WP_UnitTestCase {
 			add_filter( 'query', array( $this, '_create_temporary_tables' ) );
 			add_filter( 'query', array( $this, '_drop_temporary_tables' ) );
 		}
-		parent::tearDown();
+		parent::tear_down();
 	}
 
 	/**
