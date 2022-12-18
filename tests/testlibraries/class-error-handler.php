@@ -42,9 +42,7 @@ class Error_Handler {
 	 * @param array  $errcontext The fifth parameter is optional, errcontext, which is an array that points to the active symbol table at the point the error occurred.
 	 *                           In other words, errcontext will contain an array of every variable that existed in the scope the error was triggered in.
 	 *                           User error handler must not modify error context.
-	 * @return false
 	 */
 	public function ignore( $errno, $errstr, $errfile, $errline, $errcontext = null ) {
-		return false;
 	}
 }
