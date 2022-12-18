@@ -8,7 +8,7 @@
 namespace static_press\tests\includes;
 
 require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/class-model-url-comparer.php';
-require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/class-polyfill-wp-unit-test-case.php';
+require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/class-polyfill-wp-unittestcase.php';
 require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/creators/class-category-array-creator.php';
 require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/creators/class-mock-creator.php';
 require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/creators/class-model-url-creator.php';

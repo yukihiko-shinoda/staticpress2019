@@ -7,6 +7,7 @@
 
 namespace static_press\tests\testlibraries;
 
+//phpcs:ignore Generic.Classes.DuplicateClassName.Found -- To polyfill
 /**
  * Polyfill WP unit test case base.
  */

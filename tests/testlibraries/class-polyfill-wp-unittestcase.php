@@ -6,11 +6,12 @@
  */
 
 namespace static_press\tests\testlibraries;
+
 global $wp_version;
 if ( version_compare( $wp_version, '5.9.0', '<' ) ) {
-	require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/class-polyfill-wp-unit-test-case-base.php';
+	require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/class-polyfill-wp-unittestcase-base.php';
 } else {
-	require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/class-polyfill-wp-unit-test-case-non-polyfill-base.php';
+	require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/class-polyfill-wp-unittestcase-non-polyfill-base.php';
 }
 use static_press\tests\testlibraries\Polyfill_WP_UnitTestCase_Base;
 /**

@@ -7,7 +7,7 @@
 
 namespace static_press\tests\includes\infrastructure;
 
-require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/class-polyfill-wp-unit-test-case.php';
+require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/class-polyfill-wp-unittestcase.php';
 use static_press\includes\infrastructure\Static_Press_File_System_Operator;
 use static_press\tests\testlibraries\Polyfill_WP_UnitTestCase;
 

@@ -9,8 +9,10 @@ namespace static_press\tests\testlibraries;
 
 /**
  * Polyfill WP unit test case base.
+ * phpcs:disable Generic.Classes.DuplicateClassName.Found -- To polyfill
  */
 abstract class Polyfill_WP_UnitTestCase_Base extends \WP_UnitTestCase {
+	// phpcs:enable
 	/**
 	 * Set up.
 	 */

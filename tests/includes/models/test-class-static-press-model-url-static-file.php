@@ -7,7 +7,7 @@
 
 namespace static_press\tests\includes\models;
 
-require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/class-polyfill-wp-unit-test-case.php';
+require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/class-polyfill-wp-unittestcase.php';
 require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/infrastructure/class-environment.php';
 use static_press\includes\models\Static_Press_Model_Url;
 use static_press\includes\models\Static_Press_Model_Url_Static_File;
