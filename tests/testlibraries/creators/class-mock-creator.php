@@ -85,7 +85,7 @@ class Mock_Creator {
 			'x-cache'          => 'HIT',
 			'content-length'   => '648',
 		);
-		$responce    = array(
+		$response    = array(
 			'body'     => $body,
 			'response' => array(
 				'code'    => $status_code,
@@ -96,8 +96,8 @@ class Mock_Creator {
 		);
 		global $wp_version;
 		if ( version_compare( $wp_version, '4.6.0', '<' ) ) {
-			$responce['headers'] = $header_data;
-			return $responce;
+			$response['headers'] = $header_data;
+			return $response;
 		}
 		$error_handler = new Error_Handler();
 		// Due to trunk of WordPress Core's bug causing following error:
@@ -113,9 +113,9 @@ class Mock_Creator {
 		$requests_response->protocol_version = 1.1;
 		$requests_response->success          = true;
 		$requests_response->url              = 'http://example.org' . $url;
-		$responce['http_response']           = new \WP_HTTP_Requests_Response( $requests_response, null );
-		$responce['headers']                 = new \Requests_Utility_CaseInsensitiveDictionary( $header_data );
-		return $responce;
+		$response['http_response']           = new \WP_HTTP_Requests_Response( $requests_response, null );
+		$response['headers']                 = new \Requests_Utility_CaseInsensitiveDictionary( $header_data );
+		return $response;
 	}
 
 	/**
