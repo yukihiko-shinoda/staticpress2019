@@ -8,7 +8,6 @@
 namespace static_press\tests\includes\controllers;
 
 require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/creators/class-model-url-creator.php';
-require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/exceptions/class-die-exception.php';
 require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/class-expect-url.php';
 require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/creators/class-mock-creator.php';
 require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/class-model-url.php';
@@ -18,7 +17,6 @@ use static_press\includes\controllers\Static_Press_Ajax_Init;
 use static_press\includes\models\Static_Press_Model_Url;
 use static_press\includes\repositories\Static_Press_Repository;
 use static_press\tests\testlibraries\creators\Model_Url_Creator;
-use static_press\tests\testlibraries\exceptions\Die_Exception;
 use static_press\tests\testlibraries\creators\Mock_Creator;
 use static_press\tests\testlibraries\Model_Url;
 use static_press\tests\testlibraries\Model_Url_Comparer;
