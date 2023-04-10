@@ -24,7 +24,7 @@ class Error_Handler {
 	 * @return false
 	 * @throws \LogicException When error.
 	 */
-	public function handle( $errno, $errstr, $errfile, $errline, $errcontext ) {
+	public function handle( $errno, $errstr, $errfile, $errline, $errcontext = null ) {
 		// error was suppressed with the @-operator.
 		if ( 0 === error_reporting() ) {
 			return false;
