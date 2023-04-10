@@ -59,6 +59,7 @@ class Static_Press_Model_Static_File {
 		'ogx',
 		'spx',
 		'opus',
+		'csv',
 	);
 	/**
 	 * HTTP status code.

@@ -318,6 +318,8 @@ class Static_Press_Database_Test extends Polyfill_WP_UnitTestCase {
 	public function test_all() {
 		$resource_file_name = 'white.png';
 		File_System_Operator::copy_test_resource( $resource_file_name, WP_CONTENT_DIR . '/uploads/2020/03/white.png' );
+		$resource_file_name_shift_jis = 'tilde.csv';
+		File_System_Operator::copy_test_resource( $resource_file_name_shift_jis, WP_CONTENT_DIR . '/uploads/2020/03/tilde.csv' );
 		$this->sign_on_to_word_press();
 		$static_press = new Static_Press(
 			'/',
@@ -361,11 +363,14 @@ class Static_Press_Database_Test extends Polyfill_WP_UnitTestCase {
 		$static_press = new Static_Press( '/', File_System_Operator::OUTPUT_DIRECTORY );
 		$ajax_invoker = new Ajax_Finalyze_Invoker( $this, $static_press );
 		$this->assertEquals( $expect, $ajax_invoker->request() );
-		$path_to_expect_file = File_System_Operator::OUTPUT_DIRECTORY . Environment::DIRECTORY_NAME_WORD_PRESS . '/wp-content/uploads/2020/03/white.png';
-		$files               = File_System_Operator::get_array_file_in_output_directory();
-		$message             = 'File ' . $path_to_expect_file . "doesn't exist.\nExisting file list:\n" . implode( "\n", $files );
+		$path_to_expect_file           = File_System_Operator::OUTPUT_DIRECTORY . Environment::DIRECTORY_NAME_WORD_PRESS . '/wp-content/uploads/2020/03/white.png';
+		$path_to_expect_file_shift_jis = File_System_Operator::OUTPUT_DIRECTORY . Environment::DIRECTORY_NAME_WORD_PRESS . '/wp-content/uploads/2020/03/tilde.csv';
+		$files                         = File_System_Operator::get_array_file_in_output_directory();
+		$message                       = 'File ' . $path_to_expect_file . "doesn't exist.\nExisting file list:\n" . implode( "\n", $files );
 		$this->assertContains( $path_to_expect_file, $files, $message );
 		$this->assertEquals( File_System_Operator::get_test_resource_content( $resource_file_name ), file_get_contents( $path_to_expect_file ) );
+		$this->assertTrue( file_exists( $path_to_expect_file_shift_jis ) );
+		$this->assertEquals( File_System_Operator::get_test_resource_content( $resource_file_name_shift_jis ), file_get_contents( $path_to_expect_file_shift_jis ) );
 	}
 
 	/**
