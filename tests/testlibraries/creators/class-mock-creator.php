@@ -99,14 +99,7 @@ class Mock_Creator {
 			$response['headers'] = $header_data;
 			return $response;
 		}
-		$error_handler = new Error_Handler();
-		// Due to trunk of WordPress Core's bug causing following error:
-		// Deprecated: The PSR-0 `Requests_...` class names in the Request library are deprecated.
-		// Switch to the PSR-4 `WpOrg\Requests\...` class names at your earliest convenience.
-		// in /usr/src/wordpress/wp-includes/Requests/src/Autoload.php on line 171.
-		set_error_handler( array( $error_handler, 'ignore' ) );
 		$requests_response = new \Requests_Response();
-		restore_error_handler();
 		$requests_response->headers          = new \Requests_Response_Headers( $header_data );
 		$requests_response->body             = $body;
 		$requests_response->status_code      = $status_code;
