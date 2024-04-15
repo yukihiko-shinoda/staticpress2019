@@ -26,7 +26,7 @@ use static_press\tests\testlibraries\Theme_Switcher;
 /**
  * Static_Press_Static_FIle_Jugder test case.
  */
-class Static_Press_Static_FIle_Jugder_Test extends Polyfill_WP_UnitTestCase {
+class Static_Press_Static_FIle_Judger_Test extends Polyfill_WP_UnitTestCase {
 	/**
 	 * Theme switcher.
 	 * 

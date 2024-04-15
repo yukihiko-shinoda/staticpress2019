@@ -29,8 +29,8 @@ matrix:
     # @see https://wordpress.org/support/article/requirements/
     # PHP 7.4 is already end of life.
     # @see https://www.php.net/supported-versions.php
-    - php: 8.0
-      env: WP_VERSION=latest PHPUNIT_REQUIRE="*" MOCKERY_REQUIRE="*"
+    - php: 8.3
+      env: WP_VERSION=latest PHPUNIT_REQUIRE="<10.0.0" MOCKERY_REQUIRE="*"
     # Because now PHP 8.0 is in the Active Support period and should be focused in development.
     # @see https://www.php.net/supported-versions.php
     # According to commit message of this definition,
@@ -38,9 +38,9 @@ matrix:
     # @see:
     # - Rebuild `.travis.yml` file · wp-cli/scaffold-command@fe11bcc
     #   https://github.com/wp-cli/scaffold-command/commit/fe11bcc02a2ee164c987e2cb14fcb08dfe73663b
-    - php: 8.0
-      env: WP_VERSION=trunk PHPUNIT_REQUIRE="*" MOCKERY_REQUIRE="*"
-    - php: 8.0
+    - php: 8.3
+      env: WP_VERSION=trunk PHPUNIT_REQUIRE="<10.0.0" MOCKERY_REQUIRE="*"
+    - php: 8.3
       env: WP_TRAVISCI=phpcs
     # Because 3.7 is the version which start support for auto background update. However, test can't work.
     # 3.7 - 3.8: When init database before running PHPUnit, wp-includes/wp-db.php db_connect() calls mysql_connect().
@@ -57,6 +57,12 @@ matrix:
       # in wordpress-test-lib/includes/install.php
       # @see https://docs.travis-ci.com/user/database-setup/#mysql
       dist: trusty
+    - php: 8.2
+      env: WP_VERSION=latest PHPUNIT_REQUIRE="<10.0.0" MOCKERY_REQUIRE="*"
+    - php: 8.1
+      env: WP_VERSION=latest PHPUNIT_REQUIRE="<10.0.0" MOCKERY_REQUIRE="*"
+    - php: 8.0
+      env: WP_VERSION=latest PHPUNIT_REQUIRE="<10.0.0" MOCKERY_REQUIRE="*"
     - php: 7.4
       env: WP_VERSION=latest
     - php: 7.3

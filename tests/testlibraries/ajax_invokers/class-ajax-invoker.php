@@ -16,6 +16,30 @@ use static_press\tests\testlibraries\exceptions\Die_Exception;
  */
 abstract class Ajax_Invoker {
 	/**
+	 * Expect type of URL object.
+	 *
+	 * @var PHPUnit_Framework_TestCase
+	 */
+	private $test_case;
+	/**
+	 * StaticPress.
+	 *
+	 * @var Static_Press
+	 */
+	protected $static_press;
+	/**
+	 * The JSON string as response.
+	 *
+	 * @var string
+	 */
+	private $actual_json;
+	/**
+	 * The mock for Terminator to prevent to call die().
+	 *
+	 * @var MockInterface
+	 */
+	protected $terminator_mock;
+	/**
 	 * ExpectUrl constructor.
 	 *
 	 * @param PHPUnit_Framework_TestCase $test_case    Expect type of URL object.
@@ -24,14 +48,14 @@ abstract class Ajax_Invoker {
 	public function __construct( $test_case, $static_press ) {
 		$this->test_case       = $test_case;
 		$this->static_press    = $static_press;
-		$this->actual_json     = null;
+		$this->actual_json     = "";
 		$this->terminator_mock = Mock_Creator::create_terminator_mock( $this->actual_json );
 	}
 
 	/**
 	 * Requests.
 	 *
-	 * @return array JSON responce.
+	 * @return array JSON response.
 	 */
 	public function request() {
 		try {

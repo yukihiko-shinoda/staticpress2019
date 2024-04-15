@@ -13,7 +13,7 @@ jobs:
       matrix:
         wordpress-image-tag: ["latest", "4.3-apache"]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           path: ${{ github.workspace }}/plugins/staticpress2019
       - id: set_branch_name
@@ -26,7 +26,7 @@ jobs:
           fi
         env:
           IS_PULL_REQUEST: ${{ startsWith( github.ref, 'refs/pull/' ) }}
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           repository: yukihiko-shinoda/docker-compose-jest-puppeteer-staticpress2019
           ref: ${{ steps.set_branch_name.outputs.branch_name }}
