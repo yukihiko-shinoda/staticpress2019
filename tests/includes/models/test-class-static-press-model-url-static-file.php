@@ -57,7 +57,11 @@ class Static_Press_Model_Url_Static_File_Test extends Polyfill_WP_UnitTestCase {
 	 */
 	public function provider_constructor() {
 		return array(
-			array( trailingslashit( Environment::get_document_root() ), trailingslashit( Environment::get_document_root() ) . 'test.txt', '/test.txt' ),
+			array(
+				trailingslashit( Environment::get_document_root() ),
+				trailingslashit( Environment::get_document_root() ) . 'test.txt',
+				'/test.txt',
+			),
 			array( trailingslashit( WP_CONTENT_DIR ), trailingslashit( WP_CONTENT_DIR ) . 'test.txt', '/test.txt' ),
 		);
 	}

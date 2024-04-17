@@ -99,24 +99,29 @@ class Mock_Creator {
 			$response['headers'] = $header_data;
 			return $response;
 		}
-		$error_handler = new Error_Handler();
-		// Due to trunk of WordPress Core's bug causing following error:
-		// Deprecated: The PSR-0 `Requests_...` class names in the Request library are deprecated.
-		// Switch to the PSR-4 `WpOrg\Requests\...` class names at your earliest convenience.
-		// in /usr/src/wordpress/wp-includes/Requests/src/Autoload.php on line 171.
-		set_error_handler( array( $error_handler, 'ignore' ) );
-		$requests_response = new \Requests_Response();
-		restore_error_handler();
-		$requests_response->headers          = new \Requests_Response_Headers( $header_data );
+		if ( version_compare( $wp_version, '6.2.0', '<' ) ) {
+			$requests_response = new \Requests_Response();
+			$requests_response->headers          = new \Requests_Response_Headers( $header_data );
+			$requests_response->body             = $body;
+			$requests_response->status_code      = $status_code;
+			$requests_response->protocol_version = 1.1;
+			$requests_response->success          = true;
+			$requests_response->url              = 'http://example.org' . $url;
+			$response['http_response']           = new \WP_HTTP_Requests_Response( $requests_response, null );
+			$response['headers']                 = new \Requests_Utility_CaseInsensitiveDictionary( $header_data );
+			return $response;
+		}
+		$requests_response = new \WpOrg\Requests\Response();
+		$requests_response->headers          = new \WpOrg\Requests\Response\Headers( $header_data );
 		$requests_response->body             = $body;
 		$requests_response->status_code      = $status_code;
 		$requests_response->protocol_version = 1.1;
 		$requests_response->success          = true;
 		$requests_response->url              = 'http://example.org' . $url;
 		$response['http_response']           = new \WP_HTTP_Requests_Response( $requests_response, null );
-		$response['headers']                 = new \Requests_Utility_CaseInsensitiveDictionary( $header_data );
+		$response['headers']                 = new \WpOrg\Requests\Utility\CaseInsensitiveDictionary( $header_data );
 		return $response;
-	}
+}
 
 	/**
 	 * Creates mock for Terminator to prevent to call die().

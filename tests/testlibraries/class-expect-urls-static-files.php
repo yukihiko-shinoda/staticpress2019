@@ -251,7 +251,6 @@ class Expect_Urls_Static_Files {
 		'/wp-admin/js/word-count.min.js',
 		'/wp-admin/js/xfn.js',
 		'/wp-admin/js/xfn.min.js',
-		'/wp-includes/ID3/license.commercial.txt',
 		'/wp-includes/ID3/license.txt',
 		'/wp-includes/ID3/readme.txt',
 		'/wp-includes/css/admin-bar-rtl.css',

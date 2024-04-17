@@ -49,7 +49,7 @@ class Static_Press_Repository_Test extends \WP_UnitTestCase {
 		);
 
 		$repository  = new Static_Press_Repository();
-		$url_updater = new Static_Press_Url_Updater( $repository, null );
+		$url_updater = new Static_Press_Url_Updater( $repository, '' );
 		$url_updater->update( $urls );
 		$transient_service = new Static_Press_Repository_Progress();
 		$start_time        = $transient_service->fetch_start_time();

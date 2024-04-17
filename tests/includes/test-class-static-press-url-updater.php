@@ -94,7 +94,7 @@ class Static_Press_Url_Updater_Test extends \WP_UnitTestCase {
 			$theme_switcher->create_static_file_non_active_theme(),
 		);
 		$repository        = new Static_Press_Repository();
-		$url_updater       = new Static_Press_Url_Updater( $repository, null, Mock_Creator::create_docuemnt_root_getter_mock() );
+		$url_updater       = new Static_Press_Url_Updater( $repository, '', Mock_Creator::create_docuemnt_root_getter_mock() );
 		$url_updater->update( $urls );
 		$expect_urls_in_database = array(
 			new Expect_Url( Static_Press_Model_Url::TYPE_OTHER_PAGE, '/test/', '1' ),
@@ -158,7 +158,7 @@ class Static_Press_Url_Updater_Test extends \WP_UnitTestCase {
 		$urls                    = array( Static_File_Creator_For_Test::create_static_file_non_active_plugin() );
 		$expect_urls_in_database = array();
 		$repository              = new Static_Press_Repository();
-		$url_updater             = new Static_Press_Url_Updater( $repository, null );
+		$url_updater             = new Static_Press_Url_Updater( $repository, '' );
 		$url_updater->update( $urls );
 		$transient_service = new Static_Press_Repository_Progress();
 		$start_time        = $transient_service->fetch_start_time();
@@ -179,7 +179,7 @@ class Static_Press_Url_Updater_Test extends \WP_UnitTestCase {
 			),
 		);
 		$repository              = new Static_Press_Repository();
-		$url_updater             = new Static_Press_Url_Updater( $repository, null, Mock_Creator::create_docuemnt_root_getter_mock() );
+		$url_updater             = new Static_Press_Url_Updater( $repository, '', Mock_Creator::create_docuemnt_root_getter_mock() );
 		$url_updater->update( $urls );
 		$transient_service = new Static_Press_Repository_Progress();
 		$start_time        = $transient_service->fetch_start_time();
