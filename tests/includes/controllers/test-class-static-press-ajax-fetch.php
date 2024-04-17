@@ -92,8 +92,8 @@ class Static_Press_Ajax_Fetch_Test extends \WP_UnitTestCase {
 	 */
 	private function create_accessable_method( $method_name, $array_parameter ) {
 		$static_press = new Static_Press_Ajax_Fetch(
-			null,
-			null,
+			'',
+			'',
 			new Static_Press_Repository(),
 			Mock_Creator::create_remote_getter_mock(),
 			Mock_Creator::create_terminator_mock()

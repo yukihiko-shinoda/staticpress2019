@@ -56,8 +56,8 @@ class Static_Press_Ajax_Processor_Test extends Polyfill_WP_UnitTestCase {
 		$actual_json             = null;
 		$actual_http_status_code = null;
 		$static_press            = new Static_Press_Ajax_Init(
-			null,
-			null,
+			'',
+			'',
 			new Static_Press_Repository(),
 			null,
 			Mock_Creator::create_terminator_mock( $actual_json, $actual_http_status_code )
@@ -172,7 +172,7 @@ class Static_Press_Ajax_Processor_Test extends Polyfill_WP_UnitTestCase {
 	 */
 	private function create_accessable_method( $method_name, $array_parameter, $remote_get_mock = null ) {
 		$static_press = new Static_Press_Ajax_Init(
-			null,
+			'',
 			File_System_Operator::OUTPUT_DIRECTORY,
 			new Static_Press_Repository(),
 			$remote_get_mock ? $remote_get_mock : Mock_Creator::create_remote_getter_mock(),

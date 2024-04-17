@@ -114,7 +114,7 @@ class Static_Press_Static_File_Creator_Local_Test extends \WP_UnitTestCase {
 		$static_press = new Static_Press_Static_File_Creator_Local(
 			Static_Press_Model_Url::TYPE_STATIC_FILE,
 			File_System_Operator::OUTPUT_DIRECTORY,
-			null,
+			'',
 			new Static_Press_Repository(),
 			Mock_Creator::create_date_time_factory_mock( 'create_date', 'Y-m-d h:i:s', '2019-12-23 12:34:56' )
 		);

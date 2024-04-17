@@ -187,7 +187,7 @@ class Static_Press_Response_Processor_200_Crawl_Test extends \WP_UnitTestCase {
 			Repository_For_Test::insert_url( $url );
 		}
 		$static_press = new Static_Press_Response_Processor_200_Crawl(
-			null,
+			'',
 			new Static_Press_Repository(),
 			null
 		);
@@ -221,7 +221,7 @@ class Static_Press_Response_Processor_200_Crawl_Test extends \WP_UnitTestCase {
 	private function invoke_private_method( $method_name, $arguments ) {
 		$date_time_factoy_mock = Mock_Creator::create_date_time_factory_mock( 'create_date', 'Y-m-d h:i:s' );
 		$static_press          = new Static_Press_Response_Processor_200_Crawl(
-			null,
+			'',
 			new Static_Press_Repository(),
 			$date_time_factoy_mock
 		);
