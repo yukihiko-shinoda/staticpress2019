@@ -3,9 +3,9 @@ Contributors: yshinoda, wokamoto, amimotoami, pas5027, hideokamoto
 Donate link: https://www.amazon.co.jp/hz/wishlist/ls/7XDWZD7KHD56?ref_=wl_share
 Tags: static
 Requires at least: 4.3
-Tested up to: 6.2
+Tested up to: 6.5
 Requires PHP: 5.6
-Stable tag: 0.8.0
+Stable tag: 0.8.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -38,6 +38,10 @@ none
 3. Rebuild!
 
 == Changelog ==
+
+**0.8.1 - April 22, 2024**
+Support WordPress 6.5.
+Support PHP 8.3.
 
 **0.8.0 - April 11, 2023**
 Support CSV file to dump static file.
@@ -139,6 +143,9 @@ source code refactoring
 Initial release.
 
 == Upgrade Notice ==
+
+= 0.8.1 =
+This version supports WordPress 6.5, PHP 8.3.
 
 = 0.8.0 =
 This version supports CSV file to dump static file, supports WordPress 6.2.
