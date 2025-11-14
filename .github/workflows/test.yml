@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        wordpress-image-tag: ["latest", "4.3-apache"]
+        wordpress-image-tag: ["latest", "4.6.1-apache"]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -28,14 +28,15 @@ jobs:
           IS_PULL_REQUEST: ${{ startsWith( github.ref, 'refs/pull/' ) }}
       - uses: actions/checkout@v4
         with:
-          repository: yukihiko-shinoda/docker-compose-jest-puppeteer-staticpress2019
+          repository: yukihiko-shinoda/docker-compose-pytest-playwright-staticpress2019
           ref: ${{ steps.set_branch_name.outputs.branch_name }}
-          path: ${{ github.workspace }}/docker-compose-jest-puppeteer-staticpress2019
-      - run: docker-compose -f docker-compose.test.yml run --rm puppeteer
-        working-directory: ${{ github.workspace }}/docker-compose-jest-puppeteer-staticpress2019
+          path: ${{ github.workspace }}/docker-compose-pytest-playwright-staticpress2019
+      - run: docker compose -f compose.test.yml run --rm playwright
+        working-directory: ${{ github.workspace }}/docker-compose-pytest-playwright-staticpress2019
         env:
           PATH_TO_PLUGIN_DIRECTORY: ${{ github.workspace }}/plugins
           WORDPRESS_IMAGE_TAG: ${{ matrix.wordpress-image-tag }}
+          CONTAINERD_ENABLE_DEPRECATED_PULL_SCHEMA_1_IMAGE: '1'
   unit:
     strategy:
       fail-fast: false
@@ -97,6 +98,10 @@ jobs:
           # Before continuing, verify the mysql container is reachable from the ubuntu host
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
     steps:
+      - name: Install Subversion
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y subversion
       - uses: actions/checkout@v4
       # To change `default_authentication_plugin` in MySQL:
       # - Change options that can only be specified at startup with mysqld in services of GitHub Actions - @znz blog
