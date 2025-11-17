@@ -601,10 +601,5 @@ class Expect_Urls_Static_Files {
 		'/wp-includes/js/zxcvbn-async.js',
 		'/wp-includes/js/zxcvbn-async.min.js',
 		'/wp-includes/js/zxcvbn.min.js',
-		'/wp-content/plugins/akismet/_inc/img/logo-full-2x.png',
-		'/wp-content/plugins/akismet/_inc/akismet.css',
-		'/wp-content/plugins/akismet/_inc/akismet.js',
-		'/wp-content/plugins/akismet/LICENSE.txt',
-		'/wp-content/plugins/akismet/readme.txt',
 	);
 }
