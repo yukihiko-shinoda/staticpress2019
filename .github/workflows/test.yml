@@ -55,23 +55,22 @@ jobs:
           # - Rebuild `.travis.yml` file · wp-cli/scaffold-command@fe11bcc
           #   https://github.com/wp-cli/scaffold-command/commit/fe11bcc02a2ee164c987e2cb14fcb08dfe73663b
           - ["8.3", "trunk", "<10.0.0", "*", "8.0"]
-          # Because 3.7 is the version which start support for auto background update. However, test can't work.
-          # 3.7 - 3.8: When init database before running PHPUnit, wp-includes/wp-db.php db_connect() calls mysql_connect().
-          # 3.9 - 4.2: wp-includes/class-phpass.php PasswordHash has a deprecated constructor.
-          # @see https://make.wordpress.org/core/handbook/about/release-cycle/releasing-minor-versions/#security
-          # Because WordPress 4.3 doesn't support PHP 7.2.
-          # When call activate_plugin(),
-          # count(): Parameter must be an array or an object that implements Countable
-          # /wp-includes/kses.php:900
-          - ["7.1", "4.3", "4.8.*|5.7.*", "", "5.6"]
+          # Case for lowest WordPress version
+          # 2025-11-22: PHPUnit 5 is no longer supported in GitHub Actions Runner
+          #   Problem 1
+          #     - Root composer.json requires yoast/phpunit-polyfills ^3.1 -> satisfiable by yoast/phpunit-polyfills[3.1.0, 3.1.1, 3.1.2].
+          #     - yoast/phpunit-polyfills[3.1.0, ..., 3.1.2] require phpunit/phpunit ^6.4.4 || ^7.0 || ^8.0 || ^9.0 || ^11.0 -> found phpunit/phpunit[6.4.4, ..., 6.5.14, 7.0.0, ..., 7.5.20, 8.0.0, ..., 8.5.48, 9.0.0, ..., 9.6.29, 11.0.0, ..., 11.5.44] but it conflicts with your root composer.json require (4.8.*|5.7.*).
+          - ["7.1", "5.4.0", "<10.0.0", "", "5.6"]
+          - ["7.0", "5.9.0", "<10.0.0", "", "5.6"]
+          # Cases for PHP versions as much as latest WordPress version
           - ["8.2", "latest", "<10.0.0", "*", "8.0"]
           - ["8.1", "latest", "<10.0.0", "*", "8.0"]
           - ["8.0", "latest", "<10.0.0", "*", "8.0"]
           - ["7.4", "latest", "", "", "8.0"]
           - ["7.3", "latest", "", "", "8.0"]
           - ["7.2", "latest", "", "", "8.0"]
-          - ["7.1", "latest", "", "", "8.0"]
-          - ["7.0", "latest", "", "", "8.0"]
+          - ["7.1", "6.5.5", "", "", "8.0"]
+          - ["7.0", "6.5.5", "", "", "8.0"]
           # Because of minimum support version.
           # @see https://wordpress.org/news/2019/04/minimum-php-version-update/
           # @see https://ubuntu.com/about/release-cycle
