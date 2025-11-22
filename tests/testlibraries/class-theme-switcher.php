@@ -41,19 +41,24 @@ class Theme_Switcher {
 	 */
 	public function __construct() {
 		global $wp_version;
-		if ( version_compare( $wp_version, '5.3.0', '<' ) ) {
+		// We need to specify version with only two digits because:
+		// - New major version of WordPress doesn't have patch version digit:
+		//   - Release Archive – WordPress.org
+		//     https://wordpress.org/download/releases/
+		// - For example, version_compare( '5.9', '5.9.0', '<') doesn't return false!
+		if ( version_compare( $wp_version, '5.3', '<' ) ) {
 			$this->theme_to_not_activate  = 'twentyfourteen';
 			$this->theme_parent_activated = 'twentyfifteen';
 			$this->theme_to_activate      = 'twentyfifteen-child';
-		} elseif ( version_compare( $wp_version, '5.9.0', '<' ) ) {
+		} elseif ( version_compare( $wp_version, '5.9', '<' ) ) {
 			$this->theme_to_not_activate  = 'twentytwenty';
 			$this->theme_parent_activated = 'twentynineteen';
 			$this->theme_to_activate      = 'twentynineteen-child';
-		} elseif ( version_compare( $wp_version, '6.1.0', '<' ) ) {
+		} elseif ( version_compare( $wp_version, '6.1', '<' ) ) {
 			$this->theme_to_not_activate  = 'twentytwentytwo';
 			$this->theme_parent_activated = 'twentytwentyone';
 			$this->theme_to_activate      = 'twentytwentyone-child';
-		} elseif ( version_compare( $wp_version, '6.4.0', '<' ) ) {
+		} elseif ( version_compare( $wp_version, '6.4', '<' ) ) {
 			$this->theme_to_not_activate  = 'twentytwentythree';
 			$this->theme_parent_activated = 'twentytwentytwo';
 			$this->theme_to_activate      = 'twentytwentytwo-child';
