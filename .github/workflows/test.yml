@@ -83,6 +83,16 @@ jobs:
           #   https://github.com/awesomemotive/easy-digital-downloads/issues/8990
           - ["7.0", "5.9.1", "<10.0.0", "", "5.6"]
           # Cases for PHP versions as much as latest WordPress version
+          # Each reference for minimum version:
+          # PHP:
+          # - PHP Compatibility and WordPress Versions – Make WordPress Core
+          #   https://make.wordpress.org/core/handbook/references/php-compatibility-and-wordpress-versions/
+          # We no longer maintain PHP less than 7.3.0
+          # since there are no PHP official image that OS version is bullseye or more
+          # and apt repositories in sources.list in remaining images no longer exist,
+          # they need special treat in Dockerfile to prepare development environment.
+          # - php Tags | Docker Hub
+          #   https://hub.docker.com/_/php/tags?name=7.2-apache
           - ["8.2", "latest", "<10.0.0", "*", "8.0"]
           - ["8.1", "latest", "<10.0.0", "*", "8.0"]
           - ["8.0", "latest", "<10.0.0", "*", "8.0"]
@@ -91,10 +101,6 @@ jobs:
           - ["7.2", "latest", "", "", "8.0"]
           - ["7.1", "6.5.5", "", "", "8.0"]
           - ["7.0", "6.5.5", "", "", "8.0"]
-          # Because of minimum support version.
-          # @see https://wordpress.org/news/2019/04/minimum-php-version-update/
-          # @see https://ubuntu.com/about/release-cycle
-          - ["5.6", "6.2.5", "", "", "8.0"]
     env:
       PHP_VERSION: ${{ matrix.software-versions[0] }}
       WORDPRESS_VERSION: ${{ matrix.software-versions[1] }}
