@@ -61,7 +61,27 @@ jobs:
           #     - Root composer.json requires yoast/phpunit-polyfills ^3.1 -> satisfiable by yoast/phpunit-polyfills[3.1.0, 3.1.1, 3.1.2].
           #     - yoast/phpunit-polyfills[3.1.0, ..., 3.1.2] require phpunit/phpunit ^6.4.4 || ^7.0 || ^8.0 || ^9.0 || ^11.0 -> found phpunit/phpunit[6.4.4, ..., 6.5.14, 7.0.0, ..., 7.5.20, 8.0.0, ..., 8.5.48, 9.0.0, ..., 9.6.29, 11.0.0, ..., 11.5.44] but it conflicts with your root composer.json require (4.8.*|5.7.*).
           - ["7.1", "5.4.0", "<10.0.0", "", "5.6"]
-          - ["7.0", "5.9.0", "<10.0.0", "", "5.6"]
+          # We don't support WordPress 5.9
+          # WordPress 5.9.0 (released January 25, 2022) introduced breaking changes to the test suite infrastructure:
+          # - Added dependency on external PHPUnit Polyfills library (required for the first time)
+          # - Changed from PHPUnit's native transaction handling to Polyfills-based handling
+          # - Modified how setUp() and tearDown() methods work (snake_case vs camelCase)
+          # - Changed how database transactions are initiated and rolled back
+          # - Changes to the WordPress Core PHP Test Suite – Make WordPress Core
+          #   https://make.wordpress.org/core/2021/09/27/changes-to-the-wordpress-core-php-test-suite/
+          # - PHPUnit Compatibility and WordPress Versions – Make WordPress Core
+          #   https://make.wordpress.org/core/handbook/references/phpunit-compatibility-and-wordpress-versions/
+          #   > In WordPress 5.9: Added a dependency on the external PHPUnit Polyfills, which enabled support for PHPUnit 8 and 9,
+          #   > making it so the tests can now run on the most appropriate PHPUnit version for each PHP version.
+          # The Easy Digital Downloads Issue #8990 documents that WordPress 5.9's PHPUnit Polyfills integration caused test failures,
+          # requiring projects to add explicit Polyfills support.
+          # The timing of fixture creation (in set_up() vs setUp()) and transaction initiation may have been inconsistent in WordPress 5.9.0, causing:
+          # - wp_insert_category() to fail when called before transactions start
+          # - wp_delete_post() to fail during cleanup
+          # - Table lifecycle management to behave unpredictably
+          # - Make unit tests work with WordPress 5.9 · Issue #8990 · awesomemotive/easy-digital-downloads
+          #   https://github.com/awesomemotive/easy-digital-downloads/issues/8990
+          - ["7.0", "5.9.1", "<10.0.0", "", "5.6"]
           # Cases for PHP versions as much as latest WordPress version
           - ["8.2", "latest", "<10.0.0", "*", "8.0"]
           - ["8.1", "latest", "<10.0.0", "*", "8.0"]
