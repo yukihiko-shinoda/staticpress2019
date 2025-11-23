@@ -13,7 +13,7 @@ jobs:
       matrix:
         wordpress-image-tag: ["latest", "4.6.1-apache"]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           path: ${{ github.workspace }}/plugins/staticpress2019
       - id: set_branch_name
@@ -26,7 +26,7 @@ jobs:
           fi
         env:
           IS_PULL_REQUEST: ${{ startsWith( github.ref, 'refs/pull/' ) }}
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           repository: yukihiko-shinoda/docker-compose-pytest-playwright-staticpress2019
           ref: ${{ steps.set_branch_name.outputs.branch_name }}
@@ -128,7 +128,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y subversion
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       # To change `default_authentication_plugin` in MySQL:
       # - Change options that can only be specified at startup with mysqld in services of GitHub Actions - @znz blog
       #   https://blog.n-z.jp/blog/2021-02-20-github-actions-services-mysqld-option.html
@@ -174,10 +174,10 @@ jobs:
   phpcs:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: shivammathur/setup-php@v2
         with:
-          php-version: 8.3
+          php-version: 8.4
       # Suppress below error:
       #   Error: dealerdirect/phpcodesniffer-composer-installer (installed globally) contains a Composer plugin which is blocked by your allow-plugins config.
       #   You may add it to the list if you consider it safe.
