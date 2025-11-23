@@ -46,7 +46,7 @@ jobs:
           # @see https://wordpress.org/support/article/requirements/
           # PHP 7.4 is already end of life.
           # @see https://www.php.net/supported-versions.php
-          - ["8.3", "latest", "<10.0.0", "*", "8.0"]
+          - ["8.4", "latest", "<10.0.0", "*", "8.0"]
           # Because now PHP 8.0 is in the Active Support period and should be focused in development.
           # @see https://www.php.net/supported-versions.php
           # According to commit message of this definition,
@@ -54,7 +54,7 @@ jobs:
           # @see:
           # - Rebuild `.travis.yml` file · wp-cli/scaffold-command@fe11bcc
           #   https://github.com/wp-cli/scaffold-command/commit/fe11bcc02a2ee164c987e2cb14fcb08dfe73663b
-          - ["8.3", "trunk", "<10.0.0", "*", "8.0"]
+          - ["8.4", "trunk", "<10.0.0", "*", "8.0"]
           # Case for lowest WordPress version
           # 2025-11-22: PHPUnit 5 is no longer supported in GitHub Actions Runner
           #   Problem 1
@@ -93,6 +93,7 @@ jobs:
           # they need special treat in Dockerfile to prepare development environment.
           # - php Tags | Docker Hub
           #   https://hub.docker.com/_/php/tags?name=7.2-apache
+          - ["8.3", "latest", "<10.0.0", "*", "8.0"]
           - ["8.2", "latest", "<10.0.0", "*", "8.0"]
           - ["8.1", "latest", "<10.0.0", "*", "8.0"]
           - ["8.0", "latest", "<10.0.0", "*", "8.0"]
