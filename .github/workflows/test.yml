@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        wordpress-image-tag: ["latest", "4.3-apache"]
+        wordpress-image-tag: ["latest", "4.6.1-apache"]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -28,14 +28,15 @@ jobs:
           IS_PULL_REQUEST: ${{ startsWith( github.ref, 'refs/pull/' ) }}
       - uses: actions/checkout@v4
         with:
-          repository: yukihiko-shinoda/docker-compose-jest-puppeteer-staticpress2019
+          repository: yukihiko-shinoda/docker-compose-pytest-playwright-staticpress2019
           ref: ${{ steps.set_branch_name.outputs.branch_name }}
-          path: ${{ github.workspace }}/docker-compose-jest-puppeteer-staticpress2019
-      - run: docker-compose -f docker-compose.test.yml run --rm puppeteer
-        working-directory: ${{ github.workspace }}/docker-compose-jest-puppeteer-staticpress2019
+          path: ${{ github.workspace }}/docker-compose-pytest-playwright-staticpress2019
+      - run: docker compose -f compose.test.yml run --rm playwright
+        working-directory: ${{ github.workspace }}/docker-compose-pytest-playwright-staticpress2019
         env:
           PATH_TO_PLUGIN_DIRECTORY: ${{ github.workspace }}/plugins
           WORDPRESS_IMAGE_TAG: ${{ matrix.wordpress-image-tag }}
+          CONTAINERD_ENABLE_DEPRECATED_PULL_SCHEMA_1_IMAGE: '1'
   unit:
     strategy:
       fail-fast: false
@@ -54,27 +55,52 @@ jobs:
           # - Rebuild `.travis.yml` file · wp-cli/scaffold-command@fe11bcc
           #   https://github.com/wp-cli/scaffold-command/commit/fe11bcc02a2ee164c987e2cb14fcb08dfe73663b
           - ["8.3", "trunk", "<10.0.0", "*", "8.0"]
-          # Because 3.7 is the version which start support for auto background update. However, test can't work.
-          # 3.7 - 3.8: When init database before running PHPUnit, wp-includes/wp-db.php db_connect() calls mysql_connect().
-          # 3.9 - 4.2: wp-includes/class-phpass.php PasswordHash has a deprecated constructor.
-          # @see https://make.wordpress.org/core/handbook/about/release-cycle/releasing-minor-versions/#security
-          # Because WordPress 4.3 doesn't support PHP 7.2.
-          # When call activate_plugin(),
-          # count(): Parameter must be an array or an object that implements Countable
-          # /wp-includes/kses.php:900
-          - ["7.1", "4.3", "4.8.*|5.7.*", "", "5.6"]
+          # Case for lowest WordPress version
+          # 2025-11-22: PHPUnit 5 is no longer supported in GitHub Actions Runner
+          #   Problem 1
+          #     - Root composer.json requires yoast/phpunit-polyfills ^3.1 -> satisfiable by yoast/phpunit-polyfills[3.1.0, 3.1.1, 3.1.2].
+          #     - yoast/phpunit-polyfills[3.1.0, ..., 3.1.2] require phpunit/phpunit ^6.4.4 || ^7.0 || ^8.0 || ^9.0 || ^11.0 -> found phpunit/phpunit[6.4.4, ..., 6.5.14, 7.0.0, ..., 7.5.20, 8.0.0, ..., 8.5.48, 9.0.0, ..., 9.6.29, 11.0.0, ..., 11.5.44] but it conflicts with your root composer.json require (4.8.*|5.7.*).
+          - ["7.1", "5.4.0", "<10.0.0", "", "5.6"]
+          # We don't support WordPress 5.9
+          # WordPress 5.9.0 (released January 25, 2022) introduced breaking changes to the test suite infrastructure:
+          # - Added dependency on external PHPUnit Polyfills library (required for the first time)
+          # - Changed from PHPUnit's native transaction handling to Polyfills-based handling
+          # - Modified how setUp() and tearDown() methods work (snake_case vs camelCase)
+          # - Changed how database transactions are initiated and rolled back
+          # - Changes to the WordPress Core PHP Test Suite – Make WordPress Core
+          #   https://make.wordpress.org/core/2021/09/27/changes-to-the-wordpress-core-php-test-suite/
+          # - PHPUnit Compatibility and WordPress Versions – Make WordPress Core
+          #   https://make.wordpress.org/core/handbook/references/phpunit-compatibility-and-wordpress-versions/
+          #   > In WordPress 5.9: Added a dependency on the external PHPUnit Polyfills, which enabled support for PHPUnit 8 and 9,
+          #   > making it so the tests can now run on the most appropriate PHPUnit version for each PHP version.
+          # The Easy Digital Downloads Issue #8990 documents that WordPress 5.9's PHPUnit Polyfills integration caused test failures,
+          # requiring projects to add explicit Polyfills support.
+          # The timing of fixture creation (in set_up() vs setUp()) and transaction initiation may have been inconsistent in WordPress 5.9.0, causing:
+          # - wp_insert_category() to fail when called before transactions start
+          # - wp_delete_post() to fail during cleanup
+          # - Table lifecycle management to behave unpredictably
+          # - Make unit tests work with WordPress 5.9 · Issue #8990 · awesomemotive/easy-digital-downloads
+          #   https://github.com/awesomemotive/easy-digital-downloads/issues/8990
+          - ["7.0", "5.9.1", "<10.0.0", "", "5.6"]
+          # Cases for PHP versions as much as latest WordPress version
+          # Each reference for minimum version:
+          # PHP:
+          # - PHP Compatibility and WordPress Versions – Make WordPress Core
+          #   https://make.wordpress.org/core/handbook/references/php-compatibility-and-wordpress-versions/
+          # We no longer maintain PHP less than 7.3.0
+          # since there are no PHP official image that OS version is bullseye or more
+          # and apt repositories in sources.list in remaining images no longer exist,
+          # they need special treat in Dockerfile to prepare development environment.
+          # - php Tags | Docker Hub
+          #   https://hub.docker.com/_/php/tags?name=7.2-apache
           - ["8.2", "latest", "<10.0.0", "*", "8.0"]
           - ["8.1", "latest", "<10.0.0", "*", "8.0"]
           - ["8.0", "latest", "<10.0.0", "*", "8.0"]
           - ["7.4", "latest", "", "", "8.0"]
           - ["7.3", "latest", "", "", "8.0"]
           - ["7.2", "latest", "", "", "8.0"]
-          - ["7.1", "latest", "", "", "8.0"]
-          - ["7.0", "latest", "", "", "8.0"]
-          # Because of minimum support version.
-          # @see https://wordpress.org/news/2019/04/minimum-php-version-update/
-          # @see https://ubuntu.com/about/release-cycle
-          - ["5.6", "6.2.5", "", "", "8.0"]
+          - ["7.1", "6.5.5", "", "", "8.0"]
+          - ["7.0", "6.5.5", "", "", "8.0"]
     env:
       PHP_VERSION: ${{ matrix.software-versions[0] }}
       WORDPRESS_VERSION: ${{ matrix.software-versions[1] }}
@@ -97,6 +123,10 @@ jobs:
           # Before continuing, verify the mysql container is reachable from the ubuntu host
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
     steps:
+      - name: Install Subversion
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y subversion
       - uses: actions/checkout@v4
       # To change `default_authentication_plugin` in MySQL:
       # - Change options that can only be specified at startup with mysqld in services of GitHub Actions - @znz blog

@@ -10,6 +10,7 @@ namespace static_press\tests\includes\repositories;
 require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/class-expect-url.php';
 require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/repositories/class-repository-for-test.php';
 require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/creators/class-mock-creator.php';
+require_once STATIC_PRESS_PLUGIN_DIR . 'tests/testlibraries/class-polyfill-wp-unittestcase.php';
 use static_press\includes\models\Static_Press_Model_Url;
 use static_press\includes\models\Static_Press_Model_Url_Other;
 use static_press\includes\repositories\Static_Press_Repository;
@@ -18,11 +19,12 @@ use static_press\includes\Static_Press_Url_Updater;
 use static_press\tests\testlibraries\Expect_Url;
 use static_press\tests\testlibraries\repositories\Repository_For_Test;
 use static_press\tests\testlibraries\creators\Mock_Creator;
+use static_press\tests\testlibraries\Polyfill_WP_UnitTestCase;
 
 /**
  * Static_Press_Repository test case.
  */
-class Static_Press_Repository_Test extends \WP_UnitTestCase {
+class Static_Press_Repository_Test extends Polyfill_WP_UnitTestCase {
 	/**
 	 * Property $url_table should be WordPress database prefix + 'urls'.
 	 */
