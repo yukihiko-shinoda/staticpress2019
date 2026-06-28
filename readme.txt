@@ -2,7 +2,7 @@
 Contributors: yshinoda, wokamoto, amimotoami, pas5027, hideokamoto
 Donate link: https://www.amazon.co.jp/hz/wishlist/ls/7XDWZD7KHD56?ref_=wl_share
 Tags: static
-Requires at least: 4.6.1
+Requires at least: 5.9.1
 Tested up to: 6.8
 Requires PHP: 8.0
 Stable tag: 1.1.0
@@ -42,6 +42,7 @@ none
 **1.1.0 - June 28, 2026**
 Support PHP 8.5.
 Stop supporting PHP less than 8.0.
+Stop supporting WordPress less than 5.9.1.
 
 **1.0.0 - November 23, 2025**
 Support WordPress 6.8.
@@ -157,6 +158,7 @@ Initial release.
 = 1.1.0 =
 This version supports PHP 8.5.
 This version doesn't support PHP less than 8.0.
+This version doesn't support WordPress less than 5.9.1.
 
 = 1.0.0 =
 This version supports WordPress 6.8, PHP 8.4.
