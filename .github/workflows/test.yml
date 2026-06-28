@@ -42,25 +42,25 @@ jobs:
       fail-fast: false
       matrix:
         software-versions:
-          # Because current PHP recommended version is 7.4+.
+          # Current PHP recommended version is 8.0+.
           # @see https://wordpress.org/support/article/requirements/
-          # PHP 7.4 is already end of life.
+          # PHP 8.5 is in Active Support.
           # @see https://www.php.net/supported-versions.php
-          - ["8.4", "latest", "<10.0.0", "*", "8.0"]
-          # Because now PHP 8.0 is in the Active Support period and should be focused in development.
+          - ["8.5", "latest", "<10.0.0", "*", "8.0"]
+          # Because now PHP 8.4 is in the Active Support period and should be focused in development.
           # @see https://www.php.net/supported-versions.php
           # According to commit message of this definition,
           # the trunk version seems to should be tested by current major support PHP version.
           # @see:
           # - Rebuild `.travis.yml` file · wp-cli/scaffold-command@fe11bcc
           #   https://github.com/wp-cli/scaffold-command/commit/fe11bcc02a2ee164c987e2cb14fcb08dfe73663b
-          - ["8.4", "trunk", "<10.0.0", "*", "8.0"]
+          - ["8.5", "trunk", "<10.0.0", "*", "8.0"]
           # Case for lowest WordPress version
           # 2025-11-22: PHPUnit 5 is no longer supported in GitHub Actions Runner
           #   Problem 1
           #     - Root composer.json requires yoast/phpunit-polyfills ^3.1 -> satisfiable by yoast/phpunit-polyfills[3.1.0, 3.1.1, 3.1.2].
           #     - yoast/phpunit-polyfills[3.1.0, ..., 3.1.2] require phpunit/phpunit ^6.4.4 || ^7.0 || ^8.0 || ^9.0 || ^11.0 -> found phpunit/phpunit[6.4.4, ..., 6.5.14, 7.0.0, ..., 7.5.20, 8.0.0, ..., 8.5.48, 9.0.0, ..., 9.6.29, 11.0.0, ..., 11.5.44] but it conflicts with your root composer.json require (4.8.*|5.7.*).
-          - ["7.1", "5.4.0", "<10.0.0", "", "5.6"]
+          - ["8.0", "5.4.0", "<10.0.0", "", "5.6"]
           # We don't support WordPress 5.9
           # WordPress 5.9.0 (released January 25, 2022) introduced breaking changes to the test suite infrastructure:
           # - Added dependency on external PHPUnit Polyfills library (required for the first time)
@@ -81,27 +81,26 @@ jobs:
           # - Table lifecycle management to behave unpredictably
           # - Make unit tests work with WordPress 5.9 · Issue #8990 · awesomemotive/easy-digital-downloads
           #   https://github.com/awesomemotive/easy-digital-downloads/issues/8990
-          - ["7.0", "5.9.1", "<10.0.0", "", "5.6"]
+          - ["8.0", "5.9.1", "<10.0.0", "", "5.6"]
           # Cases for PHP versions as much as latest WordPress version
           # Each reference for minimum version:
           # PHP:
           # - PHP Compatibility and WordPress Versions – Make WordPress Core
           #   https://make.wordpress.org/core/handbook/references/php-compatibility-and-wordpress-versions/
-          # We no longer maintain PHP less than 7.3.0
-          # since there are no PHP official image that OS version is bullseye or more
-          # and apt repositories in sources.list in remaining images no longer exist,
-          # they need special treat in Dockerfile to prepare development environment.
-          # - php Tags | Docker Hub
-          #   https://hub.docker.com/_/php/tags?name=7.2-apache
+          # We no longer test PHP less than 8.0.
+          # 2025-10-13: Packagist security advisories (PKSA-z3gr-8qht-p93v, PKSA-w57n-mhp6-c9sd)
+          # block all phpunit/phpunit versions reachable by PHP 7.2–7.4 under Composer 2.x.
+          # - Composer 2.9 Release
+          #   https://blog.packagist.com/composer-2-9/
+          # PHP 7.0–7.1 use Composer 1.x which lacks advisory blocking, but those versions
+          # are too old to be meaningful targets for latest WordPress testing.
+          # - Supported Versions of PHPUnit
+          #   https://phpunit.de/supported-versions.html
+          - ["8.4", "latest", "<10.0.0", "*", "8.0"]
           - ["8.3", "latest", "<10.0.0", "*", "8.0"]
           - ["8.2", "latest", "<10.0.0", "*", "8.0"]
           - ["8.1", "latest", "<10.0.0", "*", "8.0"]
           - ["8.0", "latest", "<10.0.0", "*", "8.0"]
-          - ["7.4", "latest", "", "", "8.0"]
-          - ["7.3", "latest", "", "", "8.0"]
-          - ["7.2", "latest", "", "", "8.0"]
-          - ["7.1", "6.5.5", "", "", "8.0"]
-          - ["7.0", "6.5.5", "", "", "8.0"]
     env:
       PHP_VERSION: ${{ matrix.software-versions[0] }}
       WORDPRESS_VERSION: ${{ matrix.software-versions[1] }}
@@ -177,7 +176,7 @@ jobs:
       - uses: actions/checkout@v7
       - uses: shivammathur/setup-php@v2
         with:
-          php-version: 8.4
+          php-version: 8.5
       # Suppress below error:
       #   Error: dealerdirect/phpcodesniffer-composer-installer (installed globally) contains a Composer plugin which is blocked by your allow-plugins config.
       #   You may add it to the list if you consider it safe.

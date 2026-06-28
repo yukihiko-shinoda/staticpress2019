@@ -4,8 +4,8 @@ Donate link: https://www.amazon.co.jp/hz/wishlist/ls/7XDWZD7KHD56?ref_=wl_share
 Tags: static
 Requires at least: 4.6.1
 Tested up to: 6.8
-Requires PHP: 7.0
-Stable tag: 1.0.0
+Requires PHP: 8.0
+Stable tag: 1.1.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -38,6 +38,10 @@ none
 3. Rebuild!
 
 == Changelog ==
+
+**1.1.0 - June 28, 2026**
+Support PHP 8.5.
+Stop supporting PHP less than 8.0.
 
 **1.0.0 - November 23, 2025**
 Support WordPress 6.8.
@@ -149,6 +153,10 @@ source code refactoring
 Initial release.
 
 == Upgrade Notice ==
+
+= 1.1.0 =
+This version supports PHP 8.5.
+This version doesn't support PHP less than 8.0.
 
 = 1.0.0 =
 This version supports WordPress 6.8, PHP 8.4.
