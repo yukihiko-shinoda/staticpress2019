@@ -193,7 +193,9 @@ class Static_Press_Url_Collector_Test extends Polyfill_WP_UnitTestCase {
 		$url_collector = new Static_Press_Url_Collector( $remote_getter_mock, $date_time_factory_mock, Mock_Creator::create_docuemnt_root_getter_mock() );
 		$reflection    = new \ReflectionClass( get_class( $url_collector ) );
 		$method        = $reflection->getMethod( $method_name );
-		$method->setAccessible( true );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
 		return $method->invokeArgs( $url_collector, $array_parameter );
 	}
 }

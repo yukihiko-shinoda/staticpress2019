@@ -64,7 +64,9 @@ class Static_Press_Ajax_Processor_Test extends Polyfill_WP_UnitTestCase {
 		);
 		$reflection              = new \ReflectionClass( get_class( $static_press ) );
 		$method                  = $reflection->getMethod( 'json_output' );
-		$method->setAccessible( true );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
 		try {
 			$method->invokeArgs( $static_press, array( $argument ) );
 		} catch ( Die_Exception $exception ) {
@@ -182,7 +184,9 @@ class Static_Press_Ajax_Processor_Test extends Polyfill_WP_UnitTestCase {
 		);
 		$reflection   = new \ReflectionClass( get_class( $static_press ) );
 		$method       = $reflection->getMethod( $method_name );
-		$method->setAccessible( true );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
 		return $method->invokeArgs( $static_press, $array_parameter );
 	}
 }

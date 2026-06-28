@@ -100,7 +100,9 @@ class Static_Press_Ajax_Fetch_Test extends \WP_UnitTestCase {
 		);
 		$reflection   = new \ReflectionClass( get_class( $static_press ) );
 		$method       = $reflection->getMethod( $method_name );
-		$method->setAccessible( true );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
 		return $method->invokeArgs( $static_press, $array_parameter );
 	}
 }
