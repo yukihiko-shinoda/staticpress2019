@@ -23,7 +23,9 @@ abstract class Polyfill_WP_UnitTestCase_Base extends \WP_UnitTestCase {
 	protected function getPropertyValue( $object, $property_name ) {
 		$reflection = new \ReflectionClass( $object );
 		$property   = $reflection->getProperty( $property_name );
-		$property->setAccessible( true );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
 		return $property->getValue( $object );
 	}
 }

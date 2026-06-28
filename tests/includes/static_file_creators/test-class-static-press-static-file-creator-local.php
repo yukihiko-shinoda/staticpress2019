@@ -120,7 +120,9 @@ class Static_Press_Static_File_Creator_Local_Test extends \WP_UnitTestCase {
 		);
 		$reflection   = new \ReflectionClass( get_class( $static_press ) );
 		$method       = $reflection->getMethod( 'delete_url' );
-		$method->setAccessible( true );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
 		$actual = $method->invokeArgs( $static_press, array( $parameter ) );
 		$this->assertEquals( $parameter, $actual );
 		$transient_service = new Static_Press_Repository_Progress();

@@ -40,8 +40,9 @@ class Static_Press_Test extends \WP_UnitTestCase {
 		$static_press       = new Static_Press( $static_url );
 		$reflector          = new \ReflectionClass( $static_press );
 		$reflector_property = $reflector->getProperty( 'static_site_url' );
-		$reflector_property->setAccessible( true );
-
+		if ( PHP_VERSION_ID < 80100 ) {
+			$reflector_property->setAccessible( true );
+		}
 		$this->assertEquals( $expect, $reflector_property->getValue( $static_press ) );
 	}
 
@@ -74,8 +75,9 @@ class Static_Press_Test extends \WP_UnitTestCase {
 		$static_press       = new Static_Press( $static_url, $dump_directory );
 		$reflector          = new \ReflectionClass( $static_press );
 		$reflector_property = $reflector->getProperty( 'dump_directory' );
-		$reflector_property->setAccessible( true );
-
+		if ( PHP_VERSION_ID < 80100 ) {
+			$reflector_property->setAccessible( true );
+		}
 		$this->assertEquals( $expect, $reflector_property->getValue( $static_press ) );
 	}
 

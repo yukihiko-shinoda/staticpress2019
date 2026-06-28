@@ -53,7 +53,9 @@ class Static_Press_Adapter_Transient_Test extends \WP_UnitTestCase {
 		$transient_manager = new Static_Press_Adapter_Transient();
 		$reflection        = new \ReflectionClass( get_class( $transient_manager ) );
 		$method            = $reflection->getMethod( $method_name );
-		$method->setAccessible( true );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
 		return $method->invokeArgs( $transient_manager, $array_parameter );
 	}
 }
